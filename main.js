@@ -1,121 +1,62 @@
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Lenis from 'lenis';
+import { initHero } from './js/sections/hero.js';
+import { initManifesto } from './js/sections/manifesto.js';
+import { initProfile } from './js/sections/profile.js';
+import { initMission } from './js/sections/mission.js';
+import { initPrinciples } from './js/sections/principles.js';
+import { initExpertise } from './js/sections/expertise.js';
+import { initVerdetechCase } from './js/sections/verdetech-case.js';
+import { initPortfolio } from './js/sections/portfolio.js';
+import { initContacts } from './js/sections/contacts.js';
+import { getSectionLoader } from './js/section-registry.js';
 
-gsap.registerPlugin(ScrollTrigger);
+/**
+ * [A.LAB] Main Initialization Script
+ * Centralized registry-based initialization for all website sections.
+ */
 
-// 1. Initialize Lenis Smooth Scroll
-const lenis = new Lenis({
-    duration: 1.2,
-    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-});
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('[A.LAB] Инициализация модулей...');
 
-function raf(time) {
-    lenis.raf(time);
-    requestAnimationFrame(raf);
-}
-requestAnimationFrame(raf);
+    // 1. Основная логика и утилиты (Lenis и др. загружаются через CDN в index.html)
 
-// 2. Utility: Split Text (Simple implementation)
-function splitText(element) {
-    const text = element.innerText;
-    element.innerHTML = text.split(' ').map(word => 
-        `<span class="word-wrapper" style="overflow:hidden; display:inline-block;">
-            <span class="word" style="display:inline-block;">${word}</span>
-        </span>`
-    ).join(' ');
-}
+    // 2. Реестр инициализации секций
+    const sections = [
+        { id: 'hero', init: initHero },
+        { id: 'manifesto', init: initManifesto },
+        { id: 'profile', init: initProfile },
+        { id: 'mission', init: initMission },
+        { id: 'principles', init: initPrinciples },
+        { id: 'expertise', init: initExpertise },
+        { id: 'verdetech-case', init: initVerdetechCase },
+        { id: 'portfolio', init: initPortfolio },
+        { id: 'contacts', init: initContacts }
+    ];
 
-// 3. Setup Animations
-const initAnimations = () => {
-    // Hero Animation
-    const heroTitle = document.querySelector('.hero-title');
-    splitText(heroTitle);
-    
-    gsap.from('#hero .word', {
-        yPercent: 100,
-        stagger: 0.1,
-        duration: 1.5,
-        ease: 'power4.out',
-        delay: 0.2
-    });
-
-    // Theme Switching Logic
-    const sections = document.querySelectorAll('.section');
-    sections.forEach((section) => {
-        ScrollTrigger.create({
-            trigger: section,
-            start: 'top 50%',
-            end: 'bottom 50%',
-            onEnter: () => updateTheme(section),
-            onEnterBack: () => updateTheme(section)
-        });
-    });
-
-    const updateTheme = (section) => {
-        if (section.classList.contains('theme-dark')) {
-            document.body.classList.add('theme-dark');
-            document.body.classList.remove('theme-light');
+    // 3. Цикл динамической инициализации
+    sections.forEach(section => {
+        const element = document.querySelector(`[data-section="${section.id}"]`);
+        if (element) {
+            try {
+                section.init(element);
+                console.log(`[A.LAB] Секция инициализирована: ${section.id}`);
+            } catch (error) {
+                console.error(`[A.LAB] Ошибка инициализации секции ${section.id}:`, error);
+            }
         } else {
-            document.body.classList.add('theme-light');
-            document.body.classList.remove('theme-dark');
+            const loader = getSectionLoader(section.id);
+            if (loader) {
+                console.log(`[A.LAB] Найден динамический загрузчик для: ${section.id}`);
+                loader();
+            } else {
+                console.warn(`[A.LAB] Контейнер секции не найден: ${section.id}`);
+            }
         }
-    };
-
-    // Section 2: Manifesto Reveal
-    const manifestoText = document.querySelector('.manifesto-text');
-    splitText(manifestoText);
-    
-    gsap.from('#manifesto .word', {
-        scrollTrigger: {
-            trigger: '#manifesto',
-            start: 'top 70%',
-            end: 'center 40%',
-            scrub: 1,
-        },
-        opacity: 0,
-        y: 20,
-        stagger: 0.05,
-        duration: 1
     });
 
-    // Section 3: Profile Profile
-    const profileTitle = document.querySelector('.profile-title');
-    splitText(profileTitle);
-
-    gsap.from('#profile .word', {
-        scrollTrigger: {
-            trigger: '#profile',
-            start: 'top 80%',
-        },
-        yPercent: 100,
-        stagger: 0.02,
-        duration: 1,
-        ease: 'power3.out'
-    });
-
-    gsap.from('.profile-image img', {
-        scrollTrigger: {
-            trigger: '#profile',
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: true
-        },
-        scale: 1.2,
-        yPercent: -10
-    });
-
-    gsap.from('.services-list li', {
-        scrollTrigger: {
-            trigger: '.services-list',
-            start: 'top 90%',
-        },
-        opacity: 0,
-        x: -20,
-        stagger: 0.1,
-        duration: 0.8,
-        ease: 'power2.out'
-    });
-};
-
-window.addEventListener('load', initAnimations);
+    // 4. Global Animations/Triggers
+    setTimeout(() => {
+        if (typeof ScrollTrigger !== 'undefined') {
+            ScrollTrigger.refresh();
+        }
+    }, 100);
+});

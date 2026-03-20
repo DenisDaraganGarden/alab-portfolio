@@ -3,56 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A.LAB — агентство эмоциональной инженерии</title>
+    <title>A.LAB - Агентство Эмоциональной Инженерии</title>
+    <meta name="description" content="A.LAB — набросок портфолио и манифеста креативной студии.">
+    
+    <!-- Link to Main Stylesheet -->
+    <link rel="stylesheet" href="./style.css">
+    
+    <!-- Google Fonts: Unbounded & Roboto (matching style.css) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <!-- Load Lenis smooth scroll script (CDN) -->
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
+    
+    <!-- Load GSAP & ScrollTrigger scripts (CDN) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 </head>
 <body>
-    <div id="app" class="smooth-wrapper">
-        <div id="content" class="smooth-content">
-            
-            <!-- Section 1: Hero -->
-            <section class="section section-hero theme-light" id="hero">
-                <div class="container hero-container">
-                    <h1 class="hero-title" data-split>
-                        агентство<br>
-                        эмоциональной<br>
-                        инженерии
-                    </h1>
-                    <div class="hero-footer">
-                        <span class="logo-text">a.lab</span>
-                    </div>
+
+    <!-- Smooth Scrolling Container (Lenis Target) -->
+    <div id="smooth-wrapper">
+        <div id="smooth-content">
+
+            <!-- Section 1: Hero (Page 1) -->
+            <section id="hero" class="section hero-section" data-section="hero">
+                <div class="content">
+                    <h1 class="hero-title">a.lab</h1>
+                    <p class="hero-subtitle">агентство эмоциональной инженерии</p>
                 </div>
             </section>
 
-            <!-- Section 2: Manifesto -->
-            <section class="section section-manifesto theme-dark" id="manifesto">
-                <div class="container manifesto-container">
-                    <p class="manifesto-text" data-split>
-                        смотря на эмоцию как на ключ к сердцу человека, a.lab проектирует бренды, тонко и точно настраивая эмоциональный посыл, созданный для ответной реакции
-                    </p>
+            <!-- Section 2: Manifesto (Page 2) -->
+            <section id="manifesto" class="section manifesto-section" data-section="manifesto">
+                <div class="content manifesto-container">
+                    <p class="manifesto-text">смотря на эмоцию как на ключ к сердцу человека, a.lab проектирует бренды, тонко и точно настраивая эмоциональный посыл, созданный для ответной реакции</p>
                 </div>
             </section>
 
-            <!-- Section 3: Profile -->
-            <section class="section section-profile theme-light" id="profile">
-                <div class="container profile-container">
-                    <div class="profile-header">
-                        <h2 class="profile-title" data-split>делать бизнес без эмоций невозможно</h2>
-                        <div class="author-info">
-                            <span class="author-name">Александра Лари</span>
-                            <span class="author-bio">Бренд-менеджер,<br>дизайнер и маркетолог.<br>Опыт работы в сфере брендинга<br>и социальных медиа с 2013 г.</span>
-                        </div>
-                    </div>
-                    
-                    <div class="profile-main">
-                        <div class="profile-copy">
-                            <p class="copy-main" data-split>
-                                создать что-то значимое без любопытства. запустить что-то масштабное без воодушевления и страха, рассказать, продать, влюбить — и всё только лишь функцией, невозможно. и вполне возможно, что вы просто ещё не знаете свою эмоцию, понять её, вложить в ваше дело и донести до сердец — работа a.lab
-                            </p>
-                            <ul class="services-list">
+            <!-- Section 3: Profile (Page 3) -->
+            <section id="profile" class="section profile-section" data-section="profile">
+                <div class="content profile-grid">
+                    <div class="profile-left">
+                        <h2 class="profile-quote-heading">делать бизнес без эмоций невозможно</h2>
+                        <div class="profile-main-content">
+                            <p class="profile-quote">создать что-то значимое без любопытства. запустить что-то масштабное без воодушевления и страха. рассказать, продать, влюбить — и всё только лишь функцией. невозможно. и вполне возможно, что вы просто ещё не знаете свою эмоцию. понять её, вложить в ваше дело и донести до сердец — работа a.lab</p>
+                            <ul class="profile-services">
                                 <li>аналитика</li>
                                 <li>стратегия</li>
                                 <li>нейминг</li>
@@ -63,15 +60,114 @@
                                 <li>мероприятия</li>
                             </ul>
                         </div>
-                        <div class="profile-image">
-                            <img src="./images/lara.jpg" alt="Александра Лари">
+                    </div>
+                    <div class="profile-right">
+                        <div class="author-info">
+                            <h3 class="author-name">Александра Лари</h3>
+                            <p class="author-title">Бренд-менеджер, дизайнер и маркетолог.<br>Опыт работы в сфере брендинга и социальных медиа с 2013 г.</p>
+                        </div>
+                        <div class="profile-image-container">
+                            <img src="/images/lari.jpg" alt="Александра Лари" class="profile-image">
                         </div>
                     </div>
                 </div>
             </section>
 
+            <!-- Section 4: Mission (Page 4) -->
+            <section id="mission" class="section mission-section" data-section="mission">
+                <div class="content mission-container">
+                    <div class="mission-header">
+                        <h2 class="mission-title">миссия<br>агентства</h2>
+                    </div>
+                    <div class="mission-main">
+                        <p class="mission-text">насыщать продукты и бренды человеческими эмоциями, резонирующими <span class="dim">с теми, <br>для кого они созданы</span></p>
+                    </div>
+                    <div class="mission-footer">
+                        <span class="brand-name">a.lab</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Principles (Page 5) -->
+            <section id="principles" class="section principles-section" data-section="principles">
+                <div class="content principles-container">
+                    <div class="principles-header">
+                        <h2 class="principles-title">принципы</h2>
+                    </div>
+                    
+                    <div class="principles-main">
+                        <div class="principles-row">
+                            <div class="principle-item" id="p1">
+                                <h3 class="principle-name">диагностика</h3>
+                                <p class="principle-desc">анализируем глубинные смыслы и запросы, чтобы найти ту самую эмоцию, которая станет фундаментом будущего бренда</p>
+                            </div>
+                            <div class="principle-item" id="p2">
+                                <h3 class="principle-name">проектирование</h3>
+                                <p class="principle-desc">создаем визуальный и вербальный язык бренда, проектируя каждую точку контакта на основе найденной эмоции</p>
+                            </div>
+                            <div class="principle-item" id="p3">
+                                <h3 class="principle-name">реализация</h3>
+                                <p class="principle-desc">воплощаем стратегию в жизнь через дизайн, контент и коммуникации, обеспечивая точность и глубину внедрения смыслов</p>
+                            </div>
+                        </div>
+
+                        <div class="the-box-wrapper">
+                            <div id="genie-box" class="the-box">
+                                <div class="box-face front"><div class="box-label">1/3</div></div>
+                                <div class="box-face back"><div class="box-label">1/3</div></div>
+                                <div class="box-face left"><div class="box-label">1/3</div></div>
+                                <div class="box-face right"><div class="box-label">1/3</div></div>
+                                <div class="box-face top"><div class="box-label">1/3</div></div>
+                                <div class="box-face bottom"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="principles-footer">
+                        <span class="brand-name">a.lab</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 6: Expertise (Page 6) -->
+            <section id="expertise" class="section expertise-section" data-section="expertise">
+                <div class="content">
+                    <h2>Экспертиза</h2>
+                    <div class="expertise-grid">
+                        <div class="expertise-item">UX/UI</div>
+                        <div class="expertise-item">Фронтенд</div>
+                        <div class="expertise-item">Брендинг</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 7: Case Study - VERDETECH (Page 8) -->
+            <section id="verdetech-case" class="section case-section" data-section="verdetech-case">
+                <div class="header">
+                    <h3>Кейс: VERDETECH</h3>
+                </div>
+            </section>
+
+            <!-- Section 8: Portfolio (Page 12) -->
+            <section id="portfolio" class="section portfolio-section" data-section="portfolio">
+                <div class="content">
+                    <h2>Избранные работы</h2>
+                </div>
+            </section>
+
+            <!-- Section 9: Contacts (Page 14) -->
+            <section id="contacts" class="section contacts-section" data-section="contacts">
+                <div class="content">
+                    <h2>Связаться с нами</h2>
+                    <p>hello@a.lab</p>
+                </div>
+            </section>
+
         </div>
     </div>
+
+    <!-- Main JS Application Entry Point -->
     <script type="module" src="./main.js"></script>
+
 </body>
 </html>
