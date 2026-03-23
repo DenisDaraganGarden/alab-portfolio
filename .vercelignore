@@ -1,0 +1,12 @@
+.DS_Store
+.git
+.github
+.vercel
+dist
+node_modules
+output
+PDF_Breakdown
+ANALOGS WEB
+structure.pdf
+public/images/.DS_Store
+public/images/DOMM/*.webloc

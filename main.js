@@ -3,11 +3,12 @@ import { initManifesto } from './js/sections/manifesto.js';
 import { initProfile } from './js/sections/profile.js';
 import { initMission } from './js/sections/mission.js';
 import { initPrinciples } from './js/sections/principles.js';
-import { initExpertise } from './js/sections/expertise.js';
-import { initVerdetechCase } from './js/sections/verdetech-case.js';
+import { initEmotionalEngineering } from './js/sections/emotional-engineering.js';
 import { initPortfolio } from './js/sections/portfolio.js';
 import { initContacts } from './js/sections/contacts.js';
 import { getSectionLoader } from './js/section-registry.js';
+import { initViewportMetrics } from './js/utils/viewport.js';
+import { initIridescentTrail } from './js/effects/iridescent-trail.js';
 
 /**
  * [A.LAB] Main Initialization Script
@@ -18,6 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('[A.LAB] Инициализация модулей...');
 
     // 1. Основная логика и утилиты (Lenis и др. загружаются через CDN в index.html)
+    initViewportMetrics();
+    initIridescentTrail();
 
     // 2. Реестр инициализации секций
     const sections = [
@@ -26,8 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'profile', init: initProfile },
         { id: 'mission', init: initMission },
         { id: 'principles', init: initPrinciples },
-        { id: 'expertise', init: initExpertise },
-        { id: 'verdetech-case', init: initVerdetechCase },
+        { id: 'emotional-engineering', init: initEmotionalEngineering },
         { id: 'portfolio', init: initPortfolio },
         { id: 'contacts', init: initContacts }
     ];

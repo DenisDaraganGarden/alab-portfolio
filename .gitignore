@@ -6,3 +6,4 @@ dist
 # Decomposition folders if needed
 PDF_Breakdown
 /tmp
+.vercel

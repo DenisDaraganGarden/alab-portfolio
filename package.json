@@ -4,15 +4,19 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "optimize-images": "node scripts/optimize-images.mjs",
+    "predev": "npm run optimize-images",
+    "dev": "node node_modules/vite/bin/vite.js",
+    "prebuild": "npm run optimize-images",
+    "build": "node node_modules/vite/bin/vite.js build",
+    "preview": "node node_modules/vite/bin/vite.js preview"
   },
   "devDependencies": {
     "vite": "^6.0.0"
   },
   "dependencies": {
     "gsap": "^3.12.5",
-    "lenis": "^1.1.13"
+    "lenis": "^1.1.13",
+    "sharp": "^0.34.5"
   }
 }

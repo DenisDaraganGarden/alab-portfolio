@@ -1,0 +1,5 @@
+# Project Rules: A.LAB Portfolio
+
+1.  **Language**: All user-facing text, content, and interactions must be in **Pure Russian**. No English allowed in the UI unless it's a brand name (e.g., GSAP, Lenis).
+2.  **Aesthetics**: Follow the "Emotional Engineering" and "A.LAB" premium aesthetic.
+3.  **Refactoring**: Keep the code modular and clean (already implemented).
