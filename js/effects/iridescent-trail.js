@@ -39,8 +39,12 @@ export const initIridescentTrail = () => {
     const pointer = {
         x: window.innerWidth * 0.5,
         y: window.innerHeight * 0.5,
+        targetX: window.innerWidth * 0.5,
+        targetY: window.innerHeight * 0.5,
         vx: 0,
         vy: 0,
+        inputVx: 0,
+        inputVy: 0,
         down: false,
         started: false,
         lastTime: performance.now(),
@@ -160,8 +164,8 @@ export const initIridescentTrail = () => {
     const resizeSimulation = () => {
         state.width = window.innerWidth;
         state.height = window.innerHeight;
-        state.dpr = Math.min(window.devicePixelRatio || 1, isTouchLike() ? 2.2 : 2);
-        state.cellSize = isTouchLike() ? 9 : 11;
+        state.dpr = Math.min(window.devicePixelRatio || 1, isTouchLike() ? 2.5 : 2);
+        state.cellSize = isTouchLike() ? 7 : 11;
         state.gridWidth = Math.max(72, Math.ceil(state.width / state.cellSize));
         state.gridHeight = Math.max(48, Math.ceil(state.height / state.cellSize));
 
@@ -207,7 +211,7 @@ export const initIridescentTrail = () => {
         const gy = (y / state.height) * state.gridHeight;
         const speed = Math.hypot(vx, vy);
         const radius = touchLike
-            ? (6.8 + (pressure * 3.9) + Math.min(3.8, speed * 0.036))
+            ? (8.8 + (pressure * 4.8) + Math.min(4.8, speed * 0.02))
             : (5.2 + (pressure * 2.8) + Math.min(3.1, speed * 0.05));
         const minX = Math.max(0, Math.floor(gx - radius - 1));
         const maxX = Math.min(state.gridWidth - 1, Math.ceil(gx + radius + 1));
@@ -230,25 +234,25 @@ export const initIridescentTrail = () => {
                 const tangentX = -dy / (distance || 1);
                 const tangentY = dx / (distance || 1);
                 const injectSpeed = touchLike
-                    ? 0.002 + Math.min(0.01, speed * 0.00008)
+                    ? 0.0015 + Math.min(0.006, speed * 0.00005)
                     : 0.0028 + Math.min(0.016, speed * 0.00011);
                 const swirl = touchLike
-                    ? falloff * (0.004 + (pressure * 0.003))
+                    ? falloff * (0.0018 + (pressure * 0.0018))
                     : falloff * (0.008 + (pressure * 0.006));
 
                 state.vx[index] += (vx * injectSpeed * falloff) + (tangentX * swirl);
                 state.vy[index] += (vy * injectSpeed * falloff) + (tangentY * swirl);
-                state.mass[index] += falloff * (touchLike ? 0.054 + (pressure * 0.038) : 0.072 + (pressure * 0.052));
-                state.warm[index] += falloff * (touchLike ? 0.009 + (Math.max(0, side) * 0.034) : 0.012 + (Math.max(0, side) * 0.054));
-                state.cool[index] += falloff * (touchLike ? 0.009 + (Math.max(0, -side) * 0.036) : 0.012 + (Math.max(0, -side) * 0.056));
-                state.violet[index] += falloff * (touchLike ? 0.004 + (pressure * 0.009) : 0.006 + (pressure * 0.012));
+                state.mass[index] += falloff * (touchLike ? 0.046 + (pressure * 0.03) : 0.072 + (pressure * 0.052));
+                state.warm[index] += falloff * (touchLike ? 0.006 + (Math.max(0, side) * 0.022) : 0.012 + (Math.max(0, side) * 0.054));
+                state.cool[index] += falloff * (touchLike ? 0.006 + (Math.max(0, -side) * 0.024) : 0.012 + (Math.max(0, -side) * 0.056));
+                state.violet[index] += falloff * (touchLike ? 0.003 + (pressure * 0.006) : 0.006 + (pressure * 0.012));
             }
         }
     };
 
     const stampTrail = (fromX, fromY, toX, toY, vx, vy, pressure) => {
         const distance = Math.hypot(toX - fromX, toY - fromY);
-        const step = isTouchLike() ? 8 : 14;
+        const step = isTouchLike() ? 5 : 14;
         const steps = Math.max(1, Math.ceil(distance / step));
 
         for (let index = 1; index <= steps; index += 1) {
@@ -267,11 +271,14 @@ export const initIridescentTrail = () => {
         const now = options.now ?? performance.now();
         const pressure = options.pressure ?? (pointer.down ? 0.88 : 0.36);
         const velocityEase = options.velocityEase ?? 0.24;
+        const deferTrail = options.deferTrail ?? false;
 
         if (!pointer.started) {
             pointer.started = true;
             pointer.x = x;
             pointer.y = y;
+            pointer.targetX = x;
+            pointer.targetY = y;
             pointer.lastTime = now;
             pointer.lastMoveAt = now;
         }
@@ -280,12 +287,46 @@ export const initIridescentTrail = () => {
         const nextVx = ((x - pointer.x) / dt) * 16;
         const nextVy = ((y - pointer.y) / dt) * 16;
 
-        stampTrail(pointer.x, pointer.y, x, y, nextVx, nextVy, pressure);
+        if (!deferTrail) {
+            stampTrail(pointer.x, pointer.y, x, y, nextVx, nextVy, pressure);
+        }
 
         pointer.vx = lerp(pointer.vx, nextVx, velocityEase);
         pointer.vy = lerp(pointer.vy, nextVy, velocityEase);
+        pointer.inputVx = lerp(pointer.inputVx, nextVx, 0.42);
+        pointer.inputVy = lerp(pointer.inputVy, nextVy, 0.42);
+        pointer.targetX = x;
+        pointer.targetY = y;
         pointer.x = x;
         pointer.y = y;
+        pointer.lastTime = now;
+        pointer.lastMoveAt = now;
+
+        ensureFrame();
+    };
+
+    const pushTouchTarget = (x, y, options = {}) => {
+        const now = options.now ?? performance.now();
+        const velocityEase = options.velocityEase ?? 0.2;
+
+        if (!pointer.started) {
+            pointer.started = true;
+            pointer.x = x;
+            pointer.y = y;
+            pointer.targetX = x;
+            pointer.targetY = y;
+            pointer.lastTime = now;
+            pointer.lastMoveAt = now;
+        }
+
+        const dt = Math.max(14, now - pointer.lastTime);
+        const nextVx = ((x - pointer.targetX) / dt) * 16;
+        const nextVy = ((y - pointer.targetY) / dt) * 16;
+
+        pointer.inputVx = lerp(pointer.inputVx, nextVx, velocityEase);
+        pointer.inputVy = lerp(pointer.inputVy, nextVy, velocityEase);
+        pointer.targetX = x;
+        pointer.targetY = y;
         pointer.lastTime = now;
         pointer.lastMoveAt = now;
 
@@ -363,18 +404,22 @@ export const initIridescentTrail = () => {
         pointer.touchId = touch.identifier;
         pointer.down = true;
 
-        pushInputPoint(touch.clientX, touch.clientY, {
-            pressure: 0.96,
-            velocityEase: 0.36,
+        pushTouchTarget(touch.clientX, touch.clientY, {
+            velocityEase: 0.4,
             now: performance.now(),
         });
+
+        pointer.x = touch.clientX;
+        pointer.y = touch.clientY;
+        pointer.vx = 0;
+        pointer.vy = 0;
 
         injectAt(
             touch.clientX,
             touch.clientY,
-            pointer.vx * 0.55,
-            pointer.vy * 0.55,
-            0.92
+            0,
+            0,
+            0.74
         );
         ensureFrame();
     };
@@ -383,9 +428,8 @@ export const initIridescentTrail = () => {
         const touch = getTrackedTouch(event);
         if (!touch) return;
 
-        pushInputPoint(touch.clientX, touch.clientY, {
-            pressure: 0.82,
-            velocityEase: 0.3,
+        pushTouchTarget(touch.clientX, touch.clientY, {
+            velocityEase: 0.28,
             now: performance.now(),
         });
     };
@@ -482,20 +526,20 @@ export const initIridescentTrail = () => {
         context.clearRect(0, 0, state.width, state.height);
 
         context.save();
-        context.globalAlpha = isTouchLike() ? 0.74 : 0.82;
-        context.filter = `blur(${isTouchLike() ? 32 : 28}px) saturate(${isTouchLike() ? 112 : 118}%)`;
+        context.globalAlpha = isTouchLike() ? 0.68 : 0.82;
+        context.filter = `blur(${isTouchLike() ? 40 : 28}px) saturate(${isTouchLike() ? 108 : 118}%)`;
         context.drawImage(simCanvas, 0, 0, state.width, state.height);
         context.restore();
 
         context.save();
-        context.globalAlpha = isTouchLike() ? 0.48 : 0.54;
-        context.filter = `blur(${isTouchLike() ? 18 : 14}px) saturate(${isTouchLike() ? 122 : 132}%)`;
+        context.globalAlpha = isTouchLike() ? 0.4 : 0.54;
+        context.filter = `blur(${isTouchLike() ? 24 : 14}px) saturate(${isTouchLike() ? 116 : 132}%)`;
         context.drawImage(simCanvas, 0, 0, state.width, state.height);
         context.restore();
 
         context.save();
-        context.globalAlpha = isTouchLike() ? 0.08 : 0.14;
-        context.filter = `blur(${isTouchLike() ? 9 : 6}px) saturate(${isTouchLike() ? 118 : 124}%)`;
+        context.globalAlpha = isTouchLike() ? 0.04 : 0.14;
+        context.filter = `blur(${isTouchLike() ? 13 : 6}px) saturate(${isTouchLike() ? 112 : 124}%)`;
         context.drawImage(simCanvas, 0, 0, state.width, state.height);
         context.restore();
 
@@ -579,23 +623,62 @@ export const initIridescentTrail = () => {
         swapFields('violet', 'blur');
     };
 
+    const stepTouchFollow = (delta) => {
+        if (!isTouchLike() || !pointer.started) return;
+
+        const follow = pointer.down ? 0.18 : 0.08;
+        const nextX = lerp(pointer.x, pointer.targetX, follow);
+        const nextY = lerp(pointer.y, pointer.targetY, follow);
+        const deltaX = nextX - pointer.x;
+        const deltaY = nextY - pointer.y;
+        const targetVx = lerp(pointer.inputVx * 0.72, (deltaX / Math.max(delta, 16)) * 26, 0.48);
+        const targetVy = lerp(pointer.inputVy * 0.72, (deltaY / Math.max(delta, 16)) * 26, 0.48);
+        const travel = Math.hypot(deltaX, deltaY);
+
+        if (travel > 0.2) {
+            stampTrail(
+                pointer.x,
+                pointer.y,
+                nextX,
+                nextY,
+                targetVx,
+                targetVy,
+                pointer.down ? 0.46 : 0.18
+            );
+        }
+
+        pointer.vx = lerp(pointer.vx, targetVx, pointer.down ? 0.18 : 0.1);
+        pointer.vy = lerp(pointer.vy, targetVy, pointer.down ? 0.18 : 0.1);
+        pointer.x = nextX;
+        pointer.y = nextY;
+    };
+
     const renderFrame = (timestamp) => {
         state.frameId = 0;
         const delta = Math.min(34, timestamp - state.lastFrameAt || 16);
         state.lastFrameAt = timestamp;
 
+        stepTouchFollow(delta);
         stepSimulation(delta);
         renderField(timestamp);
 
         const idle = clamp(1 - ((timestamp - pointer.lastMoveAt) / 1800), 0, 1);
         const scrollIdle = clamp(1 - ((timestamp - scroll.lastActiveAt) / 700), 0, 1);
-        if (idle > 0.01 || pointer.down) {
+        if (!isTouchLike() && (idle > 0.01 || pointer.down)) {
             injectAt(
                 pointer.x,
                 pointer.y,
                 pointer.vx * 0.7,
                 pointer.vy * 0.7,
                 pointer.down ? 0.72 : 0.22
+            );
+        } else if (isTouchLike() && (idle > 0.01 || pointer.down)) {
+            injectAt(
+                pointer.x,
+                pointer.y,
+                pointer.vx * 0.32,
+                pointer.vy * 0.32,
+                pointer.down ? 0.18 : 0.08
             );
         }
 
