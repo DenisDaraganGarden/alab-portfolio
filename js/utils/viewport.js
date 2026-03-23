@@ -1,4 +1,5 @@
 const MOBILE_BREAKPOINT = 900;
+const MOBILE_CHROME_RESIZE_DELTA = 120;
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
@@ -6,14 +7,35 @@ export const initViewportMetrics = () => {
     if (typeof window === 'undefined') return;
 
     const root = document.documentElement;
+    const coarsePointerQuery = window.matchMedia?.('(pointer: coarse)');
     let rafId = 0;
+    let lastWidth = 0;
+    let lastHeight = 0;
 
-    const updateMetrics = () => {
+    const isTouchLikeViewport = (width) => (
+        coarsePointerQuery?.matches
+        || width <= MOBILE_BREAKPOINT
+    );
+
+    const shouldIgnoreViewportResize = (width, height) => {
+        if (!lastWidth || !lastHeight) return false;
+        if (!isTouchLikeViewport(width)) return false;
+
+        const widthDelta = Math.abs(width - lastWidth);
+        const heightDelta = Math.abs(height - lastHeight);
+
+        return widthDelta < 8 && heightDelta > 0 && heightDelta < MOBILE_CHROME_RESIZE_DELTA;
+    };
+
+    const updateMetrics = (force = false) => {
         rafId = 0;
 
-        const viewport = window.visualViewport;
-        const width = Math.round(viewport?.width ?? window.innerWidth);
-        const height = Math.round(viewport?.height ?? window.innerHeight);
+        const width = Math.round(window.innerWidth || document.documentElement.clientWidth || 0);
+        const height = Math.round(window.innerHeight || document.documentElement.clientHeight || 0);
+
+        if (!force && shouldIgnoreViewportResize(width, height)) {
+            return;
+        }
 
         const gutter = width <= MOBILE_BREAKPOINT
             ? clamp(width * 0.051, 18, 28)
@@ -27,17 +49,18 @@ export const initViewportMetrics = () => {
         root.style.setProperty('--app-height', `${height * 0.01}px`);
         root.style.setProperty('--page-gutter', `${gutter}px`);
         root.style.setProperty('--page-section-space', `${sectionSpace}px`);
+
+        lastWidth = width;
+        lastHeight = height;
     };
 
-    const requestUpdate = () => {
+    const requestUpdate = (force = false) => {
         if (rafId) return;
-        rafId = window.requestAnimationFrame(updateMetrics);
+        rafId = window.requestAnimationFrame(() => updateMetrics(force));
     };
 
-    updateMetrics();
+    updateMetrics(true);
 
-    window.addEventListener('resize', requestUpdate, { passive: true });
-    window.addEventListener('orientationchange', requestUpdate, { passive: true });
-    window.visualViewport?.addEventListener('resize', requestUpdate, { passive: true });
-    window.visualViewport?.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', () => requestUpdate(false), { passive: true });
+    window.addEventListener('orientationchange', () => requestUpdate(true), { passive: true });
 };

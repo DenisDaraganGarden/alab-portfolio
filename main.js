@@ -18,6 +18,21 @@ import { initIridescentTrail } from './js/effects/iridescent-trail.js';
 document.addEventListener('DOMContentLoaded', () => {
     console.log('[A.LAB] Инициализация модулей...');
 
+    const isTouchScrollDevice = window.matchMedia?.('(pointer: coarse)').matches;
+
+    if (typeof ScrollTrigger !== 'undefined') {
+        ScrollTrigger.config({
+            ignoreMobileResize: true
+        });
+
+        if (isTouchScrollDevice && typeof ScrollTrigger.normalizeScroll === 'function') {
+            ScrollTrigger.normalizeScroll({
+                allowNestedScroll: true,
+                type: 'touch,wheel'
+            });
+        }
+    }
+
     // 1. Основная логика и утилиты (Lenis и др. загружаются через CDN в index.html)
     initViewportMetrics();
     initIridescentTrail();

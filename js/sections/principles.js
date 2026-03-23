@@ -3,6 +3,8 @@
  */
 
 const MOBILE_BREAKPOINT = 900;
+const MOBILE_REBUILD_WIDTH_DELTA = 24;
+const MOBILE_REBUILD_HEIGHT_DELTA = 160;
 
 export const initPrinciples = (container) => {
     if (!container || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
@@ -25,6 +27,11 @@ export const initPrinciples = (container) => {
     let stepByPrinciple = new Map();
     let textXByPrinciple = new Map();
     let cleanupScene = null;
+
+    const getViewportSnapshot = () => ({
+        width: Math.round(window.innerWidth || document.documentElement.clientWidth || 0),
+        height: Math.round(window.innerHeight || document.documentElement.clientHeight || 0)
+    });
 
     const buildLayout = () => {
         const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 1440;
@@ -365,10 +372,23 @@ export const initPrinciples = (container) => {
 
     const mountMobileScene = () => {
         let scrollTl = createMobileScene();
+        let viewportSnapshot = getViewportSnapshot();
+        let rebuildFrame = 0;
 
-        const rebuild = () => {
+        const rebuild = (force = false) => {
             if (!isMobileLayout() || prefersReducedMotion()) {
                 updateSceneMode();
+                return;
+            }
+
+            const nextViewport = getViewportSnapshot();
+            const widthDelta = Math.abs(nextViewport.width - viewportSnapshot.width);
+            const heightDelta = Math.abs(nextViewport.height - viewportSnapshot.height);
+
+            viewportSnapshot = nextViewport;
+
+            if (!force && widthDelta < MOBILE_REBUILD_WIDTH_DELTA && heightDelta < MOBILE_REBUILD_HEIGHT_DELTA) {
+                buildLayout();
                 return;
             }
 
@@ -377,23 +397,29 @@ export const initPrinciples = (container) => {
             ScrollTrigger.refresh();
         };
 
-        const resizeObserver = typeof ResizeObserver !== 'undefined'
-            ? new ResizeObserver(() => {
-                requestAnimationFrame(rebuild);
-            })
-            : null;
+        const scheduleRebuild = (force = false) => {
+            if (rebuildFrame) return;
 
-        resizeObserver?.observe(container);
-        if (main) resizeObserver.observe(main);
+            rebuildFrame = window.requestAnimationFrame(() => {
+                rebuildFrame = 0;
+                rebuild(force);
+            });
+        };
 
-        window.addEventListener('resize', rebuild, { passive: true });
-        window.visualViewport?.addEventListener('resize', rebuild, { passive: true });
+        const handleResize = () => scheduleRebuild(false);
+        const handleOrientationChange = () => scheduleRebuild(true);
+
+        window.addEventListener('resize', handleResize, { passive: true });
+        window.addEventListener('orientationchange', handleOrientationChange, { passive: true });
 
         return () => {
             delete main.dataset.mobileJump;
-            resizeObserver?.disconnect();
-            window.removeEventListener('resize', rebuild);
-            window.visualViewport?.removeEventListener('resize', rebuild);
+            if (rebuildFrame) {
+                window.cancelAnimationFrame(rebuildFrame);
+                rebuildFrame = 0;
+            }
+            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('orientationchange', handleOrientationChange);
             scrollTl.kill();
             gsap.set(boxWrapper, { clearProps: 'xPercent,x,y' });
             gsap.set(box, { clearProps: 'scale,scaleX,scaleY,y' });
