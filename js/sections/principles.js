@@ -3,8 +3,6 @@
  */
 
 const MOBILE_BREAKPOINT = 900;
-const MOBILE_REBUILD_WIDTH_DELTA = 24;
-const MOBILE_REBUILD_HEIGHT_DELTA = 160;
 
 export const initPrinciples = (container) => {
     if (!container || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
@@ -27,11 +25,6 @@ export const initPrinciples = (container) => {
     let stepByPrinciple = new Map();
     let textXByPrinciple = new Map();
     let cleanupScene = null;
-
-    const getViewportSnapshot = () => ({
-        width: Math.round(window.innerWidth || document.documentElement.clientWidth || 0),
-        height: Math.round(window.innerHeight || document.documentElement.clientHeight || 0)
-    });
 
     const buildLayout = () => {
         const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 1440;
@@ -147,6 +140,32 @@ export const initPrinciples = (container) => {
         let targetYs = getTargetYs();
         const mobileJump = Math.max(42, jumpHeight * 0.58);
 
+        // Auto-scale and Tilt logic for mobile
+        const updateBoxDynamics = (self) => {
+            const progress = self.progress;
+            const viewportHeight = window.innerHeight;
+            const boxRect = boxWrapper.getBoundingClientRect();
+            const boxCenterY = boxRect.top + boxRect.height / 2;
+            const screenCenterY = viewportHeight / 2;
+            
+            // Distance from center (0 to 1)
+            const distFromCenter = Math.abs(boxCenterY - screenCenterY) / (viewportHeight / 2);
+            const normalizedDist = Math.min(1, distFromCenter);
+            
+            // Auto-scale: grow when near center
+            const scale = 1 + (1 - normalizedDist) * 0.45;
+            gsap.set(boxWrapper, { scale: scale });
+            
+            // Dynamic Tilt based on scroll velocity and position
+            const tiltX = (normalizedDist * 15) * (boxCenterY < screenCenterY ? 1 : -1);
+            const tiltZ = self.getVelocity() / 200;
+            
+            gsap.set(box, { 
+                rotationX: tiltX,
+                rotationZ: gsap.utils.clamp(-8, 8, tiltZ)
+            });
+        };
+
         const scrollTl = gsap.timeline({
             scrollTrigger: {
                 trigger: container,
@@ -154,7 +173,7 @@ export const initPrinciples = (container) => {
                 end: () => `+=${Math.max(window.innerHeight * 1.02, items.length * 260)}`,
                 scrub: 0.9,
                 pin: true,
-                anticipatePin: 1,
+                pinSpacing: true,
                 invalidateOnRefresh: true,
                 onRefreshInit: () => {
                     buildLayout();
@@ -179,6 +198,9 @@ export const initPrinciples = (container) => {
                 },
                 onRefresh: () => {
                     targetYs = getTargetYs();
+                },
+                onUpdate: (self) => {
+                    updateBoxDynamics(self);
                 }
             }
         });
@@ -195,10 +217,10 @@ export const initPrinciples = (container) => {
 
             timeline.to(box, {
                 y: -mobileJump,
-                scaleY: 1.08,
-                scaleX: 0.92,
-                duration: 0.2,
-                ease: 'power1.out'
+                scaleY: 1.12,
+                scaleX: 0.88,
+                duration: 0.22,
+                ease: 'back.out(1.4)'
             }, `${label}+=0.08`);
 
             timeline.to(boxWrapper, {
@@ -249,16 +271,31 @@ export const initPrinciples = (container) => {
                 end: '+=3000',
                 scrub: 1,
                 pin: true,
-                anticipatePin: 1
+                pinSpacing: true,
+                invalidateOnRefresh: true,
+                onRefreshInit: () => {
+                    buildLayout();
+                }
             }
         });
 
         items.forEach((item, principleIndex) => {
-            scrollTl.set(item, getHiddenState(principleIndex), 0);
+            scrollTl.set(item, {
+                autoAlpha: 0,
+                x: () => stepByPrinciple.get(principleIndex)?.x ?? 0,
+                xPercent: -50,
+                y: () => Math.max(88, jumpHeight),
+                scaleY: 0.26,
+                scaleX: 0.06,
+                rotationX: -82,
+                skewX: -6,
+                filter: 'blur(12px)',
+                transformOrigin: '50% 100%'
+            }, 0);
         });
-        scrollTl.set(boxWrapper, { x: steps[0]?.x ?? 0, y: 0 }, 0);
+        scrollTl.set(boxWrapper, { x: () => steps[0]?.x ?? 0, y: 0 }, 0);
         scrollTl.set(box, { y: 0, scaleX: 1, scaleY: 1 }, 0);
-        scrollTl.set(labels, { textContent: steps[0]?.label ?? '1/3' }, 0);
+        scrollTl.set(labels, { textContent: () => steps[0]?.label ?? '1/3' }, 0);
 
         const addStepToTimeline = (timeline, stepIndex, label) => {
             const step = steps[stepIndex];
@@ -280,14 +317,14 @@ export const initPrinciples = (container) => {
 
             if (stepIndex > 0) {
                 timeline.to(boxWrapper, {
-                    x: step.x,
+                    x: () => steps[stepIndex].x,
                     duration: 0.6,
                     ease: 'power1.inOut'
                 }, `${label}+=0.05`);
             }
 
             timeline.to(box, {
-                y: -jumpHeight,
+                y: () => -jumpHeight,
                 scaleY: 1.1,
                 scaleX: 0.9,
                 duration: 0.3,
@@ -305,9 +342,9 @@ export const initPrinciples = (container) => {
             timeline.set(labels, { textContent: step.label }, `${label}+=0.2`);
             timeline.to(principleItem, { autoAlpha: 1, duration: 0.01 }, `${label}+=0.2`);
             timeline.to(principleItem, {
-                x: textXByPrinciple.get(step.principleIndex) ?? 0,
+                x: () => textXByPrinciple.get(step.principleIndex) ?? 0,
                 xPercent: -50,
-                y: window.innerWidth <= 768 ? -6 : -8,
+                y: () => window.innerWidth <= 768 ? -6 : -8,
                 scaleY: 0.92,
                 scaleX: 1.06,
                 rotationX: 0,
@@ -336,90 +373,17 @@ export const initPrinciples = (container) => {
         return scrollTl;
     };
 
-    const mountDesktopScene = () => {
-        let scrollTl = createDesktopScene();
+    let mm = gsap.matchMedia();
 
-        const rebuild = () => {
-            if (isMobileLayout()) {
-                updateSceneMode();
-                return;
-            }
+    mm.add(`(max-width: ${MOBILE_BREAKPOINT}px)`, () => {
+        if (prefersReducedMotion()) {
+            applyMobileStaticState();
+            return () => {};
+        }
 
-            scrollTl.kill();
-            scrollTl = createDesktopScene();
-            ScrollTrigger.refresh();
-        };
-
-        const resizeObserver = typeof ResizeObserver !== 'undefined'
-            ? new ResizeObserver(() => {
-                requestAnimationFrame(rebuild);
-            })
-            : null;
-
-        resizeObserver?.observe(container);
-        if (main) resizeObserver.observe(main);
-
-        window.addEventListener('resize', rebuild, { passive: true });
-        window.visualViewport?.addEventListener('resize', rebuild, { passive: true });
-
-        return () => {
-            resizeObserver?.disconnect();
-            window.removeEventListener('resize', rebuild);
-            window.visualViewport?.removeEventListener('resize', rebuild);
-            scrollTl.kill();
-        };
-    };
-
-    const mountMobileScene = () => {
-        let scrollTl = createMobileScene();
-        let viewportSnapshot = getViewportSnapshot();
-        let rebuildFrame = 0;
-
-        const rebuild = (force = false) => {
-            if (!isMobileLayout() || prefersReducedMotion()) {
-                updateSceneMode();
-                return;
-            }
-
-            const nextViewport = getViewportSnapshot();
-            const widthDelta = Math.abs(nextViewport.width - viewportSnapshot.width);
-            const heightDelta = Math.abs(nextViewport.height - viewportSnapshot.height);
-
-            viewportSnapshot = nextViewport;
-
-            if (!force && widthDelta < MOBILE_REBUILD_WIDTH_DELTA && heightDelta < MOBILE_REBUILD_HEIGHT_DELTA) {
-                buildLayout();
-                return;
-            }
-
-            scrollTl.kill();
-            scrollTl = createMobileScene();
-            ScrollTrigger.refresh();
-        };
-
-        const scheduleRebuild = (force = false) => {
-            if (rebuildFrame) return;
-
-            rebuildFrame = window.requestAnimationFrame(() => {
-                rebuildFrame = 0;
-                rebuild(force);
-            });
-        };
-
-        const handleResize = () => scheduleRebuild(false);
-        const handleOrientationChange = () => scheduleRebuild(true);
-
-        window.addEventListener('resize', handleResize, { passive: true });
-        window.addEventListener('orientationchange', handleOrientationChange, { passive: true });
-
+        const scrollTl = createMobileScene();
         return () => {
             delete main.dataset.mobileJump;
-            if (rebuildFrame) {
-                window.cancelAnimationFrame(rebuildFrame);
-                rebuildFrame = 0;
-            }
-            window.removeEventListener('resize', handleResize);
-            window.removeEventListener('orientationchange', handleOrientationChange);
             scrollTl.kill();
             gsap.set(boxWrapper, { clearProps: 'xPercent,x,y' });
             gsap.set(box, { clearProps: 'scale,scaleX,scaleY,y' });
@@ -427,24 +391,12 @@ export const initPrinciples = (container) => {
                 gsap.set(item, { clearProps: 'transform,opacity,filter,visibility' });
             });
         };
-    };
+    });
 
-    const updateSceneMode = () => {
-        cleanupScene?.();
-        cleanupScene = null;
-
-        if (isMobileLayout()) {
-            if (prefersReducedMotion()) {
-                applyMobileStaticState();
-                return;
-            }
-
-            cleanupScene = mountMobileScene();
-            return;
-        }
-
-        cleanupScene = mountDesktopScene();
-    };
+    mm.add(`(min-width: ${MOBILE_BREAKPOINT + 1}px)`, () => {
+        const scrollTl = createDesktopScene();
+        return () => scrollTl.kill();
+    });
 
     gsap.to(box, {
         rotationY: 360,
@@ -453,15 +405,4 @@ export const initPrinciples = (container) => {
         repeat: -1,
         ease: 'none'
     });
-
-    updateSceneMode();
-
-    const mediaQuery = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT}px)`);
-    const handleModeChange = () => updateSceneMode();
-
-    if (typeof mediaQuery.addEventListener === 'function') {
-        mediaQuery.addEventListener('change', handleModeChange);
-    } else if (typeof mediaQuery.addListener === 'function') {
-        mediaQuery.addListener(handleModeChange);
-    }
 };
