@@ -216,7 +216,18 @@ export const initEmotionalEngineering = (container) => {
                 trigger: container,
                 start: 'top top',
                 end: '+=800',
-                scrub: 1
+                scrub: 1,
+                onComplete: () => {
+                    // Start pulsing animation when reveal completes
+                    columns.forEach((col, i) => {
+                        setTimeout(() => col.classList.add('glow-active'), i * 400);
+                    });
+                },
+                onUpdate: (self) => {
+                    if (self.progress < 0.9) {
+                        columns.forEach(col => col.classList.remove('glow-active'));
+                    }
+                }
             }
         });
 
@@ -240,4 +251,36 @@ export const initEmotionalEngineering = (container) => {
 
         return () => clearRevealState();
     });
+
+    // --- Glassmorphism Glow Interaction ---
+    // Make sure these are applied generally (for both mobile taps and desktop hovers)
+    const colors = [
+        'rgba(0, 255, 204, 0.15)',    // Teal glow
+        'rgba(255, 0, 128, 0.15)',    // Pink/Magenta glow
+        'rgba(128, 0, 255, 0.15)'     // Purple glow
+    ];
+
+    columns.forEach((col, index) => {
+        col.style.setProperty('--glass-color', colors[index % colors.length]);
+
+        col.addEventListener('mousemove', (e) => {
+            const rect = col.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            col.style.setProperty('--mouse-x', `${x}px`);
+            col.style.setProperty('--mouse-y', `${y}px`);
+        });
+
+        col.addEventListener('mouseenter', () => {
+            col.classList.remove('glow-active'); // User takes over
+        });
+
+        col.addEventListener('mouseleave', () => {
+            // Reset to center slowly
+            col.style.setProperty('--mouse-x', `50%`);
+            col.style.setProperty('--mouse-y', `50%`);
+        });
+    });
 };
+

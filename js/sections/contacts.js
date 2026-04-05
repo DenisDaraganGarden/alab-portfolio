@@ -6,13 +6,99 @@
 export const initContacts = (container) => {
     if (!container) return;
     
-    // Original intro animations
     const items = container.querySelectorAll(
-        '.contacts-kicker, .contacts-title, .contacts-note, .contacts-brand-mark, .reactive-form-container'
+        '.contacts-kicker, .contacts-title, .contacts-note, .contacts-brand-mark'
     );
+    const contactsCard = container.querySelector('.contacts-card');
+    const morphLayer = container.querySelector('.morph-animation-layer');
+    const morphWords = container.querySelectorAll('.morph-word');
+    const morphBox = container.querySelector('.morph-box');
 
-    if (typeof gsap !== 'undefined') {
-        gsap.from(items, {
+    const canAnimate = typeof gsap !== 'undefined';
+
+    if (canAnimate && morphLayer && morphBox && contactsCard) {
+        // Initial setup for morph sequence
+        gsap.set(contactsCard, { opacity: 0, scale: 0.95, pointerEvents: 'none' });
+        gsap.set(morphBox, { scale: 0.1, rotationZ: -45, opacity: 0 });
+        
+        morphWords.forEach((word, i) => {
+            const angle = (i / morphWords.length) * Math.PI * 2;
+            const radius = 100 + Math.random() * 50; 
+            gsap.set(word, { 
+                x: Math.cos(angle) * radius, 
+                y: Math.sin(angle) * radius,
+                opacity: 0,
+                scale: 0.5
+            });
+        });
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: container,
+                start: 'top 70%'
+            }
+        });
+
+        // 1. Box appears spinning
+        tl.to(morphBox, {
+            opacity: 1,
+            scale: 1,
+            rotationZ: 180,
+            duration: 1.2,
+            ease: "power3.inOut"
+        }, 0)
+        // Words appear floating around it
+        .to(morphWords, {
+            opacity: 1,
+            scale: 1,
+            duration: 0.6,
+            stagger: 0.15,
+            ease: "back.out(1.5)"
+        }, "-=0.8")
+        // 2. Words fly into the box
+        .to(morphWords, {
+            x: 0,
+            y: 0,
+            scale: 0,
+            opacity: 0,
+            duration: 0.5,
+            stagger: 0.05,
+            ease: "power4.in"
+        }, "+=0.3")
+        // Box pulses/spins up as it absorbs the words
+        .to(morphBox, {
+            rotationZ: 360,
+            scale: 1.3,
+            boxShadow: "0 0 40px 10px rgba(255,255,255,0.3)",
+            duration: 0.4,
+            ease: "power1.in"
+        }, "-=0.3")
+        // 3. The big morph wave
+        .to(morphBox, {
+            scale: 25,
+            opacity: 0,
+            duration: 0.8,
+            ease: "power4.inOut"
+        })
+        // 4. Reveal the card and other elements
+        .to(contactsCard, {
+            opacity: 1,
+            scale: 1,
+            pointerEvents: 'auto',
+            duration: 0.8,
+            ease: "power3.out"
+        }, "-=0.6")
+        .from(items, {
+            opacity: 0,
+            y: 28,
+            stagger: 0.1,
+            duration: 0.8,
+            ease: "power2.out"
+        }, "-=0.6")
+        .set(morphLayer, { display: 'none' });
+
+    } else if (canAnimate) {
+        gsap.from([...items, contactsCard], {
             scrollTrigger: {
                 trigger: container,
                 start: 'top 80%'
@@ -29,7 +115,6 @@ export const initContacts = (container) => {
     const formContainer = container.querySelector('.reactive-form-container');
     if (!formContainer) return;
 
-    const canAnimate = typeof gsap !== 'undefined';
     const supportsFinePointer = window.matchMedia?.('(hover: hover) and (pointer: fine)').matches ?? false;
     const setGlassState = (state) => {
         formContainer.style.setProperty('--mx', state.mx);

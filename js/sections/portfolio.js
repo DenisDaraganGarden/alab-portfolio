@@ -14,6 +14,14 @@ export function initPortfolio(container) {
     const backBtn = container.querySelector('#portfolio-back-btn');
     const categoryCards = container.querySelectorAll('.category-card');
 
+    // Handle portfolio slider safely if it exists in the DOM
+    const portfolioSlider = container.querySelector('.portfolio-slider');
+    if (portfolioSlider) {
+        console.log('[A.LAB] Инициализация portfolio-slider...');
+        // Slider init logic would go here if needed in the future
+        // e.g., new Swiper('.portfolio-slider', { ... });
+    }
+
     const projectsData = {
         development: [
             { id: 'domm', title: 'Девелопмент / Domm', logo: '/images/DOMM/logo-black.svg' },

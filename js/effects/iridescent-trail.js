@@ -131,26 +131,28 @@ export const initIridescentTrail = () => {
         }
     };
 
-    const advectScalar = (source, target, dissipation, dtScale) => {
+    const advectScalar = (source, target, dissipation, dtScale, dtMult) => {
+        const decay = Math.pow(dissipation, dtMult);
         for (let y = 0; y < state.gridHeight; y += 1) {
             for (let x = 0; x < state.gridWidth; x += 1) {
                 const index = indexFor(x, y);
                 const px = x - (state.vx[index] * dtScale);
                 const py = y - (state.vy[index] * dtScale);
-                target[index] = sampleField(source, px, py) * dissipation;
+                target[index] = sampleField(source, px, py) * decay;
             }
         }
     };
 
-    const advectVelocity = (dtScale) => {
+    const advectVelocity = (dtScale, dtMult) => {
+        const decay = Math.pow(0.984, dtMult);
         for (let y = 0; y < state.gridHeight; y += 1) {
             for (let x = 0; x < state.gridWidth; x += 1) {
                 const index = indexFor(x, y);
                 const px = x - (state.vx[index] * dtScale);
                 const py = y - (state.vy[index] * dtScale);
 
-                state.nextVx[index] = sampleField(state.vx, px, py) * 0.984;
-                state.nextVy[index] = sampleField(state.vy, px, py) * 0.984;
+                state.nextVx[index] = sampleField(state.vx, px, py) * decay;
+                state.nextVy[index] = sampleField(state.vy, px, py) * decay;
             }
         }
     };
@@ -177,10 +179,12 @@ export const initIridescentTrail = () => {
         context.setTransform(1, 0, 0, 1, 0, 0);
         context.scale(state.dpr, state.dpr);
         context.imageSmoothingEnabled = true;
+        context.imageSmoothingQuality = 'high';
 
         simCanvas.width = state.gridWidth;
         simCanvas.height = state.gridHeight;
         simContext.imageSmoothingEnabled = true;
+        simContext.imageSmoothingQuality = 'high';
         state.imageData = simContext.createImageData(state.gridWidth, state.gridHeight);
 
         const size = state.gridWidth * state.gridHeight;
@@ -569,6 +573,7 @@ export const initIridescentTrail = () => {
 
     const stepSimulation = (delta) => {
         const dtScale = Math.min(1.25, delta / 16) * 0.82;
+        const dtMult = delta / 16;
         const sinceScroll = performance.now() - scroll.lastActiveAt;
         const scrollActivity = clamp(1 - (sinceScroll / 520), 0, 1);
 
@@ -595,7 +600,7 @@ export const initIridescentTrail = () => {
             }
         }
 
-        advectVelocity(dtScale);
+        advectVelocity(dtScale, dtMult);
         swapFields('vx', 'nextVx');
         swapFields('vy', 'nextVy');
 
@@ -604,10 +609,10 @@ export const initIridescentTrail = () => {
         swapFields('vx', 'nextVx');
         swapFields('vy', 'nextVy');
 
-        advectScalar(state.mass, state.nextMass, 0.986, dtScale);
-        advectScalar(state.warm, state.nextWarm, 0.982, dtScale);
-        advectScalar(state.cool, state.nextCool, 0.982, dtScale);
-        advectScalar(state.violet, state.nextViolet, 0.98, dtScale);
+        advectScalar(state.mass, state.nextMass, 0.986, dtScale, dtMult);
+        advectScalar(state.warm, state.nextWarm, 0.982, dtScale, dtMult);
+        advectScalar(state.cool, state.nextCool, 0.982, dtScale, dtMult);
+        advectScalar(state.violet, state.nextViolet, 0.98, dtScale, dtMult);
         swapFields('mass', 'nextMass');
         swapFields('warm', 'nextWarm');
         swapFields('cool', 'nextCool');
