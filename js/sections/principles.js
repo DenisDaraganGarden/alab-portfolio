@@ -7,13 +7,17 @@ const MOBILE_BREAKPOINT = 900;
 export const initPrinciples = (container) => {
     if (!container || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
 
-    const main = container.querySelector('.principles-main');
-    const boxWrapper = container.querySelector('.the-box-wrapper');
-    const box = container.querySelector('#genie-box');
-    const labels = container.querySelectorAll('.box-label');
-    const items = container.querySelectorAll('.principle-item');
+    // Direct assignment to window for maximum visibility to nested GSAP functions
+    window.alabGenieBox = container.querySelector('#genie-box');
+    window.alabBoxWrapper = container.querySelector('.the-box-wrapper');
+    var main = container.querySelector('.principles-main');
+    var labels = container.querySelectorAll('.box-label');
+    var items = Array.from(container.querySelectorAll('.principle-item'));
 
-    if (!box || !boxWrapper || !items.length) return;
+    const box = window.alabGenieBox;
+    const boxWrapper = window.alabBoxWrapper;
+
+    if (!main || !box || !boxWrapper || !items.length) return;
 
     const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
     const isMobileLayout = () => window.innerWidth <= MOBILE_BREAKPOINT;
@@ -35,7 +39,7 @@ export const initPrinciples = (container) => {
         const mainWidth = mainRect?.width || viewportWidth;
         const boxSize = boxRect?.width || 150;
         const maxTravel = Math.max(0, (mainWidth - boxSize) / 2 - 12);
-        const idealTravel = viewportWidth <= 768 ? mainWidth * 0.28 : 400;
+        const idealTravel = viewportWidth <= 768 ? mainWidth * 0.28 : Math.max(400, mainWidth * 0.34);
         const travel = Math.max(0, Math.min(idealTravel, maxTravel || idealTravel));
 
         jumpHeight = clamp(
@@ -111,13 +115,14 @@ export const initPrinciples = (container) => {
         const getTargetYs = () => {
             const boxSize = boxWrapper.getBoundingClientRect().height || 96;
             const overlap = clamp(boxSize * 0.18, 16, 22);
-            const mainRect = main.getBoundingClientRect();
-
-            return Array.from(items).map((item) => {
-                const itemTop = item.getBoundingClientRect().top - mainRect.top;
-                return Math.max(0, itemTop - boxSize + overlap);
-            });
+            
+            // ScrollTrigger.refresh() ensures layouts are up to date
+            // Using offsetTop for simplicity, assuming items are direct children or positioned relative to main
+            return items.map(item => (item.offsetTop || 0) - boxSize + overlap);
         };
+
+        // Ensure initial hidden state is applied correctly but remains ready for animation
+        gsap.set(box, getMobileHiddenState());
 
         gsap.set(boxWrapper, {
             xPercent: -50,
@@ -268,7 +273,7 @@ export const initPrinciples = (container) => {
             scrollTrigger: {
                 trigger: container,
                 start: 'top top',
-                end: '+=3000',
+                end: '+=1200',
                 scrub: 1,
                 pin: true,
                 pinSpacing: true,

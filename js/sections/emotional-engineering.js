@@ -156,23 +156,30 @@ export const initEmotionalEngineering = (container) => {
     });
 
     mm.add(`(min-width: ${MOBILE_BREAKPOINT + 1}px)`, () => {
-        const tl = gsap.timeline({
-            scrollTrigger: {
-                trigger: container,
-                start: 'top top',
-                end: '+=1500',
-                scrub: 1,
-                pin: true,
-                pinSpacing: true,
-                invalidateOnRefresh: true
-            }
-        });
-
         // Set perspective on wrapper for 3D feel
         gsap.set(titleWrapper, { perspective: 1000 });
 
-        // Sands of Time - Title Coalesce
-        tl.fromTo(
+        // Pin the section
+        ScrollTrigger.create({
+            trigger: container,
+            start: 'top top',
+            end: '+=800',
+            pin: true,
+            pinSpacing: true,
+            invalidateOnRefresh: true
+        });
+
+        // Sands of Time - Title Coalesce AS it scopes into view
+        const tlTitle = gsap.timeline({
+            scrollTrigger: {
+                trigger: container,
+                start: 'top 85%',
+                end: 'top 15%',
+                scrub: 1
+            }
+        });
+
+        tlTitle.fromTo(
             [...titleChars, ...subtitleChars],
             {
                 opacity: 0,
@@ -203,8 +210,17 @@ export const initEmotionalEngineering = (container) => {
             }
         );
 
-        // Columns reveal
-        tl.fromTo(
+        // Columns reveal while pinned
+        const tlColumns = gsap.timeline({
+            scrollTrigger: {
+                trigger: container,
+                start: 'top top',
+                end: '+=800',
+                scrub: 1
+            }
+        });
+
+        tlColumns.fromTo(
             otherRevealElements,
             {
                 y: 40,
@@ -219,8 +235,7 @@ export const initEmotionalEngineering = (container) => {
                 scale: 1,
                 stagger: 0.1,
                 ease: 'power2.out'
-            },
-            '-=0.4'
+            }
         );
 
         return () => clearRevealState();

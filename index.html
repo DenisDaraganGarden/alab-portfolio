@@ -68,26 +68,19 @@
                         </div>
                         <div class="profile-image-wrapper">
                             <div class="profile-image-glow"></div>
-                            <div class="profile-image-container">
-                                <picture class="profile-image-picture">
-                                    <source
-                                        type="image/webp"
-                                        srcset="/images/optimized/lari-480.webp 480w, /images/optimized/lari-800.webp 800w, /images/optimized/lari-1200.webp 1200w, /images/optimized/lari-1600.webp 1600w, /images/optimized/lari-2200.webp 2200w, /images/optimized/lari-3083.webp 3083w"
-                                        sizes="(max-width: 900px) 100vw, 38vw"
-                                    >
-                                    <img
-                                        src="/images/optimized/lari-1200.jpg"
-                                        srcset="/images/optimized/lari-480.jpg 480w, /images/optimized/lari-800.jpg 800w, /images/optimized/lari-1200.jpg 1200w, /images/optimized/lari-1600.jpg 1600w, /images/optimized/lari-2200.jpg 2200w, /images/optimized/lari-3083.jpg 3083w"
-                                        sizes="(max-width: 900px) 100vw, 38vw"
-                                        alt="Александра Лари"
-                                        class="profile-image"
-                                        width="3083"
-                                        height="4096"
-                                        loading="eager"
-                                        decoding="async"
-                                        fetchpriority="high"
-                                    >
-                                </picture>
+                            <div class="profile-image-container profile-oval-object">
+                                <div class="profile-oval-shadow"></div>
+                                <div class="profile-oval-body">
+                                    <video class="profile-photo-img" autoplay loop muted playsinline poster="./images/lari.jpg">
+                                        <source src="./images/lari-animated.mp4" type="video/mp4">
+                                        <img src="./images/lari.jpg" alt="Александра Лари" class="profile-photo-img">
+                                    </video>
+                                    <div class="profile-oval-rim"></div>
+                                    <div class="profile-oval-bevel"></div>
+                                    <div class="profile-oval-specular profile-oval-specular--primary"></div>
+                                    <div class="profile-oval-specular profile-oval-specular--secondary"></div>
+                                    <div class="profile-oval-bottom-glow"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -244,21 +237,49 @@
                             <span class="contacts-brand-mark">a.lab</span>
                         </div>
 
-                        <div class="contacts-card">
-                            <div class="contacts-primary">
-                                <span class="contacts-meta">прямой контакт</span>
-                                <a class="contacts-link contacts-name" href="https://t.me/ALEXANDRALARI" target="_blank" rel="noreferrer">ALEXANDRA_LARI</a>
-                                <a class="contacts-link contacts-detail" href="tel:+79818343286">+7 (981) 834-32-86</a>
-                                <a class="contacts-link contacts-detail" href="mailto:work@alab.ru">work@alab.ru</a>
-                            </div>
+                        <div class="contacts-card reactive-form-container">
+                            <form id="contact-form" class="mirror-form">
+                                <div class="form-group">
+                                    <input type="text" id="name" name="name" placeholder="Имя" required>
+                                    <div class="input-bevel"></div>
+                                </div>
+                                <div class="form-group">
+                                    <input type="email" id="email" name="email" placeholder="Email" required>
+                                    <div class="input-bevel"></div>
+                                </div>
+                                <div class="form-group">
+                                    <textarea id="message" name="message" placeholder="Сообщение" rows="4" required></textarea>
+                                    <div class="input-bevel"></div>
+                                </div>
+                                <button type="submit" class="submit-btn">
+                                    <span>Отправить</span>
+                                    <div class="btn-shimmer"></div>
+                                </button>
+                            </form>
 
-                            <div class="contacts-channel-block">
-                                <img src="/images/qr-alexandra-lari.svg" alt="QR код канала Alexandra Lari" class="contacts-qr">
-                                <div class="contacts-channel-copy">
-                                    <span class="contacts-meta">канал</span>
-                                    <a class="contacts-link contacts-channel-link" href="https://t.me/ALEXANDRALARI" target="_blank" rel="noreferrer">@ALEXANDRALARI</a>
+                            <div class="contacts-card-footer">
+                                <div class="contacts-primary">
+                                    <span class="contacts-meta">прямой контакт</span>
+                                    <a class="contacts-link contacts-name" href="https://t.me/ALEXANDRALARI" target="_blank" rel="noreferrer">ALEXANDRA_LARI</a>
+                                    <div class="contacts-sub-details">
+                                        <a class="contacts-link contacts-detail" href="tel:+79818343286">+7 (981) 834-32-86</a>
+                                        <a class="contacts-link contacts-detail" href="mailto:work@alab.ru">work@alab.ru</a>
+                                    </div>
+                                </div>
+
+                                <div class="contacts-channel-block">
+                                    <img src="/images/qr-alexandra-lari.svg" alt="QR код канала Alexandra Lari" class="contacts-qr">
+                                    <div class="contacts-channel-copy">
+                                        <span class="contacts-meta">канал</span>
+                                        <a class="contacts-link contacts-channel-link" href="https://t.me/ALEXANDRALARI" target="_blank" rel="noreferrer">@ALEXANDRALARI</a>
+                                    </div>
                                 </div>
                             </div>
+
+                            <!-- Reactive Border SVG -->
+                            <svg class="reactive-border-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                <path d="M0,0 L100,0 L100,100 L0,100 Z" fill="none" class="border-path" vector-effect="non-scaling-stroke" />
+                            </svg>
                         </div>
                     </div>
                 </div>
@@ -359,8 +380,17 @@
     <svg width="0" height="0" style="position: absolute; pointer-events: none;" aria-hidden="true" focusable="false">
         <defs>
             <clipPath id="organic-profile-clip" clipPathUnits="objectBoundingBox">
-                <path d="M0.16,0.13 C0.05,0.22 0,0.38 0,0.5 C0,0.72 0.15,0.9 0.35,0.95 C0.55,1 0.85,1 0.93,0.8 C1,0.65 1,0.35 0.9,0.15 C0.8,0 0.4,0 0.16,0.13 Z" />
+                <path d="M0.45,0.02 C0.25,0.05 0.05,0.2 0.02,0.45 C-0.01,0.7 0.15,0.9 0.4,0.97 C0.65,1.05 0.9,0.9 0.97,0.65 C1.05,0.4 0.95,0.15 0.75,0.05 C0.65,0.01 0.55,0.01 0.45,0.02 Z" />
             </clipPath>
+            <linearGradient id="faska-gradient" x1="6%" y1="8%" x2="96%" y2="92%">
+                <stop offset="0%" style="stop-color:rgba(255,255,255,0.94);stop-opacity:1" />
+                <stop offset="10%" style="stop-color:rgba(215,230,255,0.78);stop-opacity:1" />
+                <stop offset="24%" style="stop-color:rgba(255,255,255,0.28);stop-opacity:1" />
+                <stop offset="42%" style="stop-color:rgba(255,255,255,0.06);stop-opacity:1" />
+                <stop offset="64%" style="stop-color:rgba(255,222,202,0.42);stop-opacity:1" />
+                <stop offset="82%" style="stop-color:rgba(218,205,255,0.3);stop-opacity:1" />
+                <stop offset="100%" style="stop-color:rgba(46,34,69,0.38);stop-opacity:1" />
+            </linearGradient>
         </defs>
     </svg>
 
