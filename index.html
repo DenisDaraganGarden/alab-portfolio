@@ -81,17 +81,42 @@
     <!-- Link to Main Stylesheet -->
     <link rel="stylesheet" href="./style.css">
     
-    <!-- Google Fonts: Unbounded & Roboto (matching style.css) -->
+    <!-- Preconnect to external CDNs for faster loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    
+    <!-- Google Fonts: Unbounded & Roboto with preload for critical font -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     
-    <!-- Load Lenis smooth scroll script (CDN) -->
-    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
+    <!-- Load Lenis smooth scroll script (CDN, deferred) -->
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js" defer></script>
     
-    <!-- Load GSAP & ScrollTrigger scripts (CDN) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <!-- Load GSAP & ScrollTrigger scripts (CDN, deferred) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
+
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+       (function(m,e,t,r,i,k,a){
+           m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+           m[i].l=1*new Date();
+           for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+           k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+       })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=108408263', 'ym');
+
+       ym(108408263, 'init', {
+            clickmap:true,
+            trackLinks:true,
+            accurateTrackBounce:true,
+            webvisor:true
+       });
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/108408263" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+
 </head>
 <body>
 
