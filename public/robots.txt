@@ -1,0 +1,11 @@
+# robots.txt for alabspace.com
+User-agent: *
+Allow: /
+Sitemap: https://alabspace.com/sitemap.xml
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Yandex
+Allow: /
+Host: https://alabspace.com

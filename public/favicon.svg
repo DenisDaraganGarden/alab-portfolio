@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="64" fill="#0a0a0a"/>
+  <text x="256" y="300" font-family="'Unbounded', 'Helvetica Neue', sans-serif" font-weight="700" font-size="220" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">a.</text>
+  <text x="256" y="430" font-family="'Unbounded', 'Helvetica Neue', sans-serif" font-weight="400" font-size="100" fill="rgba(255,255,255,0.5)" text-anchor="middle" dominant-baseline="middle">lab</text>
+</svg>
