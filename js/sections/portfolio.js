@@ -24,16 +24,19 @@ export function initPortfolio(container) {
 
     const projectsData = {
         development: [
-            { id: 'domm', title: 'Девелопмент / Domm', logo: '/images/DOMM/logo-black.svg' },
-            { id: 'architecture', title: 'Архитектурное бюро' }
+            { id: 'domm', title: 'Девелопмент / DOMM', logo: '/images/DOMM/logo-black.svg' },
+            { id: 'l-buro', title: 'Ландшафтная архитектура / L.BURO' },
+            { id: 'grani', title: 'Девелопмент / Грани' }
         ],
         services: [
-            { id: 'dentistry', title: 'Медицина и Стоматология' },
-            { id: 'legal', title: 'Юридические услуги' }
+            { id: 'princip32', title: 'Медицина / Принцип 32' },
+            { id: 'tut', title: 'Сервисы / TUT' }
         ],
         production: [
-            { id: 'food', title: 'FMCG и Здоровая еда' },
-            { id: 'manufacture', title: 'Производство оборудования' }
+            { id: 'aquadolce', title: 'FMCG / AquaDolce' },
+            { id: 'kukis', title: 'FMCG / KUKIS' },
+            { id: 'verde', title: 'Эко-технологии / VERDE' },
+            { id: 'neft', title: 'Бренд / НЕФТЬ' }
         ]
     };
 

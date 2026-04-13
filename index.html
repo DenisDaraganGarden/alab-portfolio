@@ -469,20 +469,580 @@
         </div>
     </template>
 
-    <template id="tmpl-dentistry">
-        <div class="case-study-detail case-placeholder">
-            <h2 class="placeholder-title">Медицина и Стоматология</h2>
-            <p class="placeholder-text">Скоро здесь появятся визуальные материалы...</p>
+    <template id="tmpl-l-buro">
+        <div class="case-study-detail case-lburo" style="max-width: 1600px; margin: 0 auto; padding: 0 4vw 8rem;">
+            
+            <div class="case-header" style="height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; max-width: 1400px; padding: 0 2vw;">
+                <h1 style="font-family: var(--font-title); font-size: clamp(4rem, 14vw, 13rem); font-weight: 900; color: var(--text-color); text-transform: uppercase; margin: 0 0 2rem 0; line-height: 0.8; letter-spacing: -0.05em; white-space: nowrap;">L.BURO</h1>
+                <p style="color: var(--text-color); font-family: var(--font-body); font-size: clamp(1.4rem, 4vw, 2.8rem); max-width: 1000px; margin: 0 0 3rem 0; line-height: 1.25; font-weight: 300; opacity: 0.7; letter-spacing: -0.02em;">Ландшафтная архитектура — Разработка веб-приложения, корпоративного сайта и дизайна печатных материалов.</p>
+                <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--bg-color); background: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">UI/UX</span>
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Веб-дизайн</span>
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Полиграфия</span>
+                </div>
+            </div>
+            
+            <div class="case-visuals" style="display: flex; flex-direction: column; gap: clamp(2rem, 5vw, 4rem);">
+                
+                <!-- Full bleed cover photo -->
+                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden;">
+                    <img src="/images/L.BURO/web-assets/preview/opt_LBURO_4854.jpg" alt="L.BURO Landscape Architecture" loading="lazy">
+                </div>
+
+                <!-- Main website page screenshot -->
+                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+                    <img src="/images/L.BURO/web-assets/preview/site_Главная_page_1.jpg" alt="Главная страница L.BURO" loading="lazy" style="width: 100%; display: block;">
+                </div>
+
+                <!-- 2-column grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                        <img src="/images/L.BURO/web-assets/preview/site_Портфолио_page_1.jpg" alt="Страница Портфолио" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                        <img src="/images/L.BURO/web-assets/preview/site_Проект сада_page_1.jpg" alt="Страница Проект Сада" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                        <img src="/images/L.BURO/web-assets/preview/site_Услуги_page_1.jpg" alt="Страница Услуги" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                        <img src="/images/L.BURO/web-assets/preview/site_Создание сада_page_1.jpg" alt="Страница Создание Сада" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                </div>
+
+                <!-- Environmental photography -->
+                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden;">
+                    <img src="/images/L.BURO/web-assets/preview/opt_LBURO_5524.jpg" alt="Процесс работы L.BURO" loading="lazy" style="width: 100%; display: block;">
+                </div>
+
+                <!-- 2-column grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                        <img src="/images/L.BURO/web-assets/preview/site_Команда_page_1.jpg" alt="Страница Команда" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                        <img src="/images/L.BURO/web-assets/preview/site_Блог_page_1.jpg" alt="Страница Блог" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                        <img src="/images/L.BURO/web-assets/preview/site_Наши награды_page_1.jpg" alt="Наши Награды" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                        <img src="/images/L.BURO/web-assets/preview/site_Контакты_page_1.jpg" alt="Контакты" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                </div>
+
+                <!-- Atmospheric Photo Break -->
+                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden;">
+                    <img src="/images/L.BURO/web-assets/preview/opt_DSC08532.jpg" alt="Атмосфера результата" loading="lazy" style="width: 100%; display: block;">
+                </div>
+
+                <!-- Booklet Print showcase -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden;">
+                        <img src="/images/L.BURO/web-assets/preview/lb_page_1.jpg" alt="Буклет L.BURO разворот 1" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden;">
+                        <img src="/images/L.BURO/web-assets/preview/lb_page_2.jpg" alt="Буклет L.BURO разворот 2" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                </div>
+
+                <!-- Final photo block -->
+                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden;">
+                    <img src="/images/L.BURO/web-assets/preview/opt_домHTLFRNB.jpg" alt="Эстетика экстерьера" loading="lazy" style="width: 100%; display: block;">
+                </div>
+
+            </div>
         </div>
     </template>
 
-    <template id="tmpl-food">
-        <div class="case-study-detail case-placeholder">
-            <h2 class="placeholder-title">FMCG и Здоровая еда</h2>
-            <p class="placeholder-text">Скоро здесь появятся визуальные материалы...</p>
+    <template id="tmpl-grani">
+        <div class="case-study-detail case-grani" style="max-width: 1600px; margin: 0 auto; padding: 0 4vw 8rem;">
+            
+            <div class="case-header" style="height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; max-width: 1400px; padding: 0 2vw;">
+                <h1 style="font-family: var(--font-title); font-size: clamp(5rem, 16vw, 14rem); font-weight: 900; color: var(--text-color); text-transform: uppercase; margin: 0 0 2rem 0; line-height: 0.8; letter-spacing: -0.06em; white-space: nowrap;">ГРАНИ</h1>
+                <p style="color: var(--text-color); font-family: var(--font-body); font-size: clamp(1.4rem, 4vw, 2.8rem); max-width: 1000px; margin: 0 0 3rem 0; line-height: 1.25; font-weight: 300; opacity: 0.7; letter-spacing: -0.02em;">Девелопмент — Разработка платформы бренда и визуальной коммуникации.</p>
+                <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--bg-color); background: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Девелопмент</span>
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Платформа Бренда</span>
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Коммуникация</span>
+                </div>
+            </div>
+            
+            <div class="case-visuals" style="display: flex; flex-direction: column; gap: clamp(2rem, 5vw, 4rem);">
+                
+                <!-- Hero Full Width -->
+                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                    <img src="/images/Грани/web-assets/optimized/hero.webp" alt="Грани Обложка" loading="lazy" style="width: 100%; display: block;">
+                </div>
+
+                <!-- 2-column Photos -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/Грани/web-assets/optimized/photo_typo_1.webp" alt="Грани Взаимодействие" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/Грани/web-assets/optimized/photo_typo_2.webp" alt="Грани Позиционирование" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                </div>
+
+                <!-- Graphic Abstract Full Width -->
+                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                    <img src="/images/Грани/web-assets/optimized/gradient.webp" alt="Грани Графика" loading="lazy" style="width: 100%; display: block;">
+                </div>
+
+                <!-- Billboards Grid - 2 columns or stack, we use auto-fit for dynamic flow -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/Грани/web-assets/optimized/billboard_1.webp" alt="Грани Биллборд 1" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/Грани/web-assets/optimized/billboard_2.webp" alt="Грани Биллборд 2" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                </div>
+
+                <!-- Full Width Billboard 3 -->
+                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                    <img src="/images/Грани/web-assets/optimized/billboard_3.webp" alt="Грани Биллборд 3" loading="lazy" style="width: 100%; display: block;">
+                </div>
+
+                <!-- Posters Full Width -->
+                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                    <img src="/images/Грани/web-assets/optimized/posters.webp" alt="Грани Постеры" loading="lazy" style="width: 100%; display: block;">
+                </div>
+
+                <!-- Merch 2-column -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/Грани/web-assets/optimized/merch_bags.webp" alt="Грани Шоперы" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/Грани/web-assets/optimized/merch_cup.webp" alt="Грани Стакан" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                </div>
+                
+                <!-- Merch Full Close-up -->
+                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                    <img src="/images/Грани/web-assets/optimized/merch_bag_close.webp" alt="Грани Шопер Принт" loading="lazy" style="width: 100%; display: block;">
+                </div>
+
+            </div>
         </div>
     </template>
 
+    <template id="tmpl-princip32">
+        <div class="case-study-detail case-princip32" style="max-width: 1600px; margin: 0 auto; padding: 0 4vw 8rem;">
+            
+            <div class="case-header" style="height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; max-width: 1400px; padding: 0 2vw;">
+                <h1 style="font-family: var(--font-title); font-size: clamp(5rem, 16vw, 14rem); font-weight: 900; color: var(--text-color); text-transform: uppercase; margin: 0 0 2rem 0; line-height: 0.8; letter-spacing: -0.06em; white-space: nowrap;">Принцип<br>32</h1>
+                <p style="color: var(--text-color); font-family: var(--font-body); font-size: clamp(1.4rem, 4vw, 2.8rem); max-width: 1000px; margin: 0 0 3rem 0; line-height: 1.25; font-weight: 300; opacity: 0.7; letter-spacing: -0.02em;">Медицина, Стоматология — Разработка глубокой платформы бренда, стратегии позиционирования и визуальной айдентики.</p>
+                <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--bg-color); background: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Нейминг</span>
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Стратегия</span>
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Айдентика</span>
+                </div>
+            </div>
+
+            <!-- Unified Image Styles for Princip32 Grid -->
+            <style>
+                .Princip32-img-wrapper {
+                    border-radius: 20px;
+                    overflow: hidden;
+                    box-shadow: 0 40px 80px rgba(0,0,0,0.15);
+                    transform: translateZ(0);
+                    display: flex;
+                    justify-content: flex-start;
+                    background: transparent;
+                }
+                .Princip32-img-wrapper img {
+                    width: 100%;
+                    max-width: 100%;
+                    display: block;
+                    object-fit: contain;
+                }
+                .Princip32-img-wrapper.portrait img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+            </style>
+
+            <div class="case-visuals" style="display: grid; grid-template-columns: 1fr; gap: clamp(2rem, 6vw, 6rem);">
+                
+                <!-- Full bleed cover image -->
+                <div class="Princip32-img-wrapper">
+                    <img src="/images/Принцип 32/web-assets/preview/page_1.jpg" alt="Обложка" loading="lazy">
+                </div>
+
+                <!-- 2-column grid for stationery -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="Princip32-img-wrapper portrait">
+                        <img src="/images/Принцип 32/web-assets/preview/page_31.jpg" alt="Блокноты и Визитки" loading="lazy">
+                    </div>
+                    <div class="Princip32-img-wrapper portrait">
+                        <img src="/images/Принцип 32/web-assets/preview/page_32.jpg" alt="Конверты и Канцелярия" loading="lazy">
+                    </div>
+                </div>
+
+                <!-- Single Showcase -->
+                <div class="Princip32-img-wrapper">
+                    <img src="/images/Принцип 32/web-assets/preview/page_34.jpg" alt="Брендинг витрины" loading="lazy">
+                </div>
+
+                <!-- 2-column grid for digital -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="Princip32-img-wrapper portrait">
+                        <img src="/images/Принцип 32/web-assets/preview/page_36.jpg" alt="Вебсайт на ноутбуке" loading="lazy">
+                    </div>
+                    <div class="Princip32-img-wrapper portrait">
+                        <img src="/images/Принцип 32/web-assets/preview/page_37.jpg" alt="Мобильное приложение" loading="lazy">
+                    </div>
+                </div>
+                
+                <!-- Single Large Outdoor -->
+                <div class="Princip32-img-wrapper">
+                    <img src="/images/Принцип 32/web-assets/preview/page_35.jpg" alt="Биллборды" loading="lazy">
+                </div>
+                
+                <!-- 2-column grid for navigation/totems -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="Princip32-img-wrapper portrait">
+                        <img src="/images/Принцип 32/web-assets/preview/page_38.jpg" alt="Уличный тотем 1" loading="lazy">
+                    </div>
+                    <div class="Princip32-img-wrapper portrait">
+                        <img src="/images/Принцип 32/web-assets/preview/page_39.jpg" alt="Уличный тотем 2" loading="lazy">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </template>
+
+    <template id="tmpl-tut">
+        <div class="case-study-detail case-tut" style="max-width: 1600px; margin: 0 auto; padding: 0 4vw 8rem;">
+            
+            <div class="case-header" style="height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; max-width: 1400px; padding: 0 2vw;">
+                <h1 style="font-family: var(--font-title); font-size: clamp(5rem, 16vw, 14rem); font-weight: 900; color: var(--text-color); text-transform: uppercase; margin: 0 0 2rem 0; line-height: 0.8; letter-spacing: -0.06em; white-space: nowrap;">TUT</h1>
+                <p style="color: var(--text-color); font-family: var(--font-body); font-size: clamp(1.4rem, 4vw, 2.8rem); max-width: 1000px; margin: 0 0 3rem 0; line-height: 1.25; font-weight: 300; opacity: 0.7; letter-spacing: -0.02em;">Сервисы — Разработка комплексной визуальной айдентики и оформления для социальных платформ бренда.</p>
+                <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--bg-color); background: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Айдентика</span>
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Дизайн Соцсетей</span>
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Брендинг</span>
+                </div>
+            </div>
+            
+            <div class="case-visuals" style="display: flex; flex-direction: column; gap: clamp(2rem, 5vw, 4rem);">
+                
+                <!-- Main Header / Banner (YouTube) -->
+                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; background: #EAEAEA; display: flex; justify-content: center; align-items: center; padding: 2vw;">
+                    <img src="/images/TUT/web-assets/preview/youtube_banner.png" alt="TUT YouTube Banner" loading="lazy" style="width: 100%; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+                </div>
+
+                <!-- 4 Avatars Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: clamp(1rem, 2vw, 2rem);">
+                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; background: #FCFCFC; display: flex; justify-content: center; align-items: center; padding: 4vw;">
+                        <img src="/images/TUT/web-assets/preview/avatar_1.png" alt="TUT Avatar Variant 1" loading="lazy" style="width: 100%; max-width: 200px;">
+                    </div>
+                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; background: #FCFCFC; display: flex; justify-content: center; align-items: center; padding: 4vw;">
+                        <img src="/images/TUT/web-assets/preview/avatar_2.png" alt="TUT Avatar Variant 2" loading="lazy" style="width: 100%; max-width: 200px;">
+                    </div>
+                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; background: #111; display: flex; justify-content: center; align-items: center; padding: 4vw;">
+                        <img src="/images/TUT/web-assets/preview/avatar_3.png" alt="TUT Avatar Variant 3" loading="lazy" style="width: 100%; max-width: 200px;">
+                    </div>
+                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; background: #111; display: flex; justify-content: center; align-items: center; padding: 4vw;">
+                        <img src="/images/TUT/web-assets/preview/avatar_4.png" alt="TUT Avatar Variant 4" loading="lazy" style="width: 100%; max-width: 200px;">
+                    </div>
+                </div>
+
+                <!-- Short Logos / Watermarks Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; background: #FFF; display: flex; justify-content: center; align-items: center; padding: 6vw;">
+                        <img src="/images/TUT/web-assets/preview/logo_short_1.png" alt="TUT Short Logo Black" loading="lazy" style="width: 60%; display: block; filter: invert(0);">
+                    </div>
+                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; background: #111; display: flex; justify-content: center; align-items: center; padding: 6vw;">
+                        <img src="/images/TUT/web-assets/preview/logo_short_2.png" alt="TUT Short Logo Color" loading="lazy" style="width: 60%; display: block;">
+                    </div>
+                </div>
+
+                <!-- Final Full Logo showcase -->
+                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; background: #222; display: flex; justify-content: center; align-items: center; padding: 8vw;">
+                    <img src="/images/TUT/web-assets/preview/logo_dual.png" alt="TUT Dual Color Logo" loading="lazy" style="width: 80%; display: block;">
+                </div>
+
+            </div>
+        </div>
+    </template>
+
+    <template id="tmpl-aquadolce">
+        <div class="case-study-detail case-aquadolce" style="max-width: 1600px; margin: 0 auto; padding: 0 4vw 8rem;">
+            
+            <div class="case-header" style="height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; max-width: 1400px; padding: 0 2vw;">
+                <h1 style="font-family: var(--font-title); font-size: clamp(4rem, 13vw, 12rem); font-weight: 900; color: var(--text-color); text-transform: uppercase; margin: 0 0 2rem 0; line-height: 0.85; letter-spacing: -0.04em;">AQUA DOLCE</h1>
+                <p style="color: var(--text-color); font-family: var(--font-body); font-size: clamp(1.4rem, 4vw, 2.8rem); max-width: 1000px; margin: 0 0 3rem 0; line-height: 1.25; font-weight: 300; opacity: 0.7; letter-spacing: -0.02em;">FMCG — Разработка комплексной визуальной айдентики, упаковки и носителей бренда напитков.</p>
+                <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--bg-color); background: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">FMCG</span>
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Упаковка</span>
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Айдентика</span>
+                </div>
+            </div>
+            
+            <div class="case-visuals" style="display: flex; flex-direction: column; gap: clamp(2rem, 5vw, 4rem);">
+                
+                <!-- Hero Full Width -->
+                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                    <img src="/images/AquaDolce/web-assets/optimized/hero.webp" alt="AquaDolce Обложка" loading="lazy" style="width: 100%; display: block;">
+                </div>
+
+                <!-- 2-column Product Intro -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/AquaDolce/web-assets/optimized/can_mint.webp" alt="AquaDolce Мята" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/AquaDolce/web-assets/optimized/bottles_fruit.webp" alt="AquaDolce Фрукты" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                </div>
+
+                <!-- Massive Impact Full Width -->
+                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                    <img src="/images/AquaDolce/web-assets/optimized/water_splash.webp" alt="AquaDolce Всплеск" loading="lazy" style="width: 100%; display: block;">
+                </div>
+
+                <!-- 2-column Lineup and Lifestyle -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/AquaDolce/web-assets/optimized/three_cans.webp" alt="AquaDolce Линейка банок" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/AquaDolce/web-assets/optimized/cooler_ice.webp" alt="AquaDolce Холодильник со льдом" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                </div>
+
+                <!-- Store displays and Boxes -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/AquaDolce/web-assets/optimized/bottles_display.webp" alt="AquaDolce Выкладка" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/AquaDolce/web-assets/optimized/product_boxes.webp" alt="AquaDolce Упаковка" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                </div>
+
+                <!-- Full Width Truck Merch -->
+                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                    <img src="/images/AquaDolce/web-assets/optimized/branded_truck.webp" alt="AquaDolce Фургон" loading="lazy" style="width: 100%; display: block;">
+                </div>
+
+                <!-- Machines and OOH -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/AquaDolce/web-assets/optimized/vending_machine.webp" alt="AquaDolce Вендинг" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/AquaDolce/web-assets/optimized/billboard.webp" alt="AquaDolce Билборд" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </template>
+
+    <template id="tmpl-kukis">
+        <!-- Reusable unified grid styles -->
+        <style>
+            .case-img-wrapper {
+                border-radius: 20px;
+                overflow: hidden;
+                box-shadow: 0 40px 80px rgba(0,0,0,0.15);
+                transform: translateZ(0);
+                display: flex;
+                justify-content: flex-start;
+                background: transparent;
+            }
+            .case-img-wrapper img {
+                width: 100%;
+                max-width: 100%;
+                display: block;
+                object-fit: contain;
+            }
+            .case-img-wrapper.portrait img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+        </style>
+        <div class="case-study-detail case-kukis" style="max-width: 1600px; margin: 0 auto; padding: 0 4vw 8rem;">
+            
+            <div class="case-header" style="height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; max-width: 1400px; padding: 0 2vw;">
+                <h1 style="font-family: var(--font-title); font-size: clamp(5rem, 16vw, 14rem); font-weight: 900; color: var(--text-color); text-transform: uppercase; margin: 0 0 2rem 0; line-height: 0.8; letter-spacing: -0.06em; white-space: nowrap;">KUKIS</h1>
+                <p style="color: var(--text-color); font-family: var(--font-body); font-size: clamp(1.4rem, 4vw, 2.8rem); max-width: 1000px; margin: 0 0 3rem 0; line-height: 1.25; font-weight: 300; opacity: 0.7; letter-spacing: -0.02em;">Образование, Кулинарная школа — Комплексная разработка стратегии позиционирования и визуальной коммуникации бренда.</p>
+                <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--bg-color); background: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Стратегия</span>
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Айдентика</span>
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Коммуникация</span>
+                </div>
+            </div>
+            
+            <div class="case-visuals" style="display: flex; flex-direction: column; gap: clamp(2rem, 5vw, 4rem);">
+                
+                <!-- Full bleed cover image -->
+                <div class="case-img-wrapper">
+                    <img src="/images/KUKIS/web-assets/preview/kuk2_page_4.jpg" alt="Обложка Кукис" loading="lazy">
+                </div>
+
+                <!-- 2-column grid for details -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="case-img-wrapper portrait">
+                        <img src="/images/KUKIS/web-assets/preview/kuk2_page_6.jpg" alt="Наклейки и стикеры" loading="lazy">
+                    </div>
+                    <div class="case-img-wrapper portrait">
+                        <img src="/images/KUKIS/web-assets/preview/kuk2_page_7.jpg" alt="Паттерны" loading="lazy">
+                    </div>
+                </div>
+
+                <!-- Single Showcase -->
+                <div class="case-img-wrapper">
+                    <img src="/images/KUKIS/web-assets/preview/kuk2_page_9.jpg" alt="Упаковка для выпечки" loading="lazy">
+                </div>
+
+                <!-- 2-column grid for merch -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="case-img-wrapper portrait">
+                        <img src="/images/KUKIS/web-assets/preview/kuk2_page_11.jpg" alt="Шопперы и пакеты" loading="lazy">
+                    </div>
+                    <div class="case-img-wrapper portrait">
+                        <img src="/images/KUKIS/web-assets/preview/kuk2_page_13.jpg" alt="Стаканчики и витрина" loading="lazy">
+                    </div>
+                </div>
+                
+                <!-- Single Showcase Digital -->
+                <div class="case-img-wrapper">
+                    <img src="/images/KUKIS/web-assets/preview/kukis_brand_page_11.jpg" alt="Мобильное приложение" loading="lazy">
+                </div>
+
+            </div>
+        </div>
+    </template>
+
+    <template id="tmpl-verde">
+        <div class="case-study-detail case-verde" style="max-width: 1600px; margin: 0 auto; padding: 0 4vw 8rem;">
+            
+            <div class="case-header" style="height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; max-width: 1400px; padding: 0 2vw;">
+                <h1 style="font-family: var(--font-title); font-size: clamp(4rem, 13vw, 12rem); font-weight: 900; color: var(--text-color); text-transform: uppercase; margin: 0 0 2rem 0; line-height: 0.85; letter-spacing: -0.04em;">VERDE TECH</h1>
+                <p style="color: var(--text-color); font-family: var(--font-body); font-size: clamp(1.4rem, 4vw, 2.8rem); max-width: 1000px; margin: 0 0 3rem 0; line-height: 1.25; font-weight: 300; opacity: 0.7; letter-spacing: -0.02em;">Косметика — Разработка визуальной стратегии, комплексного брендинга и уникальной премиум-упаковки.</p>
+                <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--bg-color); background: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Косметика</span>
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Брендинг</span>
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Упаковка</span>
+                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">3D-Дизайн</span>
+                </div>
+            </div>
+            
+            <div class="case-visuals" style="display: flex; flex-direction: column; gap: clamp(2rem, 5vw, 4rem);">
+                
+                <!-- Hero Full Width -->
+                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                    <img src="/images/VERDE/web-assets/optimized/hero.webp" alt="VERDE Обложка" loading="lazy" style="width: 100%; display: block;">
+                </div>
+
+                <!-- Digital Touchpoints -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/VERDE/web-assets/optimized/app_ui_1.webp" alt="VERDE App Interface 1" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/VERDE/web-assets/optimized/app_ui_2.webp" alt="VERDE App Interface 2" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                </div>
+
+                <!-- Identity Elements -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/VERDE/web-assets/optimized/glass_ui.webp" alt="VERDE Glassmorphism" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/VERDE/web-assets/optimized/lanyard.webp" alt="VERDE Pass Card" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                </div>
+
+                <!-- Abstract 3D Render -->
+                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                    <img src="/images/VERDE/web-assets/optimized/abstract_liquid.webp" alt="VERDE 3D Liquid Art" loading="lazy" style="width: 100%; display: block;">
+                </div>
+
+                <!-- Premium Cosmetic Packaging 1 -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/VERDE/web-assets/optimized/cosmetic_tube.webp" alt="VERDE Cosmetic Tube" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/VERDE/web-assets/optimized/cosmetic_jar.webp" alt="VERDE Cosmetic Jar" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                </div>
+
+                <!-- Detailed Serum Hero Shot -->
+                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                    <img src="/images/VERDE/web-assets/optimized/serum_bottle.webp" alt="VERDE Serum Bottle Close-up" loading="lazy" style="width: 100%; display: block;">
+                </div>
+
+                <!-- Cosmetic Packaging 2 -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/VERDE/web-assets/optimized/lifestyle_jars.webp" alt="VERDE Jar Lifestyle" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/VERDE/web-assets/optimized/product_line.webp" alt="VERDE Product Line" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                </div>
+
+                <!-- Geometric Abstract 3D -->
+                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                    <img src="/images/VERDE/web-assets/optimized/glass_cube.webp" alt="VERDE Glass Cube Architecture" loading="lazy" style="width: 100%; display: block;">
+                </div>
+
+                <!-- Delivery & Shopping -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/VERDE/web-assets/optimized/shopping_bags.webp" alt="VERDE Shopping Bags" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/VERDE/web-assets/optimized/truck.webp" alt="VERDE Delivery Truck" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                </div>
+
+                <!-- Billboard and Apparel -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/VERDE/web-assets/optimized/street_billboard.webp" alt="VERDE Street Billboard" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img src="/images/VERDE/web-assets/optimized/merch_tshirt.webp" alt="VERDE Merch T-Shirt" loading="lazy" style="width: 100%; display: block;">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </template>
+
+    <template id="tmpl-neft">
+        <div class="case-study-detail case-neft">
+            <div class="case-logo-wrapper" style="text-align: center; margin-bottom: 4rem; padding-top: 4rem;">
+                <h1 style="font-family: 'Unbounded', sans-serif; font-size: 4rem; color: #fff; text-transform: uppercase;">НЕФТЬ</h1>
+                <p style="color: #888; font-size: 1.2rem; margin-top: 1rem;">Бренд — Коммуникация и Айдентика</p>
+            </div>
+            <div class="case-visuals" style="display: flex; flex-direction: column; gap: 2rem;">
+                <img src="/images/НЕФТЬ/web-assets/preview/page_1.jpg" alt="НЕФТЬ Slide" class="case-image" style="width: 100%; border-radius: 8px;" loading="lazy">
+                <img src="/images/НЕФТЬ/web-assets/preview/page_5.jpg" alt="НЕФТЬ Slide" class="case-image" style="width: 100%; border-radius: 8px;" loading="lazy">
+                <img src="/images/НЕФТЬ/web-assets/preview/page_10.jpg" alt="НЕФТЬ Slide" class="case-image" style="width: 100%; border-radius: 8px;" loading="lazy">
+                <img src="/images/НЕФТЬ/web-assets/preview/page_14.jpg" alt="НЕФТЬ Slide" class="case-image" style="width: 100%; border-radius: 8px;" loading="lazy">
+            </div>
+        </div>
+    </template>
     <!-- Organic Masks for Sections -->
     <svg width="0" height="0" style="position: absolute; pointer-events: none;" aria-hidden="true" focusable="false">
         <defs>

@@ -156,6 +156,12 @@ body.theme-dark {
   text-align: center;
 }
 
+.manifesto-text .char {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* Fluid entire-text gradient effect */
 .manifesto-text {
   font-family: var(--font-title);
   font-size: clamp(1.5rem, 3.5vw, 3rem);
@@ -165,12 +171,15 @@ body.theme-dark {
   font-weight: 700;
   text-transform: lowercase;
   letter-spacing: -0.03em;
+  color: var(--text-color);
 }
 
 .manifesto-text .char {
   display: inline-block;
   will-change: transform, opacity;
+  transition: color 0.5s ease;
 }
+
 
 /* Profile Section */
 .profile-section {
@@ -220,18 +229,54 @@ body.theme-dark {
 .profile-services {
   list-style: none;
   padding: 0;
-  column-count: 2;
-  gap: 3rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
   max-width: 550px;
-  color: var(--text-muted);
-  font-size: 1.15rem;
-  margin-top: 3rem;
+  margin-top: 2rem;
 }
 
 .profile-services li {
-  margin-bottom: 0.8rem;
-  opacity: 0.7;
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 100px;
+  color: var(--text-color);
+  background: transparent;
+  opacity: 0.6;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: default;
+  position: relative;
+  overflow: hidden;
 }
+
+.dark-mode .profile-services li {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Base hover state: lift up slightly, increase opacity, add subtle blur to siblings if we want? Simple is better */
+.profile-services:hover li {
+  opacity: 0.3; /* dim others slightly */
+}
+
+.profile-services li:hover {
+  opacity: 1;
+  transform: translateY(-2px);
+}
+
+/* Unique colors for each tag on hover */
+.profile-services li:nth-child(1):hover { color: #00d2ff; border-color: #00d2ff; box-shadow: 0 4px 15px rgba(0, 210, 255, 0.2); } /* аналитика */
+.profile-services li:nth-child(2):hover { color: #8a2be2; border-color: #8a2be2; box-shadow: 0 4px 15px rgba(138, 43, 226, 0.2); } /* стратегия */
+.profile-services li:nth-child(3):hover { color: #ff007f; border-color: #ff007f; box-shadow: 0 4px 15px rgba(255, 0, 127, 0.2); } /* нейминг */
+.profile-services li:nth-child(4):hover { color: #ff4500; border-color: #ff4500; box-shadow: 0 4px 15px rgba(255, 69, 0, 0.2); } /* брендинг */
+.profile-services li:nth-child(5):hover { color: #ffb703; border-color: #ffb703; box-shadow: 0 4px 15px rgba(255, 183, 3, 0.2); } /* маркетинг */
+.profile-services li:nth-child(6):hover { color: #00fa9a; border-color: #00fa9a; box-shadow: 0 4px 15px rgba(0, 250, 154, 0.2); } /* реклама */
+.profile-services li:nth-child(7):hover { color: #00ced1; border-color: #00ced1; box-shadow: 0 4px 15px rgba(0, 206, 209, 0.2); } /* полиграфия */
+.profile-services li:nth-child(8):hover { color: #9400d3; border-color: #9400d3; box-shadow: 0 4px 15px rgba(148, 0, 211, 0.2); } /* мероприятия */
 
 .profile-right {
   grid-column: 2;
@@ -1120,11 +1165,9 @@ body.theme-dark {
   }
 
   .profile-services {
-    column-count: 1;
-    gap: 0;
+    gap: 0.5rem;
     max-width: none;
-    margin-top: 0;
-    font-size: 0.88rem;
+    margin-top: 1rem;
   }
 
   .profile-quote-heading {
@@ -2772,20 +2815,7 @@ body.theme-dark {
   max-width: 45ch;
 }
 
-.profile-services {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.5rem;
-  margin: 1rem 0;
-}
 
-.profile-services li {
-  font-size: 0.9rem;
-  opacity: 0.5;
-  text-transform: lowercase;
-}
 
 .author-info {
   margin-top: 1rem;
