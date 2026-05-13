@@ -1,0 +1,57 @@
+{
+  "audio": {
+    "letters": [
+      {
+        "id": "a-dot",
+        "label": "a.",
+        "index": 0,
+        "audioFile": null,
+        "fallback": "vibration"
+      },
+      {
+        "id": "l",
+        "label": "l",
+        "index": 1,
+        "audioFile": null,
+        "fallback": "glitch"
+      },
+      {
+        "id": "a",
+        "label": "a",
+        "index": 2,
+        "audioFile": null,
+        "fallback": "glass"
+      },
+      {
+        "id": "b",
+        "label": "b",
+        "index": 3,
+        "audioFile": null,
+        "fallback": "spotlight"
+      }
+    ],
+    "masterVolume": 0.35
+  },
+  "typography": {
+    "heading": {
+      "fontFamily": "Unbounded",
+      "fontSize": "2.5rem",
+      "fontWeight": "700",
+      "color": "#1d1d1f",
+      "lineHeight": "1.15"
+    },
+    "text": {
+      "fontFamily": "Roboto",
+      "fontSize": "1.1rem",
+      "fontWeight": "400",
+      "color": "#1d1d1f",
+      "lineHeight": "1.6"
+    }
+  },
+  "cards": {
+    "shadowOpacity": 28,
+    "shadowSize": 10,
+    "hoverScale": 102,
+    "borderRadius": 18
+  }
+}

@@ -15,6 +15,28 @@
         {
           "type": "raw_html",
           "content": "<div class=\"case-study-detail case-domm\">\n            <div class=\"case-logo-wrapper\">\n                <img src=\"/images/DOMM/logo-black.svg\" alt=\"DOMM Logo\" class=\"case-main-logo\">\n            </div>\n            <div class=\"case-visuals\">\n                <picture class=\"case-image-picture\">\n                    <source\n                        type=\"image/webp\"\n                        srcset=\"/images/optimized/DOMM/domm-viz-1-480.webp 480w, /images/optimized/DOMM/domm-viz-1-800.webp 800w, /images/optimized/DOMM/domm-viz-1-1200.webp 1200w, /images/optimized/DOMM/domm-viz-1-1600.webp 1600w, /images/optimized/DOMM/domm-viz-1-2200.webp 2200w, /images/optimized/DOMM/domm-viz-1-4000.webp 4000w\"\n                        sizes=\"100vw\"\n                    >\n                    <img\n                        src=\"/images/optimized/DOMM/domm-viz-1-1600.jpg\"\n                        srcset=\"/images/optimized/DOMM/domm-viz-1-480.jpg 480w, /images/optimized/DOMM/domm-viz-1-800.jpg 800w, /images/optimized/DOMM/domm-viz-1-1200.jpg 1200w, /images/optimized/DOMM/domm-viz-1-1600.jpg 1600w, /images/optimized/DOMM/domm-viz-1-2200.jpg 2200w, /images/optimized/DOMM/domm-viz-1-4000.jpg 4000w\"\n                        sizes=\"100vw\"\n                        alt=\"DOMM Visualization 1\"\n                        class=\"case-image\"\n                        width=\"4000\"\n                        height=\"2734\"\n                        loading=\"lazy\"\n                        decoding=\"async\"\n                    >\n                </picture>\n                <picture class=\"case-image-picture\">\n                    <source\n                        type=\"image/webp\"\n                        srcset=\"/images/optimized/DOMM/domm-viz-2-480.webp 480w, /images/optimized/DOMM/domm-viz-2-800.webp 800w, /images/optimized/DOMM/domm-viz-2-1200.webp 1200w, /images/optimized/DOMM/domm-viz-2-1600.webp 1600w, /images/optimized/DOMM/domm-viz-2-2200.webp 2200w, /images/optimized/DOMM/domm-viz-2-3840.webp 3840w\"\n                        sizes=\"100vw\"\n                    >\n                    <img\n                        src=\"/images/optimized/DOMM/domm-viz-2-1600.jpg\"\n                        srcset=\"/images/optimized/DOMM/domm-viz-2-480.jpg 480w, /images/optimized/DOMM/domm-viz-2-800.jpg 800w, /images/optimized/DOMM/domm-viz-2-1200.jpg 1200w, /images/optimized/DOMM/domm-viz-2-1600.jpg 1600w, /images/optimized/DOMM/domm-viz-2-2200.jpg 2200w, /images/optimized/DOMM/domm-viz-2-3840.jpg 3840w\"\n                        sizes=\"100vw\"\n                        alt=\"DOMM Visualization 2\"\n                        class=\"case-image\"\n                        width=\"3840\"\n                        height=\"2625\"\n                        loading=\"lazy\"\n                        decoding=\"async\"\n                    >\n                </picture>\n                <picture class=\"case-image-picture\">\n                    <source\n                        type=\"image/webp\"\n                        srcset=\"/images/optimized/DOMM/domm-viz-3-480.webp 480w, /images/optimized/DOMM/domm-viz-3-800.webp 800w, /images/optimized/DOMM/domm-viz-3-1200.webp 1200w, /images/optimized/DOMM/domm-viz-3-1600.webp 1600w, /images/optimized/DOMM/domm-viz-3-2200.webp 2200w, /images/optimized/DOMM/domm-viz-3-3840.webp 3840w\"\n                        sizes=\"100vw\"\n                    >\n                    <img\n                        src=\"/images/optimized/DOMM/domm-viz-3-1600.jpg\"\n                        srcset=\"/images/optimized/DOMM/domm-viz-3-480.jpg 480w, /images/optimized/DOMM/domm-viz-3-800.jpg 800w, /images/optimized/DOMM/domm-viz-3-1200.jpg 1200w, /images/optimized/DOMM/domm-viz-3-1600.jpg 1600w, /images/optimized/DOMM/domm-viz-3-2200.jpg 2200w, /images/optimized/DOMM/domm-viz-3-3840.jpg 3840w\"\n                        sizes=\"100vw\"\n                        alt=\"DOMM Visualization 3\"\n                        class=\"case-image\"\n                        width=\"3840\"\n                        height=\"2624\"\n                        loading=\"lazy\"\n                        decoding=\"async\"\n                    >\n                </picture>\n            </div>\n        </div>"
+        },
+        {
+          "type": "gallery",
+          "images": []
+        },
+        {
+          "type": "text",
+          "content": ""
+        },
+        {
+          "type": "image",
+          "content": "/images/domm/1778698978848-image_2025-03-02_02-47-52_ÐºÐ¾Ð¿Ð¸Ñ_2.png",
+          "caption": ""
+        },
+        {
+          "type": "heading",
+          "level": "h1",
+          "content": ""
+        },
+        {
+          "type": "text",
+          "content": "ваапкпк"
         }
       ]
     }

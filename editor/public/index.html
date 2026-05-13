@@ -23,7 +23,7 @@
         .login-err{color:#e74c3c;font-size:0.78rem;margin-top:0.75rem;text-align:center}
 
         /* Layout */
-        .cms-wrap{max-width:960px;margin:0 auto;padding:2rem 1.5rem 4rem}
+        .cms-wrap{max-width:1400px;margin:0 auto;padding:2rem 1.5rem 4rem}
         .cms-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;border-bottom:1px solid #222;padding-bottom:1.5rem}
         .cms-title{font-size:1.5rem;font-weight:700;letter-spacing:-0.02em}
         .cms-user{font-size:0.75rem;color:#555;display:flex;align-items:center;gap:0.75rem}
@@ -75,6 +75,42 @@
         .preview-container{position:relative;width:100%;background:#0a0a0a;border:1px solid #333;border-radius:6px;overflow:hidden}
         .preview-container iframe{width:1440px;height:900px;transform-origin:top left;border:none;display:block;pointer-events:none}
 
+
+        /* Split layout */
+        .editor-split{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start}
+        .editor-panel{min-width:0}
+        .live-preview{background:#111;border:1px solid #222;border-radius:8px;overflow:hidden}
+        .live-preview-header{padding:0.5rem 0.75rem;font-size:0.75rem;font-weight:600;color:#e67e22;border-bottom:1px solid #222;display:flex;justify-content:space-between;align-items:center}
+        .live-preview-frame{position:relative;width:100%;overflow:hidden}
+        .live-preview-frame iframe{width:1440px;transform-origin:top left;border:none;display:block;pointer-events:none}
+        @media(max-width:900px){.editor-split{grid-template-columns:1fr}.live-preview{position:static}}
+
+
+        /* Style toolbar */
+        .style-bar{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.5rem;align-items:center}
+        .style-bar .sb-group{display:flex;gap:2px;align-items:center;padding-right:0.5rem;border-right:1px solid #222}
+        .style-bar .sb-group:last-child{border:none}
+        .style-bar button{background:#1a1a1a;border:1px solid #333;color:#999;width:28px;height:28px;border-radius:4px;cursor:pointer;font-size:0.75rem;display:flex;align-items:center;justify-content:center}
+        .style-bar button.active{background:#2980b9;color:#fff;border-color:#2980b9}
+        .style-bar button:hover{border-color:#555;color:#eee}
+        .style-bar select{background:#1a1a1a;border:1px solid #333;color:#ccc;padding:0.2rem;border-radius:4px;font-size:0.72rem;height:28px}
+        .style-bar input[type=color]{width:28px;height:28px;padding:0;border:1px solid #333;border-radius:4px;background:none;cursor:pointer}
+        .style-bar input[type=number]{width:50px;background:#1a1a1a;border:1px solid #333;color:#ccc;padding:0.2rem 0.3rem;border-radius:4px;font-size:0.72rem;height:28px}
+        .style-bar .sb-label{font-size:0.65rem;color:#555;margin-right:0.2rem}
+
+
+        /* Rich Editor */
+        .rich-editor{background:#151515;border:1px solid #2a2a2a;padding:0.75rem;color:#eee;width:100%;border-radius:6px;font-size:0.95rem;line-height:1.6;outline:none;margin-top:0.5rem;overflow-y:auto;max-height:300px;white-space:pre-wrap;word-break:break-word}
+        .rich-editor:focus{border-color:#555}
+        .rich-editor:empty:before{content:attr(data-placeholder);color:#555}
+        .rich-editor b,.rich-editor strong{font-weight:700}
+        .rich-editor i,.rich-editor em{font-style:italic}
+
+
+        .proj-card{display:flex;align-items:center;gap:0.75rem}
+        .proj-card-logo{width:48px;height:48px;object-fit:contain;border-radius:8px;background:#222;padding:6px;flex-shrink:0}
+        .proj-card-nologo{width:48px;height:48px;border-radius:8px;background:linear-gradient(135deg,#2980b9,#8e44ad);display:flex;align-items:center;justify-content:center;font-family:'Unbounded',sans-serif;font-size:1.2rem;font-weight:700;color:#fff;flex-shrink:0}
+
         /* Toast */
         .toast{position:fixed;bottom:1rem;right:1rem;padding:0.6rem 1.2rem;border-radius:6px;font-size:0.85rem;font-weight:600;z-index:9999;animation:fadeIn .3s ease}
         .toast-ok{background:#27ae60;color:#fff}
@@ -83,6 +119,25 @@
 
         .empty-state{text-align:center;padding:4rem 2rem;color:#444}
         .empty-state p{margin-top:0.5rem;font-size:0.9rem}
+
+        /* Tabs */
+        .tabs{display:flex;gap:0;border-bottom:1px solid #222;margin-bottom:2rem}
+        .tab{padding:0.6rem 1.2rem;font-size:0.85rem;font-weight:600;color:#666;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s}
+        .tab:hover{color:#ccc}
+        .tab.active{color:#fff;border-bottom-color:#fff}
+
+        /* Settings */
+        .settings-section{margin-bottom:2rem;padding:1.5rem;background:#111;border:1px solid #222;border-radius:8px}
+        .settings-title{font-size:1rem;font-weight:700;margin-bottom:1rem}
+        .audio-letter{display:flex;align-items:center;gap:1rem;padding:0.75rem 0;border-bottom:1px solid #1a1a1a}
+        .audio-letter:last-child{border:none}
+        .audio-letter-char{font-size:1.8rem;font-weight:800;width:50px;text-align:center;color:#fff;font-family:'Unbounded',sans-serif}
+        .audio-letter-info{flex:1}
+        .audio-letter-label{font-size:0.75rem;color:#666;margin-bottom:0.3rem}
+        .audio-letter-file{font-size:0.82rem;color:#5dade2}
+        .audio-letter-actions{display:flex;gap:0.5rem;align-items:center}
+        .volume-slider{width:80px;accent-color:#5dade2}
+
     </style>
 </head>
 <body>
@@ -92,6 +147,33 @@
         const { useState, useEffect, useRef } = React;
         const API = 'http://localhost:3001/api';
 
+
+
+        const FONT_OPTIONS = [
+            { id: 'Unbounded', label: 'Unbounded' },
+            { id: 'Roboto', label: 'Roboto' },
+            { id: 'Inter', label: 'Inter' },
+            { id: 'Outfit', label: 'Outfit' },
+        ];
+
+        const ANIM_OPTIONS = [
+            { id: 'none', label: 'Без анимации' },
+            { id: 'fade-up', label: 'Появление снизу' },
+            { id: 'fade-in', label: 'Плавное появление' },
+            { id: 'split-lines', label: 'По строкам' },
+            { id: 'split-words', label: 'По словам' },
+            { id: 'scale-up', label: 'Увеличение' },
+        ];
+
+        const MASK_PRESETS = [
+            { id: 'none', label: 'Без маски', clip: 'none' },
+            { id: 'circle', label: 'Круг', clip: 'circle(45% at 50% 50%)' },
+            { id: 'blob-1', label: 'Blob 1', clip: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)' },
+            { id: 'blob-2', label: 'Blob 2', clip: 'ellipse(45% 40% at 50% 50%)' },
+            { id: 'arch', label: 'Арка', clip: 'polygon(0% 100%, 0% 30%, 10% 10%, 30% 2%, 50% 0%, 70% 2%, 90% 10%, 100% 30%, 100% 100%)' },
+            { id: 'diamond', label: 'Ромб', clip: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' },
+            { id: 'wave', label: 'Волна', clip: 'polygon(0% 15%, 15% 0%, 50% 10%, 85% 0%, 100% 15%, 100% 100%, 0% 100%)' },
+        ];
         const BLOCK_TYPES = [
             { type: 'heading', label: 'Заголовок', icon: 'H' },
             { type: 'text', label: 'Текст', icon: '¶' },
@@ -164,6 +246,8 @@
             const [loading, setLoading] = useState(true);
             const [editing, setEditing] = useState(null);
             const [toast, setToast] = useState(null);
+            const [tab, setTab] = useState('projects');
+            const [settings, setSettings] = useState(null);
 
             const showToast = (msg, ok = true) => { setToast({ msg, ok }); setTimeout(() => setToast(null), 2000); };
 
@@ -174,7 +258,19 @@
                 }).then(d => { if (d) { setData(d); setLoading(false); } }).catch(() => setLoading(false));
             };
 
-            useEffect(() => { if (authed) loadData(); }, [authed]);
+            const loadSettings = () => {
+                apiFetch(`${API}/settings`).then(r => r.json()).then(s => setSettings(s)).catch(() => {});
+            };
+
+            const saveSettings = async (s) => {
+                try {
+                    await apiFetch(`${API}/settings`, { method: 'POST', body: JSON.stringify(s) });
+                    setSettings(s);
+                    showToast('Настройки сохранены');
+                } catch { showToast('Ошибка', false); }
+            };
+
+            useEffect(() => { if (authed) { loadData(); loadSettings(); } }, [authed]);
 
             const save = async (newData) => {
                 try {
@@ -214,31 +310,213 @@
             return (
                 <div className="cms-wrap">
                     <div className="cms-header">
-                        <div className="cms-title">A.LAB Портфолио</div>
+                        <div className="cms-title">A.LAB CMS</div>
                         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                            <button className="btn btn-white" onClick={addProject}>+ Новый кейс</button>
+                            {tab === 'projects' && <button className="btn btn-white" onClick={addProject}>+ Новый кейс</button>}
                             <button className="btn-ghost" onClick={logout}>Выйти</button>
                         </div>
                     </div>
-                    {!data.projects.length && <div className="empty-state"><h2>Нет проектов</h2><p>Нажмите «+ Новый кейс»</p></div>}
-                    {Object.keys(data.categories).map(cid => {
-                        const projs = data.projects.filter(p => p.categoryId === cid);
-                        if (!projs.length) return null;
-                        return (
-                            <div key={cid} className="cat-section">
-                                <div className="cat-label">{data.categories[cid]}</div>
-                                <div className="proj-grid">
-                                    {projs.map(p => (
-                                        <div key={p.id} className="proj-card" onClick={() => setEditing(p.id)}>
-                                            <div className="proj-card-id">{p.id} · {(p.blocks||[]).length} блоков</div>
-                                            <div className="proj-card-title">{p.title}</div>
-                                        </div>
-                                    ))}
+                    <div className="tabs">
+                        <div className={`tab ${tab==='projects'?'active':''}`} onClick={()=>setTab('projects')}>Проекты</div>
+                        <div className={`tab ${tab==='settings'?'active':''}`} onClick={()=>setTab('settings')}>Настройки сайта</div>
+                    </div>
+                    {tab === 'settings' && settings && <SettingsTab settings={settings} onSave={saveSettings} />}
+                    {tab === 'projects' && <>
+                        {!data.projects.length && <div className="empty-state"><h2>Нет проектов</h2><p>Нажмите «+ Новый кейс»</p></div>}
+                        {Object.keys(data.categories).map(cid => {
+                            const projs = data.projects.filter(p => p.categoryId === cid);
+                            if (!projs.length) return null;
+                            return (
+                                <div key={cid} className="cat-section">
+                                    <div className="cat-label">{data.categories[cid]}</div>
+                                    <div className="proj-grid">
+                                        {projs.map(p => (
+                                            <div key={p.id} className="proj-card" onClick={() => setEditing(p.id)}>
+                                                {p.logo ? <img src={p.logo} alt="" className="proj-card-logo"/> : <div className="proj-card-nologo">{p.title.charAt(0)}</div>}
+                                                <div><div className="proj-card-id">{p.id} · {(p.blocks||[]).length} блоков</div>
+                                                <div className="proj-card-title">{p.title}</div></div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        })}
+                    </>}
                     {toast && <div className={`toast ${toast.ok ? 'toast-ok' : 'toast-err'}`}>{toast.msg}</div>}
+                </div>
+            );
+        }
+
+
+
+        // ─── CardPreview ───
+        function CardPreview({ cards }) {
+            const r = cards.borderRadius ?? 12;
+            const sz = cards.shadowSize ?? 10;
+            const op = cards.shadowOpacity ?? 15;
+            const sc = (cards.hoverScale ?? 103) / 100;
+            const shadow = `0 ${Math.round(sz/2)}px ${sz}px rgba(0,0,0,${(op/100).toFixed(2)})`;
+            const shadowHover = `0 ${sz}px ${sz*2}px rgba(0,0,0,${(Math.min(op*1.5,100)/100).toFixed(2)})`;
+            const demos = [
+                {title:'Проект 1', cat:'Брендинг', img:'https://images.unsplash.com/photo-1545239351-ef35f43d514b?w=400&h=300&fit=crop'},
+                {title:'Проект 2', cat:'Интерьер', img:'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&h=300&fit=crop'},
+                {title:'Проект 3', cat:'Архитектура', img:'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=300&fit=crop'}
+            ];
+            const [hov, setHov] = useState(-1);
+            return (
+                <div style={{background:'#f5f5f7',borderRadius:12,padding:'2rem',display:'flex',gap:'1.2rem',justifyContent:'center',flexWrap:'wrap'}}>
+                    {demos.map((d,i) => (
+                        <div key={i}
+                            onMouseEnter={()=>setHov(i)} onMouseLeave={()=>setHov(-1)}
+                            style={{
+                                width:180, cursor:'pointer',
+                                transition:'transform 0.3s ease, box-shadow 0.3s ease',
+                                borderRadius: r, overflow:'hidden',
+                                boxShadow: hov===i ? shadowHover : shadow,
+                                transform: hov===i ? `scale(${sc})` : 'scale(1)',
+                                background:'#fff'
+                            }}>
+                            <img src={d.img} alt="" style={{width:'100%',height:120,objectFit:'cover',display:'block'}}/>
+                            <div style={{padding:'0.6rem 0.75rem'}}>
+                                <div style={{fontSize:'0.8rem',fontWeight:600,color:'#1d1d1f'}}>{d.title}</div>
+                                <div style={{fontSize:'0.65rem',color:'#999',marginTop:'0.2rem'}}>{d.cat}</div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        // ─── Settings Tab ───
+        function SettingsTab({ settings, onSave }) {
+            const [s, setS] = useState(JSON.parse(JSON.stringify(settings)));
+            const [uploading, setUploading] = useState(null);
+            const audioRefs = useRef({});
+
+            const LETTERS = [
+                { id: 'a-dot', char: 'a.', desc: 'Вибрация / Deep Bass', fallback: 'vibration' },
+                { id: 'l', char: 'l', desc: 'Глитч / Scramble', fallback: 'glitch' },
+                { id: 'a', char: 'a', desc: 'Стекло / Bell', fallback: 'glass' },
+                { id: 'b', char: 'b', desc: 'Прожектор / Pad', fallback: 'spotlight' }
+            ];
+
+            const ensure = () => {
+                if (!s.audio) s.audio = {};
+                if (!s.audio.letters) s.audio.letters = LETTERS.map((l,i) => ({ id: l.id, label: l.char, index: i, audioFile: null, fallback: l.fallback }));
+                if (s.audio.masterVolume === undefined) s.audio.masterVolume = 0.35;
+                return s;
+            };
+
+            const getLetter = (id) => {
+                ensure();
+                return s.audio.letters.find(l => l.id === id) || { audioFile: null };
+            };
+
+            const setLetterAudio = (id, audioFile) => {
+                ensure();
+                const letters = s.audio.letters.map(l => l.id === id ? { ...l, audioFile } : l);
+                setS({ ...s, audio: { ...s.audio, letters } });
+            };
+
+            const handleUpload = async (e, letterId) => {
+                const file = e.target.files[0]; if (!file) return;
+                setUploading(letterId);
+                const fd = new FormData();
+                fd.append('audio', file);
+                try {
+                    const r = await fetch(`${API}/upload-audio`, { method: 'POST', body: fd, headers: { 'X-CMS-Token': sessionStorage.getItem('cms_token') || '' } });
+                    const j = await r.json();
+                    if (j.path) setLetterAudio(letterId, j.path);
+                } catch(e) { console.error(e); }
+                setUploading(null);
+            };
+
+            const playPreview = (audioFile) => {
+                // Stop any playing
+                Object.values(audioRefs.current).forEach(a => { a.pause(); a.currentTime = 0; });
+                if (audioFile) {
+                    const audio = new Audio(audioFile);
+                    audio.volume = s.audio?.masterVolume || 0.35;
+                    audioRefs.current[audioFile] = audio;
+                    audio.play().catch(() => {});
+                }
+            };
+
+            return (
+                <div>
+                    <div className="settings-section">
+                        <div className="settings-title">🔊 Аудио для букв логотипа</div>
+                        <p style={{fontSize:'0.8rem',color:'#666',marginBottom:'1rem'}}>Назначьте аудиофайл для каждой буквы. Если файл не задан — используется процедурный синтез.</p>
+                        <div style={{marginBottom:'1rem',display:'flex',alignItems:'center',gap:'1rem'}}>
+                            <span style={{fontSize:'0.8rem',color:'#888'}}>Общая громкость:</span>
+                            <input type="range" className="volume-slider" min="0" max="1" step="0.05" value={s.audio?.masterVolume||0.35} onChange={e => setS({...s, audio:{...s.audio, masterVolume: parseFloat(e.target.value)}})} style={{width:120}} />
+                            <span style={{fontSize:'0.75rem',color:'#555'}}>{Math.round((s.audio?.masterVolume||0.35)*100)}%</span>
+                        </div>
+                        {LETTERS.map(letter => {
+                            const data = getLetter(letter.id);
+                            const hasFile = !!data.audioFile;
+                            return (
+                                <div key={letter.id} className="audio-letter">
+                                    <div className="audio-letter-char">{letter.char}</div>
+                                    <div className="audio-letter-info">
+                                        <div className="audio-letter-label">{letter.desc}</div>
+                                        {hasFile ? (
+                                            <div className="audio-letter-file">{data.audioFile.split('/').pop()}</div>
+                                        ) : (
+                                            <div style={{fontSize:'0.78rem',color:'#555',fontStyle:'italic'}}>Процедурный синтез ({letter.fallback})</div>
+                                        )}
+                                    </div>
+                                    <div className="audio-letter-actions">
+                                        {hasFile && <button className="btn btn-dark btn-sm" onClick={() => playPreview(data.audioFile)}>▶</button>}
+                                        {hasFile && <button className="btn btn-dark btn-sm" style={{color:'#e74c3c'}} onClick={() => setLetterAudio(letter.id, null)}>✕</button>}
+                                        <label className="btn btn-dark btn-sm" style={{cursor:'pointer'}}>
+                                            <input type="file" accept="audio/*" style={{display:'none'}} onChange={e => handleUpload(e, letter.id)} />
+                                            {uploading === letter.id ? '...' : (hasFile ? 'Заменить' : 'Загрузить')}
+                                        </label>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div className="settings-section">
+                        <div className="settings-title">🎨 Figma интеграция</div>
+                        <p style={{fontSize:'0.8rem',color:'#666',marginBottom:'0.7rem'}}>Вставляйте URL из Figma — изображения импортируются автоматически. Работает с приватными файлами.</p>
+                        <div style={{display:'flex',gap:'0.5rem',alignItems:'center'}}>
+                            <span style={{fontSize:'0.75rem',color:'#888',whiteSpace:'nowrap'}}>Personal Access Token:</span>
+                            <input className="input" type="password" style={{flex:1}} value={s.figmaToken||''} onChange={e=>setS({...s, figmaToken: e.target.value})} placeholder="figd_..."/>
+                        </div>
+                        <p style={{fontSize:'0.7rem',color:'#555',marginTop:'0.4rem'}}>Создайте токен: Figma → Settings → Personal Access Tokens. Нужен доступ к файлам, из которых импортируете.</p>
+                    </div>
+
+                    <div className="settings-section">
+                        <div className="settings-title">🃏 Внешний вид карточек</div>
+                        <p style={{fontSize:'0.8rem',color:'#666',marginBottom:'1rem'}}>Скругление углов и тени для карточек проектов на главной странице.</p>
+                        <div style={{display:'flex',gap:'2rem',flexWrap:'wrap',marginBottom:'1.5rem'}}>
+                            <div>
+                                <label style={{fontSize:'0.75rem',color:'#888',display:'block',marginBottom:'0.3rem'}}>Скругление (px)</label>
+                                <input className="input" type="number" style={{width:100}} min="0" max="60" value={s.cards?.borderRadius ?? 12} onChange={e=>setS({...s, cards:{...s.cards, borderRadius: parseInt(e.target.value)||0}})}/>
+                            </div>
+                            <div>
+                                <label style={{fontSize:'0.75rem',color:'#888',display:'block',marginBottom:'0.3rem'}}>Размер тени</label>
+                                <input type="range" min="0" max="50" value={s.cards?.shadowSize ?? 10} onChange={e=>setS({...s, cards:{...s.cards, shadowSize: parseInt(e.target.value)}})} style={{width:150}}/>
+                                <span style={{fontSize:'0.72rem',color:'#555',marginLeft:'0.5rem'}}>{s.cards?.shadowSize ?? 10}px</span>
+                            </div>
+                            <div>
+                                <label style={{fontSize:'0.75rem',color:'#888',display:'block',marginBottom:'0.3rem'}}>Прозрачность тени</label>
+                                <input type="range" min="0" max="100" value={s.cards?.shadowOpacity ?? 15} onChange={e=>setS({...s, cards:{...s.cards, shadowOpacity: parseInt(e.target.value)}})} style={{width:150}}/>
+                                <span style={{fontSize:'0.72rem',color:'#555',marginLeft:'0.5rem'}}>{s.cards?.shadowOpacity ?? 15}%</span>
+                            </div>
+                            <div>
+                                <label style={{fontSize:'0.75rem',color:'#888',display:'block',marginBottom:'0.3rem'}}>Масштаб при наведении</label>
+                                <input type="range" min="100" max="110" step="1" value={s.cards?.hoverScale ?? 103} onChange={e=>setS({...s, cards:{...s.cards, hoverScale: parseInt(e.target.value)}})} style={{width:150}}/>
+                                <span style={{fontSize:'0.72rem',color:'#555',marginLeft:'0.5rem'}}>{(s.cards?.hoverScale ?? 103)/100}x</span>
+                            </div>
+                        </div>
+                        <div style={{fontSize:'0.75rem',color:'#e67e22',fontWeight:600,marginBottom:'0.5rem'}}>Предпросмотр</div>
+                        <CardPreview cards={s.cards || {}}/>
+                    </div>
+
+                    <button className="btn btn-white" onClick={() => onSave(s)}>Сохранить настройки</button>
                 </div>
             );
         }
@@ -276,23 +554,24 @@
                         </div>
                     </div>
                     <div className="field-row">
-                        <div><label className="field-label">ID</label><input className="input" value={proj.id} onChange={e=>update('id',e.target.value)}/></div>
+                        <div><label className="field-label">Идентификатор</label><input className="input" value={proj.id} onChange={e=>update('id',e.target.value)}/></div>
                         <div><label className="field-label">Категория</label><select className="input" value={proj.categoryId} onChange={e=>update('categoryId',e.target.value)}>{Object.entries(categories).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select></div>
                     </div>
                     <div className="field-row">
                         <div><label className="field-label">Название</label><input className="input" value={proj.title} onChange={e=>update('title',e.target.value)}/></div>
-                        <div><label className="field-label">Логотип</label><div style={{display:'flex',gap:'0.5rem'}}><input className="input" value={proj.logo||''} onChange={e=>update('logo',e.target.value)} placeholder="/images/..."/><label className="btn btn-dark btn-sm" style={{cursor:'pointer',whiteSpace:'nowrap'}}><input type="file" style={{display:'none'}} onChange={e=>handleUpload(e,p=>update('logo',p))}/>Файл</label></div></div>
+                        <div><label className="field-label">Логотип</label><div style={{display:'flex',gap:'0.5rem'}}><input className="input" value={proj.logo||''} onChange={e=>update('logo',e.target.value)} placeholder="Путь к логотипу"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer',whiteSpace:'nowrap'}}><input type="file" style={{display:'none'}} onChange={e=>handleUpload(e,p=>update('logo',p))}/>Файл</label></div></div>
                     </div>
                     <div style={{marginBottom:'1rem'}}><label style={{display:'flex',alignItems:'center',gap:'0.5rem',fontSize:'0.85rem',color:'#999'}}><input type="checkbox" checked={proj.isExternal||false} onChange={e=>update('isExternal',e.target.checked)}/>Внешняя ссылка</label>
                     {proj.isExternal && <input className="input" style={{marginTop:'0.5rem'}} value={proj.externalUrl||''} onChange={e=>update('externalUrl',e.target.value)} placeholder="https://behance.net/..."/>}</div>
 
                     {!proj.isExternal && (
-                        <div>
-                            <h3 style={{fontSize:'1rem',fontWeight:700,marginBottom:'0.5rem',marginTop:'1.5rem',paddingTop:'1rem',borderTop:'1px solid #222'}}>Блоки ({(proj.blocks||[]).length})</h3>
+                        <div className="editor-split">
+                        <div className="editor-panel">
+                            <h3 style={{fontSize:'1rem',fontWeight:700,marginBottom:'0.5rem',marginTop:'0.5rem'}}>Блоки ({(proj.blocks||[]).length})</h3>
                             {(proj.blocks||[]).map((block,i)=>(
-                                <div key={i} className="block-item">
+                                <div key={i} className="block-item" style={block.enabled===false?{opacity:0.4}:{}}>
                                     <div className="block-head">
-                                        <span className="block-type">{BLOCK_TYPES.find(b=>b.type===block.type)?.icon} {block.type}</span>
+                                        <label style={{display:'flex',alignItems:'center',gap:'0.4rem',cursor:'pointer'}}><input type="checkbox" checked={block.enabled!==false} onChange={e=>updateBlock(i,'enabled',e.target.checked)} style={{accentColor:'#5dade2'}}/><span className="block-type">{BLOCK_TYPES.find(b=>b.type===block.type)?.icon} {BLOCK_TYPES.find(b=>b.type===block.type)?.label || block.type}</span></label>
                                         <div className="block-actions"><button onClick={()=>moveBlock(i,-1)}>↑</button><button onClick={()=>moveBlock(i,1)}>↓</button><button style={{color:'#c0392b'}} onClick={()=>removeBlock(i)}>✕</button></div>
                                     </div>
                                     <BlockEditor block={block} index={i} projId={proj.id} updateBlock={updateBlock} handleUpload={handleUpload}/>
@@ -300,24 +579,181 @@
                             ))}
                             <div className="add-bar">{BLOCK_TYPES.map(bt=><button key={bt.type} className="btn btn-dark btn-sm" onClick={()=>addBlock(bt.type)}>{bt.icon} {bt.label}</button>)}</div>
                         </div>
+                        <div className="live-preview">
+                            <div className="live-preview-header"><span>Предпросмотр</span><span style={{color:'#555'}}>{(proj.blocks||[]).filter(b=>b.enabled!==false).length} вкл.</span></div>
+                            <LivePreview blocks={proj.blocks||[]} title={proj.title}/>
+                        </div>
+                        </div>
                     )}
                     {uploading && <div className="toast toast-ok">Загрузка...</div>}
                 </div>
             );
         }
 
+
+
+        // ─── RichToolbar — works with selected text via execCommand ───
+        function RichToolbar({ editorRef, block, index, updateBlock }) {
+            const exec = (cmd, val) => {
+                if (editorRef.current) editorRef.current.focus();
+                document.execCommand(cmd, false, val || null);
+            };
+            const s = block.style || {};
+            const upS = (k, v) => updateBlock(index, 'style', { ...s, [k]: v });
+
+            return (
+                <div className="style-bar">
+                    <div className="sb-group">
+                        <button onMouseDown={e=>{e.preventDefault();exec('bold')}} title="Жирный"><b>Ж</b></button>
+                        <button onMouseDown={e=>{e.preventDefault();exec('italic')}} title="Курсив"><i>К</i></button>
+                        <button onMouseDown={e=>{e.preventDefault();exec('underline')}} title="Подчёркнутый"><u>П</u></button>
+                    </div>
+                    <div className="sb-group">
+                        <span className="sb-label">Цвет</span>
+                        <input type="color" value="#1d1d1f" onChange={e=>{exec('foreColor',e.target.value)}}/>
+                    </div>
+                    <div className="sb-group">
+                        <span className="sb-label">Размер</span>
+                        <select defaultValue="" onMouseDown={e=>e.stopPropagation()} onChange={e=>{
+                            if(!e.target.value) return;
+                            exec('fontSize', 7);
+                            setTimeout(()=>{
+                                const el = editorRef.current;
+                                if(el) el.querySelectorAll('font[size="7"]').forEach(n=>{n.removeAttribute('size');n.style.fontSize=e.target.value;});
+                            },0);
+                        }}>
+                            <option value="">—</option>
+                            <option value="0.8rem">Мелкий</option>
+                            <option value="1rem">Обычный</option>
+                            <option value="1.3rem">Средний</option>
+                            <option value="1.6rem">Крупный</option>
+                            <option value="2rem">Большой</option>
+                            <option value="3rem">Огромный</option>
+                        </select>
+                    </div>
+                    <div className="sb-group">
+                        <span className="sb-label">Шрифт</span>
+                        <select defaultValue="" onMouseDown={e=>e.stopPropagation()} onChange={e=>{if(e.target.value)exec('fontName',e.target.value)}}>
+                            <option value="">—</option>
+                            {FONT_OPTIONS.map(fo=><option key={fo.id} value={fo.id}>{fo.label}</option>)}
+                        </select>
+                    </div>
+                    <div className="sb-group">
+                        <span className="sb-label">Анимация</span>
+                        <select value={s.animation||'none'} onChange={e=>upS('animation',e.target.value)}>
+                            {ANIM_OPTIONS.map(a=><option key={a.id} value={a.id}>{a.label}</option>)}
+                        </select>
+                    </div>
+                </div>
+            );
+        }
+
+        // ─── RichEditor — contentEditable with toolbar ───
+        function RichEditor({ block, index, updateBlock, placeholder }) {
+            const ref = useRef(null);
+            const lastHtml = useRef(block.content || '');
+
+            useEffect(() => {
+                if (ref.current && ref.current.innerHTML !== (block.content||'')) {
+                    ref.current.innerHTML = block.content || '';
+                }
+            }, []);
+
+            const onInput = () => {
+                if (ref.current) {
+                    lastHtml.current = ref.current.innerHTML;
+                    updateBlock(index, 'content', ref.current.innerHTML);
+                }
+            };
+
+            return (
+                <div>
+                    <RichToolbar editorRef={ref} block={block} index={index} updateBlock={updateBlock}/>
+                    <div ref={ref} contentEditable className="rich-editor" onInput={onInput}
+                         data-placeholder={placeholder || 'Введите текст...'}
+                         style={{minHeight: 80}}/>
+                </div>
+            );
+        }
+
+        // ─── LivePreview ───
+        function LivePreview({ blocks, title }) {
+            const ref = useRef(null);
+            const iframeRef = useRef(null);
+            const [scale, setScale] = useState(0.3);
+            const [iframeH, setIframeH] = useState(900);
+
+            useEffect(() => {
+                if (!ref.current) return;
+                const w = ref.current.parentElement.clientWidth;
+                setScale(w / 1440);
+            }, []);
+
+            // Auto-resize iframe to fit content
+            useEffect(() => {
+                const iframe = iframeRef.current;
+                if (!iframe) return;
+                const onLoad = () => {
+                    try {
+                        const h = iframe.contentDocument.body.scrollHeight;
+                        if (h > 100) setIframeH(h);
+                    } catch(e) {}
+                };
+                iframe.addEventListener('load', onLoad);
+                return () => iframe.removeEventListener('load', onLoad);
+            }, [blocks]);
+
+            const html = (blocks||[]).filter(b => b.enabled !== false).map(b => {
+                switch(b.type) {
+                    case 'heading': return `<${b.level||'h2'} style="font-family:'Unbounded',sans-serif;font-weight:700;margin:1rem 5%">${b.content||''}</${b.level||'h2'}>`;
+                    case 'text': return `<p style="font-family:'Roboto',sans-serif;margin:1rem 5%;line-height:1.6;font-size:1.1rem">${(b.content||'').replace(/\n/g,'<br>')}</p>`;
+                    case 'image': return b.content ? `<div style="margin:1rem 5%"><img src="${b.content}" style="max-width:100%;border-radius:8px;${b.clipPath&&b.clipPath!=='none'?'clip-path:'+b.clipPath:''}" /></div>` : '';
+                    case 'video': return b.content ? `<div style="margin:1rem 5%"><video src="${b.content}" autoplay muted loop playsinline style="width:100%;border-radius:8px"></video></div>` : '';
+                    case 'gallery': return `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:0.5rem;margin:1rem 5%">${(b.images||[]).map(s=>`<img src="${s}" style="width:100%;border-radius:4px"/>`).join('')}</div>`;
+                    case 'spacer': return `<div style="height:${b.height||80}px"></div>`;
+                    case 'raw_html': return b.content || '';
+                    case 'masked_image': return b.content ? `<div style="margin:1rem 5%;text-align:center"><img src="${b.content}" style="max-width:100%;${b.clipPath&&b.clipPath!=='none'?'clip-path:'+b.clipPath:''}" /></div>` : '';
+                    default: return '';
+                }
+            }).join('\n');
+
+            const srcDoc = `<!DOCTYPE html><html><head><link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}body{background:#f5f5f5;color:#1a1a1a;font-family:'Roboto',sans-serif;padding:2rem 0}img{max-width:100%;height:auto}</style></head><body>${html||`<div style="padding:8rem 5%;text-align:center;color:#999"><p>Добавьте блоки</p></div>`}</body></html>`;
+
+            return (
+                <div className="live-preview-frame" ref={ref} style={{height: iframeH * scale}}>
+                    <iframe ref={iframeRef} srcDoc={srcDoc} style={{transform:`scale(${scale})`, width:1440, height:iframeH}} />
+                </div>
+            );
+        }
+
         // ─── BlockEditor ───
         function BlockEditor({ block, index, projId, updateBlock, handleUpload }) {
-            if (block.type === 'heading') return (<><div style={{display:'flex',gap:'0.5rem',marginBottom:'0.5rem'}}>{['h1','h2','h3','h4'].map(l=><button key={l} className={`btn btn-sm ${block.level===l?'btn-blue':'btn-dark'}`} onClick={()=>updateBlock(index,'level',l)}>{l.toUpperCase()}</button>)}</div><input className="input" value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="Заголовок"/></>);
-            if (block.type === 'text') return <textarea className="input" value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="Текст..." rows={4}/>;
-            if (block.type === 'image') return (<><div style={{display:'flex',gap:'0.5rem'}}><input className="input" value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="URL"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer',whiteSpace:'nowrap'}}><input type="file" style={{display:'none'}} onChange={e=>handleUpload(e,p=>updateBlock(index,'content',p))}/>Загрузить</label></div>{block.content && <img src={block.content} alt="" style={{maxWidth:'100%',maxHeight:200,marginTop:'0.5rem',borderRadius:6,objectFit:'contain',background:'#000'}}/>}</>);
-            if (block.type === 'video') return (<div style={{display:'flex',gap:'0.5rem'}}><input className="input" value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="URL видео"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer',whiteSpace:'nowrap'}}><input type="file" style={{display:'none'}} accept="video/*" onChange={e=>handleUpload(e,p=>updateBlock(index,'content',p))}/>Загрузить</label></div>);
+            if (block.type === 'heading') return (<><div style={{display:'flex',gap:'0.5rem',marginBottom:'0.5rem'}}>{['h1','h2','h3','h4'].map(l=><button key={l} className={`btn btn-sm ${block.level===l?'btn-blue':'btn-dark'}`} onClick={()=>updateBlock(index,'level',l)}>{l.toUpperCase()}</button>)}</div><RichEditor block={block} index={index} updateBlock={updateBlock} placeholder="Введите заголовок"/></>);
+            if (block.type === 'text') return <RichEditor block={block} index={index} updateBlock={updateBlock} placeholder="Введите текст..."/>;
+            if (block.type === 'image') return (<><div style={{display:'flex',gap:'0.5rem',flexWrap:'wrap'}}><input className="input" style={{flex:1,minWidth:200}} value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="Ссылка или Figma URL"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer',whiteSpace:'nowrap'}}><input type="file" style={{display:'none'}} onChange={e=>handleUpload(e,p=>updateBlock(index,'content',p))}/>Загрузить</label></div>{block.content && <img src={block.content} alt="" style={{maxWidth:'100%',maxHeight:200,marginTop:'0.5rem',borderRadius:6,objectFit:'contain',background:'#000'}}/>}</>);
+            if (block.type === 'video') return (<div style={{display:'flex',gap:'0.5rem'}}><input className="input" value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="Ссылка на видео"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer',whiteSpace:'nowrap'}}><input type="file" style={{display:'none'}} accept="video/*" onChange={e=>handleUpload(e,p=>updateBlock(index,'content',p))}/>Загрузить</label></div>);
             if (block.type === 'gallery') { const imgs=block.images||[]; return (<><div style={{display:'flex',flexWrap:'wrap',gap:'0.5rem',marginBottom:'0.5rem'}}>{imgs.map((img,gi)=><div key={gi} style={{position:'relative',width:80,height:80}}><img src={img} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:4}}/><button onClick={()=>{const n=[...imgs];n.splice(gi,1);updateBlock(index,'images',n);}} style={{position:'absolute',top:-4,right:-4,background:'#c0392b',color:'#fff',border:'none',borderRadius:'50%',width:18,height:18,fontSize:'0.6rem',cursor:'pointer',lineHeight:'18px'}}>✕</button></div>)}</div><label className="btn btn-dark btn-sm" style={{cursor:'pointer'}}><input type="file" style={{display:'none'}} multiple onChange={e=>{Array.from(e.target.files).forEach(file=>{const fd=new FormData();fd.append('media',file);fd.append('caseId',projId);fetch(`${API}/upload`,{method:'POST',body:fd,headers:{'X-CMS-Token':sessionStorage.getItem('cms_token')||''}}).then(r=>r.json()).then(j=>{if(j.path)updateBlock(index,'images',[...(block.images||[]),j.path]);});});}}/>+ Изображения</label></>); }
             if (block.type === 'spacer') return (<div style={{display:'flex',alignItems:'center',gap:'0.75rem'}}><span style={{fontSize:'0.8rem',color:'#666'}}>Высота:</span><input className="input" type="number" style={{width:100}} value={block.height||80} onChange={e=>updateBlock(index,'height',parseInt(e.target.value)||40)}/><span style={{fontSize:'0.75rem',color:'#555'}}>px</span></div>);
-            if (block.type === 'raw_html') {
-                const srcDoc = `<html><head><link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"><style>:root{--bg-color:#f5f5f5;--text-color:#1a1a1a;--font-title:'Unbounded',sans-serif;--font-body:'Roboto',sans-serif}body{background:var(--bg-color);margin:0;padding:0;color:var(--text-color);font-family:var(--font-body)}img{max-width:100%;height:auto}</style></head><body>${block.content||''}</body></html>`;
-                const scale = 0.62;
-                return (<><textarea className="input" style={{fontFamily:'monospace',fontSize:'0.78rem',minHeight:120}} value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="<div>...</div>"/><div className="preview-wrap"><div className="preview-label">Превью</div><div className="preview-container" style={{height:900*scale,overflow:'hidden'}}><iframe srcDoc={srcDoc} style={{transform:`scale(${scale})`}}/></div></div></>);
+            if (block.type === 'raw_html') return <textarea className="input" style={{fontFamily:'monospace',fontSize:'0.78rem',minHeight:120}} value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="HTML-код..."/>;
+            if (block.type === 'masked_image') {
+                const cp = block.clipPath || 'none';
+                const activeClass = (preset) => preset.clip === cp ? 'btn-blue' : 'btn-dark';
+                return (
+                    <div>
+                        <div style={{display:'flex',gap:'0.5rem',marginBottom:'0.5rem'}}>
+                            <input className="input" value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="Ссылка на изображение"/>
+                            <label className="btn btn-dark btn-sm" style={{cursor:'pointer',whiteSpace:'nowrap'}}>
+                                <input type="file" style={{display:'none'}} onChange={e=>handleUpload(e,p=>updateBlock(index,'content',p))}/>Файл
+                            </label>
+                        </div>
+                        <div style={{display:'flex',gap:'0.4rem',flexWrap:'wrap',marginBottom:'0.5rem'}}>
+                            {MASK_PRESETS.map(m => (
+                                <button key={m.id} className={'btn btn-sm ' + activeClass(m)} onClick={()=>updateBlock(index,'clipPath',m.clip)}>{m.label}</button>
+                            ))}
+                        </div>
+                        {block.content ? <div style={{background:'#1a1a1a',borderRadius:8,padding:'1rem',textAlign:'center'}}><img src={block.content} alt="" style={{maxWidth:'100%',maxHeight:300,objectFit:'contain',clipPath:cp,transition:'clip-path 0.3s'}}/></div> : null}
+                    </div>
+                );
             }
             return <p style={{color:'#666'}}>Неизвестный тип: {block.type}</p>;
         }

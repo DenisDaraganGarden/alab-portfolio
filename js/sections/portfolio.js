@@ -15,12 +15,29 @@ export async function initPortfolio(container) {
 
     let portfolioData = null;
     
+    let siteSettings = {};
     try {
         const response = await fetch('/data/cases.json');
         portfolioData = await response.json();
     } catch (e) {
         console.error('[A.LAB] Ошибка загрузки cases.json', e);
         return;
+    }
+
+    try {
+        const sr = await fetch('/data/settings.json');
+        siteSettings = await sr.json();
+        // Apply card styles from settings
+        if (siteSettings.cards) {
+            const cs = siteSettings.cards;
+            const root = document.documentElement;
+            root.style.setProperty('--card-radius', (cs.borderRadius ?? 12) + 'px');
+            root.style.setProperty('--card-shadow-size', (cs.shadowSize ?? 10) + 'px');
+            root.style.setProperty('--card-shadow-opacity', (cs.shadowOpacity ?? 15) / 100);
+            root.style.setProperty('--card-hover-scale', (cs.hoverScale ?? 103) / 100);
+        }
+    } catch(e) {
+        console.log('[A.LAB] settings.json not found, using defaults');
     }
 
     if (categoryCards && mainGrid && submenuContainer && backBtn) {
@@ -145,21 +162,55 @@ export async function initPortfolio(container) {
     const openModal = (proj) => {
         modalContent.innerHTML = '';
         
-        let foundRaw = false;
-        if (proj.blocks) {
+        let hasBlocks = false;
+        if (proj.blocks && proj.blocks.length) {
             proj.blocks.forEach(block => {
-                if (block.type === 'raw_html') {
-                    modalContent.innerHTML += block.content;
-                    foundRaw = true;
+                if (block.enabled === false) return;
+                hasBlocks = true;
+                switch(block.type) {
+                    case 'raw_html':
+                        modalContent.innerHTML += block.content;
+                        break;
+                    case 'heading': {
+                        const lvl = block.level || 'h2';
+                        modalContent.innerHTML += `<${lvl} class="case-block-heading">${block.content || ''}</${lvl}>`;
+                        break;
+                    }
+                    case 'text':
+                        modalContent.innerHTML += `<p class="case-block-text">${(block.content||'').replace(/\n/g,'<br>')}</p>`;
+                        break;
+                    case 'image':
+                        if (block.content) {
+                            const mask = block.mask ? `clip-path: url(#${block.mask});` : '';
+                            modalContent.innerHTML += `<div class="case-block-image"><img src="${block.content}" alt="" style="${mask}"/></div>`;
+                        }
+                        break;
+                    case 'video':
+                        if (block.content) modalContent.innerHTML += `<div class="case-block-video"><video src="${block.content}" autoplay muted loop playsinline></video></div>`;
+                        break;
+                    case 'gallery': {
+                        const imgs = (block.images||[]).map(src => `<img src="${src}" alt=""/>`).join('');
+                        modalContent.innerHTML += `<div class="case-block-gallery">${imgs}</div>`;
+                        break;
+                    }
+                    case 'spacer':
+                        modalContent.innerHTML += `<div style="height:${block.height||80}px"></div>`;
+                        break;
+                    case 'masked_image':
+                        if (block.content) {
+                            const cp = block.clipPath || 'circle(50% at 50% 50%)';
+                            modalContent.innerHTML += `<div class="case-block-image"><img src="${block.content}" alt="" style="clip-path:${cp};"/></div>`;
+                        }
+                        break;
                 }
             });
         }
         
-        if (!foundRaw) {
+        if (!hasBlocks) {
             modalContent.innerHTML = `
                 <div class="case-study-detail case-placeholder" style="padding: 10rem 5%; color: white;">
                     <h2 class="placeholder-title" style="font-size: 3rem;">${proj.title}</h2>
-                    <p class="placeholder-text">Динамическая генерация контента...</p>
+                    <p class="placeholder-text">Контент пока не добавлен</p>
                 </div>`;
         }
 

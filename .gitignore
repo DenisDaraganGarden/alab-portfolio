@@ -23,3 +23,9 @@ assets/source-images
 
 # CMS database (local only)
 editor/cms.db
+
+# CMS runtime
+editor/cms.db-shm
+editor/cms.db-wal
+editor/cms.db-journal
+public/images/uploads/

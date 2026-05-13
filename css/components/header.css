@@ -23,8 +23,8 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  width: 54px;
-  height: 54px;
+  width: 80px;
+  height: 80px;
   overflow: hidden;
   transition: all 0.6s cubic-bezier(0.25, 1, 0.2, 1);
   cursor: pointer;
@@ -117,6 +117,15 @@
 }
 
 /* Links inside the blob */
+
+.blob-greeting {
+  font-family: var(--font-title);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text-color);
+  margin-bottom: 0.75rem;
+}
 .blob-contacts {
   display: flex;
   flex-direction: column;
@@ -209,7 +218,16 @@
     border-radius: 24px;
   }
   
-  .blob-contacts {
+  
+.blob-greeting {
+  font-family: var(--font-title);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text-color);
+  margin-bottom: 0.75rem;
+}
+.blob-contacts {
     text-align: left;
     align-items: flex-start;
   }

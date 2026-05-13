@@ -526,11 +526,9 @@ export const initHero = (container) => {
         switch(index) {
             case '0': // a.
                 triggerEl.classList.add('effect-vibrate');
-                audioEngine.playVibration();
                 break;
             case '1': // l
                 triggerEl.classList.add('effect-rotate-l');
-                audioEngine.playGlitch(); // keep sound for flavor
                 startNamingSequence(triggerEl);
                 scrambleText(serviceEl);
                 break;
@@ -544,7 +542,6 @@ export const initHero = (container) => {
                 container.classList.add('effect-spotlight-active');
                 document.body.classList.add('spotlight-global-active');
                 triggerEl.classList.add('effect-spotlight');
-                audioEngine.playSpotlight();
                 break;
         }
     };
@@ -559,10 +556,8 @@ export const initHero = (container) => {
 
         switch(index) {
             case '0':
-                audioEngine.stopVibration();
                 break;
             case '1':
-                audioEngine.stopGlitch();
                 stopNamingSequence(triggerEl);
                 // resetScrambleText(triggerEl); // no longer scrambled
                 resetScrambleText(serviceEl);
@@ -573,8 +568,33 @@ export const initHero = (container) => {
                 break;
             case '3':
                 document.body.classList.remove('spotlight-global-active');
-                audioEngine.stopSpotlight();
                 break;
+        }
+    };
+
+    // Click handler for audio (toggle on/off)
+    const audioPlaying = new Set();
+    const handleClick = (index, triggerEl) => {
+        audioEngine.unlock();
+        if (audioPlaying.has(index)) {
+            // Stop
+            switch(index) {
+                case '0': audioEngine.stopVibration(); break;
+                case '1': audioEngine.stopGlitch(); break;
+                case '3': audioEngine.stopSpotlight(); break;
+            }
+            audioPlaying.delete(index);
+            triggerEl.classList.remove('audio-active');
+        } else {
+            // Play
+            switch(index) {
+                case '0': audioEngine.playVibration(); break;
+                case '1': audioEngine.playGlitch(); break;
+                case '2': audioEngine.playGlass(); break;
+                case '3': audioEngine.playSpotlight(); break;
+            }
+            audioPlaying.add(index);
+            triggerEl.classList.add('audio-active');
         }
     };
 
@@ -586,9 +606,11 @@ export const initHero = (container) => {
         if (service) {
             const onEnter = () => handleMouseEnter(index, trigger, service);
             const onLeave = () => handleMouseLeave(index, trigger, service);
+            const onClick = () => handleClick(index, trigger);
             
             trigger.addEventListener('mouseenter', onEnter);
             trigger.addEventListener('mouseleave', onLeave);
+            trigger.addEventListener('click', onClick);
             
             // Bidirectional syncing
             service.addEventListener('mouseenter', onEnter);

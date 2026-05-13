@@ -594,8 +594,16 @@
   width: 100%;
   aspect-ratio: 16/9;
   overflow: hidden;
-  border-radius: 4px;
+  border-radius: var(--card-radius, 4px);
   background-color: #222;
+  box-shadow: 0 calc(var(--card-shadow-size, 10px) / 2) var(--card-shadow-size, 10px) rgba(0,0,0, var(--card-shadow-opacity, 0.15));
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+
+.case-item:hover .case-image {
+  transform: scale(var(--card-hover-scale, 1.03));
+  box-shadow: 0 var(--card-shadow-size, 10px) calc(var(--card-shadow-size, 10px) * 2) rgba(0,0,0, calc(var(--card-shadow-opacity, 0.15) * 1.5));
 }
 
 .case-image img {
