@@ -723,7 +723,17 @@
                             <button className="btn btn-dark btn-sm" disabled={!history.canUndo} onClick={history.undo} title="Ctrl+Z">↶</button>
                             <button className="btn btn-dark btn-sm" disabled={!history.canRedo} onClick={history.redo} title="Ctrl+Y">↷</button>
                             <button className="btn btn-red btn-sm" onClick={onDelete}>Удалить</button>
-                            <button className="btn btn-white btn-sm" onClick={() => {onSave(proj);setDirty(false)}}>Сохранить</button>
+                            <button className="btn btn-white btn-sm" onClick={() => {
+                                const warnings = [];
+                                if (!proj.title || proj.title === 'Новый проект') warnings.push('Название не задано');
+                                if (proj.status !== 'draft' && (!proj.blocks || !proj.blocks.length)) warnings.push('Нет блоков контента');
+                                if (proj.status !== 'draft' && proj.blocks) {
+                                    const emptyImgs = proj.blocks.filter(b => b.type === 'image' && !b.content).length;
+                                    if (emptyImgs) warnings.push(emptyImgs + ' пустых изображений');
+                                }
+                                if (warnings.length && !confirm('⚠ Предупреждения:\n• ' + warnings.join('\n• ') + '\n\nСохранить всё равно?')) return;
+                                onSave(proj); setDirty(false);
+                            }}>Сохранить</button>
                         </div>
                     </div>
                     <div className="field-row">
@@ -736,13 +746,20 @@
                     </div>
                     <div style={{marginBottom:'1rem'}}><label style={{display:'flex',alignItems:'center',gap:'0.5rem',fontSize:'0.85rem',color:'#999'}}><input type="checkbox" checked={proj.isExternal||false} onChange={e=>update('isExternal',e.target.checked)}/>Внешняя ссылка</label>
                     {proj.isExternal && <input className="input" style={{marginTop:'0.5rem'}} value={proj.externalUrl||''} onChange={e=>update('externalUrl',e.target.value)} placeholder="https://behance.net/..."/>}</div>
-                    <div className="seo-section">
-                        <div className="seo-label">🔍 SEO</div>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem',marginTop:'1rem'}}>
+                        <div className="seo-section" style={{marginTop:0}}>
+                            <div className="seo-label">🎨 Стиль кейса</div>
+                            <div style={{display:'flex',gap:'0.5rem',marginBottom:'0.5rem'}}>{['light','dark'].map(t=><button key={t} className={`btn btn-sm ${(proj.theme||'light')===t?'btn-blue':'btn-dark'}`} onClick={()=>update('theme',t)}>{t==='light'?'☀ Светлый':'🌙 Тёмный'}</button>)}</div>
+                            <div style={{display:'flex',gap:'0.5rem',alignItems:'center'}}><span className="field-label" style={{margin:0}}>Accent:</span><input type="color" value={proj.accentColor||'#2980b9'} onChange={e=>update('accentColor',e.target.value)} style={{width:32,height:32,border:'1px solid #333',borderRadius:4,background:'none',cursor:'pointer'}}/><span style={{fontSize:'0.75rem',color:'#555'}}>{proj.accentColor||'#2980b9'}</span></div>
+                        </div>
+                        <div className="seo-section" style={{marginTop:0}}>
+                            <div className="seo-label">🔍 SEO</div>
                         <div className="field-row">
                             <div><label className="field-label">Title (для поиска)</label><input className="input" value={proj.seoTitle||''} onChange={e=>update('seoTitle',e.target.value)} placeholder={proj.title}/></div>
                             <div><label className="field-label">OG Image</label><input className="input" value={proj.ogImage||''} onChange={e=>update('ogImage',e.target.value)} placeholder="URL обложки для шеринга"/></div>
                         </div>
                         <div><label className="field-label">Description (для поиска)</label><textarea className="input" style={{minHeight:50}} value={proj.seoDesc||''} onChange={e=>update('seoDesc',e.target.value)} placeholder="Краткое описание проекта для Google и соцсетей"/></div>
+                        </div>
                     </div>
 
                     {!proj.isExternal && (

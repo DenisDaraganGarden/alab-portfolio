@@ -113,10 +113,38 @@ app.delete('/api/projects/:id', apiAuth, (req, res) => {
 });
 
 app.post('/api/upload', apiAuth, (req, res) => {
-    uploadImage.single('media')(req, res, (err) => {
+    uploadImage.single('media')(req, res, async (err) => {
         if (err) return res.status(400).json({ error: err.message });
         if (!req.file) return res.status(400).json({ error: 'No file' });
-        res.json({ success: true, path: `/images/${req.body.caseId || 'uploads'}/${req.file.filename}` });
+
+        const originalPath = req.file.path;
+        const ext = path.extname(req.file.originalname).toLowerCase();
+        const basePath = `/images/${req.body.caseId || 'uploads'}/${req.file.filename}`;
+
+        // Auto-optimize images (skip SVG and video)
+        if (['.jpg','.jpeg','.png','.webp','.tiff','.bmp'].includes(ext)) {
+            try {
+                const sharp = (await import('sharp')).default;
+                const dir = path.dirname(originalPath);
+                const name = path.basename(req.file.filename, ext);
+
+                // Generate WebP version
+                const webpPath = path.join(dir, name + '.webp');
+                await sharp(originalPath).resize(1600, null, { withoutEnlargement: true }).webp({ quality: 82 }).toFile(webpPath);
+
+                // Resize original if too large (>2000px)
+                const meta = await sharp(originalPath).metadata();
+                if (meta.width > 2000) {
+                    const tmpPath = originalPath + '.tmp';
+                    await sharp(originalPath).resize(2000, null, { withoutEnlargement: true }).jpeg({ quality: 85 }).toFile(tmpPath);
+                    fs.renameSync(tmpPath, originalPath);
+                }
+
+                console.log(`[Sharp] Optimized: ${req.file.filename} → WebP + resize`);
+            } catch (e) { console.error('[Sharp] Optimization failed:', e.message); }
+        }
+
+        res.json({ success: true, path: basePath });
     });
 });
 
