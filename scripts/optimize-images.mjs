@@ -1,4 +1,4 @@
-import { promises as fs } from 'node:fs';
+import { promises as fs, existsSync } from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
 
@@ -9,6 +9,7 @@ const rasterExtensions = new Set(['.jpg', '.jpeg', '.png']);
 const widths = [480, 800, 1200, 1600, 2200];
 
 async function walk(dir) {
+  if (!existsSync(dir)) { console.log(`[skip] ${dir} not found`); return []; }
   const entries = await fs.readdir(dir, { withFileTypes: true });
   const files = await Promise.all(entries.map(async (entry) => {
     const fullPath = path.join(dir, entry.name);
