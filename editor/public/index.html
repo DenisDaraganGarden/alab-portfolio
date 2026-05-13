@@ -111,6 +111,44 @@
         .proj-card-logo{width:48px;height:48px;object-fit:contain;border-radius:8px;background:#222;padding:6px;flex-shrink:0}
         .proj-card-nologo{width:48px;height:48px;border-radius:8px;background:linear-gradient(135deg,#2980b9,#8e44ad);display:flex;align-items:center;justify-content:center;font-family:'Unbounded',sans-serif;font-size:1.2rem;font-weight:700;color:#fff;flex-shrink:0}
 
+
+        /* Drag & Drop */
+        .block-item{transition:transform 0.2s,opacity 0.2s}
+        .block-item.dragging{opacity:0.4;transform:scale(0.97)}
+        .block-item.drag-over{border-color:#2980b9;box-shadow:0 0 0 2px rgba(41,128,185,0.3)}
+        .drag-handle{cursor:grab;color:#555;font-size:1rem;padding:0 4px;user-select:none}
+        .drag-handle:active{cursor:grabbing}
+
+        /* Status badge */
+        .status-badge{font-size:0.65rem;padding:0.15rem 0.5rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em}
+        .status-published{background:#27ae60;color:#fff}
+        .status-draft{background:#555;color:#ccc}
+
+        /* Autosave indicator */
+        .save-indicator{font-size:0.72rem;display:flex;align-items:center;gap:0.3rem}
+        .save-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+        .save-dot.saved{background:#27ae60}
+        .save-dot.unsaved{background:#e67e22}
+        .save-dot.saving{background:#2980b9;animation:pulse 1s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+        /* Mobile preview toggle */
+        .preview-mode-btn{padding:0.2rem 0.5rem;font-size:0.7rem;border-radius:4px;border:1px solid #333;background:#1a1a1a;color:#999;cursor:pointer}
+        .preview-mode-btn.active{background:#2980b9;color:#fff;border-color:#2980b9}
+
+        /* Template modal */
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:9998}
+        .modal-box{background:#111;border:1px solid #333;border-radius:12px;padding:2rem;max-width:500px;width:90%}
+        .modal-title{font-size:1.1rem;font-weight:700;margin-bottom:1rem}
+        .template-card{padding:1rem;background:#1a1a1a;border:1px solid #222;border-radius:8px;cursor:pointer;transition:border-color 0.2s;margin-bottom:0.5rem}
+        .template-card:hover{border-color:#2980b9}
+        .template-name{font-weight:600;margin-bottom:0.2rem}
+        .template-desc{font-size:0.8rem;color:#666}
+
+        /* SEO section */
+        .seo-section{background:#0d1117;border:1px solid #1a2332;border-radius:8px;padding:1rem;margin-top:1rem}
+        .seo-label{font-size:0.7rem;color:#58a6ff;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.7rem}
+
         /* Toast */
         .toast{position:fixed;bottom:1rem;right:1rem;padding:0.6rem 1.2rem;border-radius:6px;font-size:0.85rem;font-weight:600;z-index:9999;animation:fadeIn .3s ease}
         .toast-ok{background:#27ae60;color:#fff}
@@ -144,7 +182,36 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        const { useState, useEffect, useRef, useCallback } = React;
+
+        // ─── Undo/Redo Hook ───
+        function useHistory(initial) {
+            const [states, setStates] = useState([JSON.parse(JSON.stringify(initial))]);
+            const [idx, setIdx] = useState(0);
+            const current = states[idx];
+            const set = useCallback((val) => {
+                const v = typeof val === 'function' ? val(states[idx]) : val;
+                setStates(prev => [...prev.slice(0, idx + 1), JSON.parse(JSON.stringify(v))].slice(-30));
+                setIdx(i => Math.min(i + 1, 29));
+            }, [idx, states]);
+            const undo = useCallback(() => setIdx(i => Math.max(0, i - 1)), []);
+            const redo = useCallback(() => setIdx(i => Math.min(states.length - 1, i + 1)), [states.length]);
+            const canUndo = idx > 0;
+            const canRedo = idx < states.length - 1;
+            return [current, set, { undo, redo, canUndo, canRedo }];
+        }
+
+        // ─── Templates ───
+        const CASE_TEMPLATES = [
+            { name: 'Стандартный кейс', desc: 'Заголовок → Текст → Изображение → Текст → Галерея',
+              blocks: [{type:'heading',level:'h1',content:''},{type:'text',content:''},{type:'image',content:''},{type:'text',content:''},{type:'gallery',images:[]}] },
+            { name: 'Минимальный', desc: 'Заголовок → Изображение → Текст',
+              blocks: [{type:'heading',level:'h2',content:''},{type:'image',content:''},{type:'text',content:''}] },
+            { name: 'Видео-кейс', desc: 'Заголовок → Видео → Текст → Галерея',
+              blocks: [{type:'heading',level:'h1',content:''},{type:'video',content:''},{type:'text',content:''},{type:'gallery',images:[]}] },
+            { name: 'Лендинг', desc: 'Hero-изображение → Заголовок → Текст → Отступ → Галерея → Текст',
+              blocks: [{type:'image',content:''},{type:'heading',level:'h1',content:''},{type:'text',content:''},{type:'spacer',height:60},{type:'gallery',images:[]},{type:'text',content:''}] },
+        ];
         const API = 'http://localhost:3001/api';
 
 
@@ -280,12 +347,24 @@
                 } catch { showToast('Ошибка', false); }
             };
 
-            const addProject = () => {
+            const [showTemplates, setShowTemplates] = useState(false);
+
+            const addProject = (template) => {
                 const id = 'case-' + Date.now();
-                const proj = { id, title: 'Новый проект', categoryId: Object.keys(data.categories)[0] || 'development', logo: '', isExternal: false, blocks: [] };
+                const blocks = template ? JSON.parse(JSON.stringify(template.blocks)) : [];
+                const proj = { id, title: 'Новый проект', categoryId: Object.keys(data.categories)[0] || 'development', logo: '', isExternal: false, status: 'draft', blocks };
                 const nd = { ...data, projects: [...data.projects, proj] };
                 save(nd);
                 setEditing(id);
+                setShowTemplates(false);
+            };
+
+            const duplicateProject = (p) => {
+                const id = p.id + '-copy-' + Date.now();
+                const copy = { ...JSON.parse(JSON.stringify(p)), id, title: p.title + ' (копия)' };
+                const nd = { ...data, projects: [...data.projects, copy] };
+                save(nd);
+                showToast('Проект скопирован');
             };
 
             const deleteProject = async (id) => {
@@ -311,7 +390,7 @@
                     <div className="cms-header">
                         <div className="cms-title">A.LAB CMS</div>
                         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                            {tab === 'projects' && <button className="btn btn-white" onClick={addProject}>+ Новый кейс</button>}
+                            {tab === 'projects' && <button className="btn btn-white" onClick={()=>setShowTemplates(true)}>+ Новый кейс</button>}
                             <button className="btn-ghost" onClick={logout}>Выйти</button>
                         </div>
                     </div>
@@ -332,8 +411,11 @@
                                         {projs.map(p => (
                                             <div key={p.id} className="proj-card" onClick={() => setEditing(p.id)}>
                                                 {p.logo ? <img src={p.logo} alt="" className="proj-card-logo"/> : <div className="proj-card-nologo">{p.title.charAt(0)}</div>}
-                                                <div><div className="proj-card-id">{p.id} · {(p.blocks||[]).length} блоков</div>
-                                                <div className="proj-card-title">{p.title}</div></div>
+                                                <div style={{flex:1,minWidth:0}}>
+                                                    <div className="proj-card-id" style={{display:'flex',gap:'0.4rem',alignItems:'center'}}>{(p.blocks||[]).length} блоков <span className={`status-badge ${p.status==='draft'?'status-draft':'status-published'}`}>{p.status==='draft'?'Черновик':'Опубликован'}</span></div>
+                                                    <div className="proj-card-title">{p.title}</div>
+                                                </div>
+                                                <button className="btn-ghost" title="Дублировать" onClick={e=>{e.stopPropagation();duplicateProject(p)}} style={{fontSize:'1rem'}}>⧉</button>
                                             </div>
                                         ))}
                                     </div>
@@ -341,6 +423,11 @@
                             );
                         })}
                     </>}
+                    {showTemplates && <div className="modal-overlay" onClick={()=>setShowTemplates(false)}><div className="modal-box" onClick={e=>e.stopPropagation()}>
+                        <div className="modal-title">Новый кейс</div>
+                        <div className="template-card" onClick={()=>addProject(null)}><div className="template-name">Пустой проект</div><div className="template-desc">Начать с чистого листа</div></div>
+                        {CASE_TEMPLATES.map((t,i)=><div key={i} className="template-card" onClick={()=>addProject(t)}><div className="template-name">{t.name}</div><div className="template-desc">{t.desc}</div></div>)}
+                    </div></div>}
                     {toast && <div className={`toast ${toast.ok ? 'toast-ok' : 'toast-err'}`}>{toast.msg}</div>}
                 </div>
             );
@@ -521,9 +608,16 @@
 
         // ─── Editor ───
         function Editor({ project, categories, onSave, onDelete, onClose }) {
-            const [proj, setProj] = useState({ ...project });
+            const [proj, setProj, history] = useHistory({ ...project });
             const [uploading, setUploading] = useState(false);
-            const update = (k, v) => setProj(p => ({ ...p, [k]: v }));
+            const [dirty, setDirty] = useState(false);
+            const [saving, setSaving] = useState(false);
+            const [previewMode, setPreviewMode] = useState('desktop');
+            const dragItem = useRef(null);
+            const dragOver = useRef(null);
+            const autoSaveTimer = useRef(null);
+
+            const update = (k, v) => { setProj(p => ({ ...p, [k]: v })); setDirty(true); };
             const updateBlock = (i, k, v) => { const b = [...proj.blocks]; b[i] = { ...b[i], [k]: v }; update('blocks', b); };
             const addBlock = (type) => {
                 const defs = { heading:{level:'h2',content:''}, text:{content:''}, image:{content:'',caption:''}, video:{content:''}, gallery:{images:[]}, spacer:{height:80}, raw_html:{content:''} };
@@ -531,6 +625,44 @@
             };
             const removeBlock = (i) => { const b = [...proj.blocks]; b.splice(i,1); update('blocks', b); };
             const moveBlock = (i, d) => { const b = [...proj.blocks]; const t = i+d; if(t<0||t>=b.length) return; [b[i],b[t]]=[b[t],b[i]]; update('blocks', b); };
+
+            // Drag & Drop
+            const onDragStart = (i) => { dragItem.current = i; };
+            const onDragEnter = (i) => { dragOver.current = i; };
+            const onDragEnd = () => {
+                if (dragItem.current !== null && dragOver.current !== null && dragItem.current !== dragOver.current) {
+                    const b = [...proj.blocks];
+                    const item = b.splice(dragItem.current, 1)[0];
+                    b.splice(dragOver.current, 0, item);
+                    update('blocks', b);
+                }
+                dragItem.current = null; dragOver.current = null;
+            };
+
+            // Autosave (30 sec)
+            useEffect(() => {
+                if (dirty) {
+                    clearTimeout(autoSaveTimer.current);
+                    autoSaveTimer.current = setTimeout(() => {
+                        setSaving(true);
+                        onSave(proj);
+                        setDirty(false);
+                        setSaving(false);
+                    }, 30000);
+                }
+                return () => clearTimeout(autoSaveTimer.current);
+            }, [proj, dirty]);
+
+            // Hotkeys
+            useEffect(() => {
+                const handler = (e) => {
+                    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); onSave(proj); setDirty(false); }
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); history.undo(); }
+                    if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); history.redo(); }
+                };
+                window.addEventListener('keydown', handler);
+                return () => window.removeEventListener('keydown', handler);
+            }, [proj, history]);
             const handleUpload = async (e, cb) => {
                 const file = e.target.files[0]; if (!file) return;
                 setUploading(true);
@@ -545,10 +677,14 @@
                         <div style={{display:'flex',gap:'0.5rem',alignItems:'center'}}>
                             <button className="btn btn-dark btn-sm" onClick={onClose}>← Назад</button>
                             <span style={{fontSize:'1.1rem',fontWeight:700}}>{proj.title||'—'}</span>
+                            <span className={`status-badge ${proj.status==='draft'?'status-draft':'status-published'}`} style={{cursor:'pointer'}} onClick={()=>update('status',proj.status==='draft'?'published':'draft')}>{proj.status==='draft'?'Черновик':'Опубликован'}</span>
+                            <div className="save-indicator"><span className={`save-dot ${saving?'saving':dirty?'unsaved':'saved'}`}/>{saving?'Сохраняю...':dirty?'Есть изменения':'Сохранено'}</div>
                         </div>
-                        <div style={{display:'flex',gap:'0.5rem'}}>
+                        <div style={{display:'flex',gap:'0.5rem',alignItems:'center'}}>
+                            <button className="btn btn-dark btn-sm" disabled={!history.canUndo} onClick={history.undo} title="Ctrl+Z">↶</button>
+                            <button className="btn btn-dark btn-sm" disabled={!history.canRedo} onClick={history.redo} title="Ctrl+Y">↷</button>
                             <button className="btn btn-red btn-sm" onClick={onDelete}>Удалить</button>
-                            <button className="btn btn-white btn-sm" onClick={() => onSave(proj)}>Сохранить</button>
+                            <button className="btn btn-white btn-sm" onClick={() => {onSave(proj);setDirty(false)}}>Сохранить</button>
                         </div>
                     </div>
                     <div className="field-row">
@@ -561,25 +697,54 @@
                     </div>
                     <div style={{marginBottom:'1rem'}}><label style={{display:'flex',alignItems:'center',gap:'0.5rem',fontSize:'0.85rem',color:'#999'}}><input type="checkbox" checked={proj.isExternal||false} onChange={e=>update('isExternal',e.target.checked)}/>Внешняя ссылка</label>
                     {proj.isExternal && <input className="input" style={{marginTop:'0.5rem'}} value={proj.externalUrl||''} onChange={e=>update('externalUrl',e.target.value)} placeholder="https://behance.net/..."/>}</div>
+                    <div className="seo-section">
+                        <div className="seo-label">🔍 SEO</div>
+                        <div className="field-row">
+                            <div><label className="field-label">Title (для поиска)</label><input className="input" value={proj.seoTitle||''} onChange={e=>update('seoTitle',e.target.value)} placeholder={proj.title}/></div>
+                            <div><label className="field-label">OG Image</label><input className="input" value={proj.ogImage||''} onChange={e=>update('ogImage',e.target.value)} placeholder="URL обложки для шеринга"/></div>
+                        </div>
+                        <div><label className="field-label">Description (для поиска)</label><textarea className="input" style={{minHeight:50}} value={proj.seoDesc||''} onChange={e=>update('seoDesc',e.target.value)} placeholder="Краткое описание проекта для Google и соцсетей"/></div>
+                    </div>
 
                     {!proj.isExternal && (
                         <div className="editor-split">
                         <div className="editor-panel">
                             <h3 style={{fontSize:'1rem',fontWeight:700,marginBottom:'0.5rem',marginTop:'0.5rem'}}>Блоки ({(proj.blocks||[]).length})</h3>
                             {(proj.blocks||[]).map((block,i)=>(
-                                <div key={i} className="block-item" style={block.enabled===false?{opacity:0.4}:{}}>
+                                <div key={i} className="block-item" style={block.enabled===false?{opacity:0.4}:{}}
+                                    draggable onDragStart={()=>onDragStart(i)} onDragEnter={()=>onDragEnter(i)} onDragEnd={onDragEnd} onDragOver={e=>e.preventDefault()}>
                                     <div className="block-head">
-                                        <label style={{display:'flex',alignItems:'center',gap:'0.4rem',cursor:'pointer'}}><input type="checkbox" checked={block.enabled!==false} onChange={e=>updateBlock(i,'enabled',e.target.checked)} style={{accentColor:'#5dade2'}}/><span className="block-type">{BLOCK_TYPES.find(b=>b.type===block.type)?.icon} {BLOCK_TYPES.find(b=>b.type===block.type)?.label || block.type}</span></label>
+                                        <div style={{display:'flex',alignItems:'center',gap:'0.4rem'}}>
+                                            <span className="drag-handle" title="Перетащить">⠿</span>
+                                            <label style={{display:'flex',alignItems:'center',gap:'0.4rem',cursor:'pointer'}}><input type="checkbox" checked={block.enabled!==false} onChange={e=>updateBlock(i,'enabled',e.target.checked)} style={{accentColor:'#5dade2'}}/><span className="block-type">{BLOCK_TYPES.find(b=>b.type===block.type)?.icon} {BLOCK_TYPES.find(b=>b.type===block.type)?.label || block.type}</span></label>
+                                        </div>
                                         <div className="block-actions"><button onClick={()=>moveBlock(i,-1)}>↑</button><button onClick={()=>moveBlock(i,1)}>↓</button><button style={{color:'#c0392b'}} onClick={()=>removeBlock(i)}>✕</button></div>
                                     </div>
                                     <BlockEditor block={block} index={i} projId={proj.id} updateBlock={updateBlock} handleUpload={handleUpload}/>
                                 </div>
                             ))}
-                            <div className="add-bar">{BLOCK_TYPES.map(bt=><button key={bt.type} className="btn btn-dark btn-sm" onClick={()=>addBlock(bt.type)}>{bt.icon} {bt.label}</button>)}</div>
+                            <div className="add-bar">{BLOCK_TYPES.map(bt=><button key={bt.type} className="btn btn-dark btn-sm" onClick={()=>addBlock(bt.type)}>{bt.icon} {bt.label}</button>)}
+                                <label className="btn btn-blue btn-sm" style={{cursor:'pointer'}}><input type="file" accept="image/*" multiple style={{display:'none'}} onChange={e=>{
+                                    const files = Array.from(e.target.files); if(!files.length) return;
+                                    const gallery = {type:'gallery',images:[]};
+                                    let loaded = 0;
+                                    files.forEach(file=>{const fd=new FormData();fd.append('media',file);fd.append('caseId',proj.id);
+                                    fetch(`${API}/upload`,{method:'POST',body:fd,headers:{'X-CMS-Token':sessionStorage.getItem('cms_token')||''}}).then(r=>r.json()).then(j=>{
+                                        if(j.path){gallery.images.push(j.path);loaded++;if(loaded===files.length)update('blocks',[...(proj.blocks||[]),gallery])}
+                                    })})
+                                }}/>📁 Массовая загрузка → Галерея</label>
+                            </div>
                         </div>
                         <div className="live-preview">
-                            <div className="live-preview-header"><span>Предпросмотр</span><span style={{color:'#555'}}>{(proj.blocks||[]).filter(b=>b.enabled!==false).length} вкл.</span></div>
-                            <LivePreview blocks={proj.blocks||[]} title={proj.title}/>
+                            <div className="live-preview-header">
+                                <span>Предпросмотр</span>
+                                <div style={{display:'flex',gap:'0.3rem',alignItems:'center'}}>
+                                    <button className={`preview-mode-btn ${previewMode==='desktop'?'active':''}`} onClick={()=>setPreviewMode('desktop')}>🖥</button>
+                                    <button className={`preview-mode-btn ${previewMode==='mobile'?'active':''}`} onClick={()=>setPreviewMode('mobile')}>📱</button>
+                                    <span style={{color:'#555',fontSize:'0.7rem',marginLeft:'0.3rem'}}>{(proj.blocks||[]).filter(b=>b.enabled!==false).length} вкл.</span>
+                                </div>
+                            </div>
+                            <LivePreview blocks={proj.blocks||[]} title={proj.title} mode={previewMode}/>
                         </div>
                         </div>
                     )}
@@ -674,7 +839,8 @@
         }
 
         // ─── LivePreview ───
-        function LivePreview({ blocks, title }) {
+        function LivePreview({ blocks, title, mode = 'desktop' }) {
+            const isMobile = mode === 'mobile';
             const ref = useRef(null);
             const iframeRef = useRef(null);
             const [scale, setScale] = useState(0.3);
@@ -718,7 +884,7 @@
 
             return (
                 <div className="live-preview-frame" ref={ref} style={{height: iframeH * scale}}>
-                    <iframe ref={iframeRef} srcDoc={srcDoc} style={{transform:`scale(${scale})`, width:1440, height:iframeH}} />
+                    <iframe ref={iframeRef} srcDoc={srcDoc} style={{transform:`scale(${scale})`, width: isMobile ? 375 : 1440, height:iframeH}} />
                 </div>
             );
         }

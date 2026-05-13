@@ -53,7 +53,7 @@ export async function initPortfolio(container) {
 
     function openCategory(categoryId) {
         const title = portfolioData.categories[categoryId] || categoryId;
-        const projects = portfolioData.projects.filter(p => p.categoryId === categoryId);
+        const projects = portfolioData.projects.filter(p => p.categoryId === categoryId && p.status !== 'draft');
 
         submenuGrid.innerHTML = '';
         projects.forEach(proj => {
