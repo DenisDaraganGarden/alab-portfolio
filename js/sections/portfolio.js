@@ -4,7 +4,7 @@
  */
 
 export async function initPortfolio(container) {
-    console.log('[A.LAB] Инициализация Portfolio Module...');
+
 
     const mainGrid = container.querySelector('#main-portfolio-grid');
     const submenuContainer = container.querySelector('#portfolio-submenu');
@@ -37,7 +37,7 @@ export async function initPortfolio(container) {
             root.style.setProperty('--card-hover-scale', (cs.hoverScale ?? 103) / 100);
         }
     } catch(e) {
-        console.log('[A.LAB] settings.json not found, using defaults');
+
     }
 
     if (categoryCards && mainGrid && submenuContainer && backBtn) {

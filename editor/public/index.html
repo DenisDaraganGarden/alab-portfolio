@@ -107,7 +107,7 @@
         .rich-editor i,.rich-editor em{font-style:italic}
 
 
-        .proj-card{display:flex;align-items:center;gap:0.75rem}
+        .proj-card{display:flex;align-items:center;gap:0.75rem;background:#141414;border:1px solid #222;border-radius:8px;padding:1rem;cursor:pointer;transition:background 0.3s}
         .proj-card-logo{width:48px;height:48px;object-fit:contain;border-radius:8px;background:#222;padding:6px;flex-shrink:0}
         .proj-card-nologo{width:48px;height:48px;border-radius:8px;background:linear-gradient(135deg,#2980b9,#8e44ad);display:flex;align-items:center;justify-content:center;font-family:'Unbounded',sans-serif;font-size:1.2rem;font-weight:700;color:#fff;flex-shrink:0}
 
@@ -146,7 +146,6 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
         const API = 'http://localhost:3001/api';
-
 
 
         const FONT_OPTIONS = [
@@ -346,7 +345,6 @@
                 </div>
             );
         }
-
 
 
         // ─── CardPreview ───
@@ -589,7 +587,6 @@
                 </div>
             );
         }
-
 
 
         // ─── RichToolbar — works with selected text via execCommand ───

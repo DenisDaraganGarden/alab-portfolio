@@ -684,7 +684,7 @@
   cursor: pointer;
   transition: background 0.4s ease, border-color 0.4s ease, transform 0.4s ease;
   will-change: transform, background;
-  border-radius: 8px;
+  border-radius: var(--card-radius, 8px);
   position: relative;
   overflow: hidden;
 }
@@ -704,7 +704,7 @@
 .portfolio-project-card:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.4);
-  transform: translateY(-5px);
+  transform: scale(var(--card-hover-scale, 1.03)) translateY(-5px);
 }
 
 .portfolio-project-card .project-title {
