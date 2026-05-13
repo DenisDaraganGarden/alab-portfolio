@@ -318,6 +318,10 @@
             const [toast, setToast] = useState(null);
             const [tab, setTab] = useState('projects');
             const [settings, setSettings] = useState(null);
+            const [search, setSearch] = useState('');
+            const [catEdit, setCatEdit] = useState(false);
+            const projDrag = useRef(null);
+            const projDragOver = useRef(null);
 
             const showToast = (msg, ok = true) => { setToast({ msg, ok }); setTimeout(() => setToast(null), 2000); };
 
@@ -352,6 +356,20 @@
             };
 
             const [showTemplates, setShowTemplates] = useState(false);
+
+            // Category CRUD
+            const addCategory = () => { const id='cat-'+Date.now(); const nd={...data,categories:{...data.categories,[id]:'Новая категория'}}; save(nd); };
+            const renameCategory = (id,name) => { const nd={...data,categories:{...data.categories,[id]:name}}; save(nd); };
+            const deleteCategory = (id) => { if(!confirm('Удалить категорию и все её проекты?')) return; const cats={...data.categories}; delete cats[id]; const nd={...data,categories:cats,projects:data.projects.filter(p=>p.categoryId!==id)}; save(nd); };
+
+            // Export/Import
+            const exportProject = (p) => { const blob=new Blob([JSON.stringify(p,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=p.id+'.json'; a.click(); URL.revokeObjectURL(url); showToast('Экспортировано'); };
+            const importProject = (e) => { const file=e.target.files[0]; if(!file) return; const r=new FileReader(); r.onload=(ev)=>{try{const p=JSON.parse(ev.target.result); p.id=p.id+'-'+Date.now(); save({...data,projects:[...data.projects,p]}); showToast('Импортировано: '+p.title);}catch{showToast('Ошибка JSON',false);}}; r.readAsText(file); };
+
+            // Project drag sort
+            const onProjDragStart = (i) => { projDrag.current = i; };
+            const onProjDragEnter = (i) => { projDragOver.current = i; };
+            const onProjDragEnd = () => { if(projDrag.current!==null && projDragOver.current!==null && projDrag.current!==projDragOver.current){ const p=[...data.projects]; const item=p.splice(projDrag.current,1)[0]; p.splice(projDragOver.current,0,item); save({...data,projects:p}); } projDrag.current=null; projDragOver.current=null; };
 
             const addProject = (template) => {
                 const id = 'case-' + Date.now();
@@ -394,7 +412,7 @@
                     <div className="cms-header">
                         <div className="cms-title">A.LAB CMS</div>
                         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                            {tab === 'projects' && <button className="btn btn-white" onClick={()=>setShowTemplates(true)}>+ Новый кейс</button>}
+                            {tab === 'projects' && <><label className="btn btn-dark btn-sm" style={{cursor:'pointer'}}><input type="file" accept=".json" style={{display:'none'}} onChange={importProject}/>📥 Импорт</label><button className="btn btn-white" onClick={()=>setShowTemplates(true)}>+ Новый кейс</button></>}
                             <button className="btn-ghost" onClick={logout}>Выйти</button>
                         </div>
                     </div>
@@ -404,21 +422,37 @@
                     </div>
                     {tab === 'settings' && settings && <SettingsTab settings={settings} onSave={saveSettings} />}
                     {tab === 'projects' && <>
+                        <div style={{display:'flex',gap:'0.75rem',marginBottom:'1.5rem',alignItems:'center'}}>
+                            <input className="input" style={{maxWidth:300}} value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 Поиск по проектам..."/>
+                            <button className={`btn btn-sm ${catEdit?'btn-blue':'btn-dark'}`} onClick={()=>setCatEdit(!catEdit)}>{catEdit?'Готово':'⚙ Категории'}</button>
+                        </div>
+                        {catEdit && <div className="settings-section" style={{marginBottom:'1.5rem'}}>
+                            <div className="settings-title">Управление категориями</div>
+                            {Object.entries(data.categories).map(([id,name])=><div key={id} style={{display:'flex',gap:'0.5rem',alignItems:'center',marginBottom:'0.5rem'}}>
+                                <input className="input" style={{flex:1}} value={name} onChange={e=>renameCategory(id,e.target.value)}/>
+                                <span style={{fontSize:'0.7rem',color:'#555'}}>{data.projects.filter(p=>p.categoryId===id).length} проектов</span>
+                                <button className="btn btn-red btn-sm" onClick={()=>deleteCategory(id)}>✕</button>
+                            </div>)}
+                            <button className="btn btn-dark btn-sm" onClick={addCategory}>+ Добавить категорию</button>
+                        </div>}
                         {!data.projects.length && <div className="empty-state"><h2>Нет проектов</h2><p>Нажмите «+ Новый кейс»</p></div>}
                         {Object.keys(data.categories).map(cid => {
-                            const projs = data.projects.filter(p => p.categoryId === cid);
+                            const projs = data.projects.filter(p => p.categoryId === cid).filter(p => !search || p.title.toLowerCase().includes(search.toLowerCase()) || p.id.toLowerCase().includes(search.toLowerCase()));
                             if (!projs.length) return null;
                             return (
                                 <div key={cid} className="cat-section">
                                     <div className="cat-label">{data.categories[cid]}</div>
                                     <div className="proj-grid">
                                         {projs.map(p => (
-                                            <div key={p.id} className="proj-card" onClick={() => setEditing(p.id)}>
+                                            <div key={p.id} className="proj-card" onClick={() => setEditing(p.id)}
+                                                draggable onDragStart={()=>onProjDragStart(data.projects.indexOf(p))} onDragEnter={()=>onProjDragEnter(data.projects.indexOf(p))} onDragEnd={onProjDragEnd} onDragOver={e=>e.preventDefault()}>
+                                                <span className="drag-handle" title="Сортировать" style={{fontSize:'0.8rem'}}>⠿</span>
                                                 {p.logo ? <img src={p.logo} alt="" className="proj-card-logo"/> : <div className="proj-card-nologo">{p.title.charAt(0)}</div>}
                                                 <div style={{flex:1,minWidth:0}}>
                                                     <div className="proj-card-id" style={{display:'flex',gap:'0.4rem',alignItems:'center'}}>{(p.blocks||[]).length} блоков <span className={`status-badge ${p.status==='draft'?'status-draft':'status-published'}`}>{p.status==='draft'?'Черновик':'Опубликован'}</span></div>
                                                     <div className="proj-card-title">{p.title}</div>
                                                 </div>
+                                                <button className="btn-ghost" title="Экспорт JSON" onClick={e=>{e.stopPropagation();exportProject(p)}} style={{fontSize:'0.85rem'}}>📤</button>
                                                 <button className="btn-ghost" title="Дублировать" onClick={e=>{e.stopPropagation();duplicateProject(p)}} style={{fontSize:'1rem'}}>⧉</button>
                                             </div>
                                         ))}
@@ -680,6 +714,7 @@
                     <div className="editor-top">
                         <div style={{display:'flex',gap:'0.5rem',alignItems:'center'}}>
                             <button className="btn btn-dark btn-sm" onClick={onClose}>← Назад</button>
+                            <a href={`http://localhost:5173/#portfolio`} target="_blank" className="btn btn-dark btn-sm" style={{textDecoration:'none'}}>↗ Сайт</a>
                             <span style={{fontSize:'1.1rem',fontWeight:700}}>{proj.title||'—'}</span>
                             <span className={`status-badge ${proj.status==='draft'?'status-draft':'status-published'}`} style={{cursor:'pointer'}} onClick={()=>update('status',proj.status==='draft'?'published':'draft')}>{proj.status==='draft'?'Черновик':'Опубликован'}</span>
                             <div className="save-indicator"><span className={`save-dot ${saving?'saving':dirty?'unsaved':'saved'}`}/>{saving?'Сохраняю...':dirty?'Есть изменения':'Сохранено'}</div>
