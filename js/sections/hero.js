@@ -616,7 +616,27 @@ export const initHero = (container) => {
             service.addEventListener('mouseenter', onEnter);
             service.addEventListener('mouseleave', onLeave);
         }
-    });
+    
+  // ─── CTA rotating phrases ───
+  const ctaEl = document.getElementById('heroCta');
+  if (ctaEl) {
+    const phrases = [
+      'готов создать бренд, который вызывает эмоции?',
+      'начни с брифа.',
+      'расскажи о проекте — мы загоримся.'
+    ];
+    let pi = 0;
+    setInterval(() => {
+      ctaEl.classList.add('fade-out');
+      setTimeout(() => {
+        pi = (pi + 1) % phrases.length;
+        ctaEl.textContent = phrases[pi];
+        ctaEl.classList.remove('fade-out');
+      }, 500);
+    }, 3000);
+  }
+
+});
 
     // Clean up
     return () => {

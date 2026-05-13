@@ -117,13 +117,44 @@
   gap: 1.5rem;
 }
 
-.hero-cta-text {
-  font-family: var(--font-body);
-  font-size: 1rem;
+.hero-cta-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-decoration: none;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.hero-cta-link:hover {
   opacity: 0.7;
+}
+
+.hero-cta-link:hover .hero-cta-arrow {
+  transform: translateX(4px);
+}
+
+.hero-cta-rotate {
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-weight: 400;
+  opacity: 0.65;
   text-align: right;
   line-height: 1.4;
-  margin: 0;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.hero-cta-rotate.fade-out {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.hero-cta-arrow {
+  font-size: 1.4rem;
+  opacity: 0.5;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
 }
 
 /* Circular Premium CTA Button */
@@ -295,14 +326,7 @@
     gap: 2rem;
   }
   
-  .hero-cta-text {
-    text-align: center;
-    max-width: 90%;
-    font-size: 1.1rem;
-    font-weight: 500;
-    opacity: 0.9;
   }
-}
 
 /* -----------------------------------------
    Tactile Typography Interaction Styles
@@ -766,9 +790,3 @@ body.spotlight-global-active .dimmed-sibling {
 }
 
 
-/* Hero CTA text - larger */
-.hero-cta-text {
-  font-size: clamp(1rem, 1.3vw, 1.3rem) !important;
-  opacity: 0.7;
-  line-height: 1.5;
-}
