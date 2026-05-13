@@ -248,6 +248,10 @@
             { type: 'gallery', label: 'Галерея', icon: '⊞' },
             { type: 'spacer', label: 'Отступ', icon: '↕' },
             { type: 'raw_html', label: 'HTML', icon: '</>' },
+            { type: 'columns', label: 'Колонки', icon: '▥' },
+            { type: 'compare', label: 'До/После', icon: '⇔' },
+            { type: 'quote', label: 'Цитата', icon: '❝' },
+            { type: 'metrics', label: 'Метрики', icon: '📊' },
         ];
 
         function apiFetch(url, opts = {}) {
@@ -620,7 +624,7 @@
             const update = (k, v) => { setProj(p => ({ ...p, [k]: v })); setDirty(true); };
             const updateBlock = (i, k, v) => { const b = [...proj.blocks]; b[i] = { ...b[i], [k]: v }; update('blocks', b); };
             const addBlock = (type) => {
-                const defs = { heading:{level:'h2',content:''}, text:{content:''}, image:{content:'',caption:''}, video:{content:''}, gallery:{images:[]}, spacer:{height:80}, raw_html:{content:''} };
+                const defs = { heading:{level:'h2',content:''}, text:{content:''}, image:{content:'',caption:''}, video:{content:''}, gallery:{images:[]}, spacer:{height:80}, raw_html:{content:''}, columns:{cols:[{text:'',image:''},{text:'',image:''}]}, compare:{before:'',after:''}, quote:{text:'',author:'',role:'',photo:''}, metrics:{items:[{value:'',label:''},{value:'',label:''},{value:'',label:''}]} };
                 update('blocks', [...(proj.blocks||[]), { type, ...defs[type] }]);
             };
             const removeBlock = (i) => { const b = [...proj.blocks]; b.splice(i,1); update('blocks', b); };
@@ -876,6 +880,10 @@
                     case 'spacer': return `<div style="height:${b.height||80}px"></div>`;
                     case 'raw_html': return b.content || '';
                     case 'masked_image': return b.content ? `<div style="margin:1rem 5%;text-align:center"><img src="${b.content}" style="max-width:100%;${b.clipPath&&b.clipPath!=='none'?'clip-path:'+b.clipPath:''}" /></div>` : '';
+                    case 'columns': {const cols=b.cols||[];return `<div style="display:grid;grid-template-columns:repeat(${cols.length},1fr);gap:1.5rem;margin:1.5rem 5%">${cols.map(col=>`<div>${col.image?`<img src="${col.image}" style="width:100%;border-radius:8px;margin-bottom:0.5rem"/>`:''}${col.text?`<p style="font-family:'Roboto',sans-serif;line-height:1.6;font-size:1rem">${col.text.replace(/\n/g,'<br>')}</p>`:''}</div>`).join('')}</div>`;}
+                    case 'compare': return (b.before&&b.after)?`<div style="position:relative;margin:1.5rem 5%;overflow:hidden;border-radius:8px"><img src="${b.after}" style="width:100%;display:block"/><div style="position:absolute;inset:0;width:50%;overflow:hidden"><img src="${b.before}" style="width:200%;max-width:none;display:block"/></div><div style="position:absolute;top:0;bottom:0;left:50%;width:3px;background:#fff"></div><span style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 8px;border-radius:4px;font-size:0.7rem">ДО</span><span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 8px;border-radius:4px;font-size:0.7rem">ПОСЛЕ</span></div>`:'';
+                    case 'quote': return `<blockquote style="margin:2rem 5%;padding:1.5rem 2rem;border-left:4px solid #2980b9;background:#f0f4f8;border-radius:0 8px 8px 0"><p style="font-family:'Roboto',sans-serif;font-size:1.1rem;font-style:italic;line-height:1.6;margin-bottom:0.75rem">${b.text||''}</p><div style="display:flex;align-items:center;gap:0.75rem">${b.photo?`<img src="${b.photo}" style="width:40px;height:40px;border-radius:50%;object-fit:cover"/>`:''}<div><strong>${b.author||''}</strong>${b.role?`<br><span style="font-size:0.85rem;color:#666">${b.role}</span>`:''}</div></div></blockquote>`;
+                    case 'metrics': return `<div style="display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;margin:2rem 5%;padding:2rem;background:#f8f9fa;border-radius:12px">${(b.items||[]).map(m=>`<div style="text-align:center;min-width:100px"><div style="font-family:'Unbounded',sans-serif;font-size:2rem;font-weight:700;color:#2980b9">${m.value||''}</div><div style="font-size:0.85rem;color:#666;margin-top:0.3rem">${m.label||''}</div></div>`).join('')}</div>`;
                     default: return '';
                 }
             }).join('\n');
@@ -917,6 +925,42 @@
                         {block.content ? <div style={{background:'#1a1a1a',borderRadius:8,padding:'1rem',textAlign:'center'}}><img src={block.content} alt="" style={{maxWidth:'100%',maxHeight:300,objectFit:'contain',clipPath:cp,transition:'clip-path 0.3s'}}/></div> : null}
                     </div>
                 );
+            }
+            if (block.type === 'columns') {
+                const cols = block.cols || [{text:'',image:''},{text:'',image:''}];
+                const colCount = cols.length;
+                return (<div>
+                    <div style={{display:'flex',gap:'0.5rem',marginBottom:'0.5rem'}}>{[2,3].map(n=><button key={n} className={`btn btn-sm ${colCount===n?'btn-blue':'btn-dark'}`} onClick={()=>{const nc=[...cols];while(nc.length<n)nc.push({text:'',image:''});updateBlock(index,'cols',nc.slice(0,n))}}>{n} колонки</button>)}</div>
+                    <div style={{display:'grid',gridTemplateColumns:`repeat(${colCount},1fr)`,gap:'0.5rem'}}>{cols.map((col,ci)=><div key={ci} style={{background:'#1a1a1a',borderRadius:6,padding:'0.5rem'}}>
+                        <div style={{display:'flex',gap:'0.3rem',marginBottom:'0.3rem'}}><input className="input" style={{flex:1}} value={col.image||''} onChange={e=>{const nc=[...cols];nc[ci]={...nc[ci],image:e.target.value};updateBlock(index,'cols',nc)}} placeholder="URL изображения"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer'}}><input type="file" style={{display:'none'}} onChange={e=>handleUpload(e,p=>{const nc=[...cols];nc[ci]={...nc[ci],image:p};updateBlock(index,'cols',nc)})}/>📷</label></div>
+                        {col.image && <img src={col.image} alt="" style={{width:'100%',height:60,objectFit:'cover',borderRadius:4,marginBottom:'0.3rem'}}/>}
+                        <textarea className="input" style={{minHeight:50,fontSize:'0.8rem'}} value={col.text||''} onChange={e=>{const nc=[...cols];nc[ci]={...nc[ci],text:e.target.value};updateBlock(index,'cols',nc)}} placeholder="Текст колонки"/>
+                    </div>)}</div>
+                </div>);
+            }
+            if (block.type === 'compare') return (<div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'0.5rem'}}>
+                    <div><label className="field-label">До</label><div style={{display:'flex',gap:'0.3rem'}}><input className="input" value={block.before||''} onChange={e=>updateBlock(index,'before',e.target.value)} placeholder="URL"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer'}}><input type="file" style={{display:'none'}} onChange={e=>handleUpload(e,p=>updateBlock(index,'before',p))}/>📷</label></div>{block.before&&<img src={block.before} alt="" style={{width:'100%',height:80,objectFit:'cover',borderRadius:4,marginTop:'0.3rem'}}/>}</div>
+                    <div><label className="field-label">После</label><div style={{display:'flex',gap:'0.3rem'}}><input className="input" value={block.after||''} onChange={e=>updateBlock(index,'after',e.target.value)} placeholder="URL"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer'}}><input type="file" style={{display:'none'}} onChange={e=>handleUpload(e,p=>updateBlock(index,'after',p))}/>📷</label></div>{block.after&&<img src={block.after} alt="" style={{width:'100%',height:80,objectFit:'cover',borderRadius:4,marginTop:'0.3rem'}}/>}</div>
+                </div>
+            </div>);
+            if (block.type === 'quote') return (<div style={{display:'flex',flexDirection:'column',gap:'0.5rem'}}>
+                <textarea className="input" value={block.text||''} onChange={e=>updateBlock(index,'text',e.target.value)} placeholder="Текст цитаты..." style={{minHeight:60,fontStyle:'italic'}}/>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'0.5rem'}}>
+                    <input className="input" value={block.author||''} onChange={e=>updateBlock(index,'author',e.target.value)} placeholder="Имя автора"/>
+                    <input className="input" value={block.role||''} onChange={e=>updateBlock(index,'role',e.target.value)} placeholder="Должность"/>
+                    <div style={{display:'flex',gap:'0.3rem'}}><input className="input" value={block.photo||''} onChange={e=>updateBlock(index,'photo',e.target.value)} placeholder="Фото URL"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer'}}><input type="file" style={{display:'none'}} onChange={e=>handleUpload(e,p=>updateBlock(index,'photo',p))}/>📷</label></div>
+                </div>
+            </div>);
+            if (block.type === 'metrics') {
+                const items = block.items || [{value:'',label:''},{value:'',label:''},{value:'',label:''}];
+                return (<div>
+                    <div style={{display:'flex',flexWrap:'wrap',gap:'0.5rem'}}>{items.map((m,mi)=><div key={mi} style={{background:'#1a1a1a',borderRadius:6,padding:'0.5rem',minWidth:120,flex:1}}>
+                        <input className="input" style={{fontWeight:700,fontSize:'1.1rem',textAlign:'center',marginBottom:'0.3rem'}} value={m.value||''} onChange={e=>{const ni=[...items];ni[mi]={...ni[mi],value:e.target.value};updateBlock(index,'items',ni)}} placeholder="240%"/>
+                        <input className="input" style={{fontSize:'0.8rem',textAlign:'center'}} value={m.label||''} onChange={e=>{const ni=[...items];ni[mi]={...ni[mi],label:e.target.value};updateBlock(index,'items',ni)}} placeholder="конверсия"/>
+                    </div>)}</div>
+                    <div style={{marginTop:'0.5rem',display:'flex',gap:'0.3rem'}}><button className="btn btn-dark btn-sm" onClick={()=>updateBlock(index,'items',[...items,{value:'',label:''}])}>+ Метрика</button>{items.length>1&&<button className="btn btn-dark btn-sm" onClick={()=>updateBlock(index,'items',items.slice(0,-1))}>− Убрать</button>}</div>
+                </div>);
             }
             return <p style={{color:'#666'}}>Неизвестный тип: {block.type}</p>;
         }
