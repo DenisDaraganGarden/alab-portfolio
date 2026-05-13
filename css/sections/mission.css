@@ -1,0 +1,67 @@
+/* Mission Section */
+.mission-section {
+  background-color: transparent;
+  padding: var(--page-section-space) var(--page-gutter);
+  min-height: calc(var(--app-height) * 100);
+}
+
+.mission-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: calc((var(--app-height) * 100) - (var(--page-section-space) * 2));
+  height: auto;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.mission-header {
+  align-self: flex-start;
+}
+
+.mission-title {
+  font-family: var(--font-title);
+  font-size: clamp(2rem, 5.5vw, 5.5rem);
+  line-height: 1;
+  font-weight: 700;
+  text-transform: lowercase;
+  letter-spacing: -0.04em;
+  margin: 0;
+}
+
+.mission-main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.mission-text {
+  font-family: var(--font-body);
+  font-size: clamp(1.2rem, 2.4vw, 3rem) !important;
+  line-height: 1.3 !important;
+  max-width: 1100px !important;
+  text-align: left !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  margin: 0 !important;
+  text-transform: none !important;
+}
+
+.mission-text .dim {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.mission-footer {
+  align-self: flex-start;
+  position: static !important;
+}
+
+.brand-name {
+  font-family: var(--font-title);
+  font-size: 1.2rem;
+  font-weight: 400;
+  opacity: 0.6;
+}

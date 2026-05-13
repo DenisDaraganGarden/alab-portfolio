@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>A.LAB — Редактор</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{background:#0a0a0a;color:#e0e0e0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+
+        /* Login */
+        .login-page{min-height:100vh;display:flex;align-items:center;justify-content:center}
+        .login-box{width:340px;padding:2.5rem;background:#111;border:1px solid #1a1a1a;border-radius:12px}
+        .login-logo{font-size:1.4rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:0.3rem}
+        .login-sub{font-size:0.8rem;color:#555;margin-bottom:2rem}
+        .login-field{margin-bottom:1rem}
+        .login-field label{display:block;font-size:0.72rem;color:#666;margin-bottom:0.3rem;text-transform:uppercase;letter-spacing:0.06em}
+        .login-btn{width:100%;padding:0.7rem;background:#fff;color:#000;border:none;border-radius:6px;font-weight:700;font-size:0.9rem;cursor:pointer;margin-top:0.5rem;transition:opacity 0.2s}
+        .login-btn:hover{opacity:0.85}
+        .login-btn:disabled{opacity:0.4;cursor:default}
+        .login-err{color:#e74c3c;font-size:0.78rem;margin-top:0.75rem;text-align:center}
+
+        /* Layout */
+        .cms-wrap{max-width:960px;margin:0 auto;padding:2rem 1.5rem 4rem}
+        .cms-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;border-bottom:1px solid #222;padding-bottom:1.5rem}
+        .cms-title{font-size:1.5rem;font-weight:700;letter-spacing:-0.02em}
+        .cms-user{font-size:0.75rem;color:#555;display:flex;align-items:center;gap:0.75rem}
+
+        /* Buttons */
+        .btn{padding:0.5rem 1rem;border-radius:6px;border:none;cursor:pointer;font-weight:600;font-size:0.85rem;transition:opacity 0.2s}
+        .btn:hover{opacity:0.85}
+        .btn-white{background:#fff;color:#000}
+        .btn-dark{background:#1a1a1a;color:#ccc;border:1px solid #333}
+        .btn-red{background:#c0392b;color:#fff}
+        .btn-blue{background:#2980b9;color:#fff}
+        .btn-sm{padding:0.35rem 0.7rem;font-size:0.78rem}
+        .btn-ghost{background:none;border:none;color:#666;cursor:pointer;font-size:0.78rem;padding:0.3rem 0.5rem}
+        .btn-ghost:hover{color:#eee}
+
+        /* Inputs */
+        .input{background:#151515;border:1px solid #2a2a2a;padding:0.55rem 0.75rem;color:#eee;width:100%;border-radius:6px;font-size:0.9rem}
+        .input:focus{outline:none;border-color:#555}
+        select.input{appearance:auto}
+        textarea.input{resize:vertical;font-family:monospace;font-size:0.82rem;min-height:80px}
+
+        /* Cards */
+        .cat-section{margin-bottom:2rem}
+        .cat-label{font-size:0.8rem;color:#666;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem}
+        .proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem}
+        .proj-card{background:#141414;border:1px solid #222;border-radius:8px;padding:1rem;cursor:pointer;transition:border-color 0.2s}
+        .proj-card:hover{border-color:#444}
+        .proj-card-id{font-size:0.7rem;color:#555;margin-bottom:0.3rem}
+        .proj-card-title{font-weight:600;font-size:0.95rem}
+
+        /* Editor */
+        .editor-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;gap:0.5rem}
+        .field-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+        .field-label{font-size:0.75rem;color:#777;margin-bottom:0.3rem;display:block}
+
+        /* Blocks */
+        .block-item{background:#111;border:1px solid #222;border-radius:8px;padding:1rem;margin-bottom:0.75rem}
+        .block-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem}
+        .block-type{font-size:0.7rem;font-weight:700;text-transform:uppercase;color:#5dade2}
+        .block-actions{display:flex;gap:0.3rem}
+        .block-actions button{background:none;border:none;color:#666;cursor:pointer;font-size:0.85rem;padding:2px 6px;border-radius:4px}
+        .block-actions button:hover{background:#222;color:#eee}
+
+        .add-bar{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1rem;padding-top:1rem;border-top:1px solid #1a1a1a}
+
+        /* Preview */
+        .preview-wrap{margin-top:1rem}
+        .preview-label{font-size:0.75rem;color:#e67e22;font-weight:600;margin-bottom:0.5rem}
+        .preview-container{position:relative;width:100%;background:#0a0a0a;border:1px solid #333;border-radius:6px;overflow:hidden}
+        .preview-container iframe{width:1440px;height:900px;transform-origin:top left;border:none;display:block;pointer-events:none}
+
+        /* Toast */
+        .toast{position:fixed;bottom:1rem;right:1rem;padding:0.6rem 1.2rem;border-radius:6px;font-size:0.85rem;font-weight:600;z-index:9999;animation:fadeIn .3s ease}
+        .toast-ok{background:#27ae60;color:#fff}
+        .toast-err{background:#c0392b;color:#fff}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+        .empty-state{text-align:center;padding:4rem 2rem;color:#444}
+        .empty-state p{margin-top:0.5rem;font-size:0.9rem}
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        const API = 'http://localhost:3001/api';
+
+        const BLOCK_TYPES = [
+            { type: 'heading', label: 'Заголовок', icon: 'H' },
+            { type: 'text', label: 'Текст', icon: '¶' },
+            { type: 'image', label: 'Изображение', icon: '🖼' },
+            { type: 'video', label: 'Видео', icon: '▶' },
+            { type: 'gallery', label: 'Галерея', icon: '⊞' },
+            { type: 'spacer', label: 'Отступ', icon: '↕' },
+            { type: 'raw_html', label: 'HTML', icon: '</>' },
+        ];
+
+        function apiFetch(url, opts = {}) {
+            const token = sessionStorage.getItem('cms_token');
+            return fetch(url, { ...opts, headers: { ...opts.headers, 'Content-Type': 'application/json', 'X-CMS-Token': token || '' } });
+        }
+
+        // ─── Login Screen ───
+        function LoginScreen({ onLogin }) {
+            const [login, setLogin] = useState('');
+            const [password, setPassword] = useState('');
+            const [error, setError] = useState('');
+            const [loading, setLoading] = useState(false);
+
+            const submit = async (e) => {
+                e.preventDefault();
+                setError('');
+                setLoading(true);
+                try {
+                    const res = await fetch(`${API}/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ login, password })
+                    });
+                    const json = await res.json();
+                    if (json.success && json.token) {
+                        sessionStorage.setItem('cms_token', json.token);
+                        onLogin();
+                    } else {
+                        setError(json.error || 'Ошибка входа');
+                    }
+                } catch (err) {
+                    setError('Сервер недоступен');
+                }
+                setLoading(false);
+            };
+
+            return (
+                <div className="login-page">
+                    <form className="login-box" onSubmit={submit}>
+                        <div className="login-logo">a.lab</div>
+                        <div className="login-sub">Внутренний редактор портфолио</div>
+                        <div className="login-field">
+                            <label>Логин</label>
+                            <input className="input" value={login} onChange={e => setLogin(e.target.value)} autoFocus />
+                        </div>
+                        <div className="login-field">
+                            <label>Пароль</label>
+                            <input className="input" type="password" value={password} onChange={e => setPassword(e.target.value)} />
+                        </div>
+                        <button className="login-btn" type="submit" disabled={loading}>{loading ? 'Вход...' : 'Войти'}</button>
+                        {error && <div className="login-err">{error}</div>}
+                    </form>
+                </div>
+            );
+        }
+
+        // ─── App ───
+        function App() {
+            const [authed, setAuthed] = useState(!!sessionStorage.getItem('cms_token'));
+            const [data, setData] = useState({ categories: {}, projects: [] });
+            const [loading, setLoading] = useState(true);
+            const [editing, setEditing] = useState(null);
+            const [toast, setToast] = useState(null);
+
+            const showToast = (msg, ok = true) => { setToast({ msg, ok }); setTimeout(() => setToast(null), 2000); };
+
+            const loadData = () => {
+                apiFetch(`${API}/cases`).then(r => {
+                    if (r.status === 401) { sessionStorage.removeItem('cms_token'); setAuthed(false); return; }
+                    return r.json();
+                }).then(d => { if (d) { setData(d); setLoading(false); } }).catch(() => setLoading(false));
+            };
+
+            useEffect(() => { if (authed) loadData(); }, [authed]);
+
+            const save = async (newData) => {
+                try {
+                    const r = await apiFetch(`${API}/cases`, { method: 'POST', body: JSON.stringify(newData) });
+                    if (r.status === 401) { sessionStorage.removeItem('cms_token'); setAuthed(false); return; }
+                    setData(newData);
+                    showToast('Сохранено');
+                } catch { showToast('Ошибка', false); }
+            };
+
+            const addProject = () => {
+                const id = 'case-' + Date.now();
+                const proj = { id, title: 'Новый проект', categoryId: Object.keys(data.categories)[0] || 'development', logo: '', isExternal: false, blocks: [] };
+                const nd = { ...data, projects: [...data.projects, proj] };
+                save(nd);
+                setEditing(id);
+            };
+
+            const deleteProject = async (id) => {
+                if (!confirm('Удалить проект?')) return;
+                const nd = { ...data, projects: data.projects.filter(p => p.id !== id) };
+                await save(nd);
+                if (editing === id) setEditing(null);
+            };
+
+            const logout = () => { sessionStorage.removeItem('cms_token'); setAuthed(false); };
+
+            if (!authed) return <LoginScreen onLogin={() => setAuthed(true)} />;
+            if (loading) return <div className="cms-wrap"><p>Загрузка...</p></div>;
+
+            if (editing) {
+                const proj = data.projects.find(p => p.id === editing);
+                if (!proj) { setEditing(null); return null; }
+                return <Editor project={proj} categories={data.categories} onSave={u => { save({ ...data, projects: data.projects.map(p => p.id === editing ? u : p) }); }} onDelete={() => deleteProject(editing)} onClose={() => setEditing(null)} />;
+            }
+
+            return (
+                <div className="cms-wrap">
+                    <div className="cms-header">
+                        <div className="cms-title">A.LAB Портфолио</div>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <button className="btn btn-white" onClick={addProject}>+ Новый кейс</button>
+                            <button className="btn-ghost" onClick={logout}>Выйти</button>
+                        </div>
+                    </div>
+                    {!data.projects.length && <div className="empty-state"><h2>Нет проектов</h2><p>Нажмите «+ Новый кейс»</p></div>}
+                    {Object.keys(data.categories).map(cid => {
+                        const projs = data.projects.filter(p => p.categoryId === cid);
+                        if (!projs.length) return null;
+                        return (
+                            <div key={cid} className="cat-section">
+                                <div className="cat-label">{data.categories[cid]}</div>
+                                <div className="proj-grid">
+                                    {projs.map(p => (
+                                        <div key={p.id} className="proj-card" onClick={() => setEditing(p.id)}>
+                                            <div className="proj-card-id">{p.id} · {(p.blocks||[]).length} блоков</div>
+                                            <div className="proj-card-title">{p.title}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        );
+                    })}
+                    {toast && <div className={`toast ${toast.ok ? 'toast-ok' : 'toast-err'}`}>{toast.msg}</div>}
+                </div>
+            );
+        }
+
+        // ─── Editor ───
+        function Editor({ project, categories, onSave, onDelete, onClose }) {
+            const [proj, setProj] = useState({ ...project });
+            const [uploading, setUploading] = useState(false);
+            const update = (k, v) => setProj(p => ({ ...p, [k]: v }));
+            const updateBlock = (i, k, v) => { const b = [...proj.blocks]; b[i] = { ...b[i], [k]: v }; update('blocks', b); };
+            const addBlock = (type) => {
+                const defs = { heading:{level:'h2',content:''}, text:{content:''}, image:{content:'',caption:''}, video:{content:''}, gallery:{images:[]}, spacer:{height:80}, raw_html:{content:''} };
+                update('blocks', [...(proj.blocks||[]), { type, ...defs[type] }]);
+            };
+            const removeBlock = (i) => { const b = [...proj.blocks]; b.splice(i,1); update('blocks', b); };
+            const moveBlock = (i, d) => { const b = [...proj.blocks]; const t = i+d; if(t<0||t>=b.length) return; [b[i],b[t]]=[b[t],b[i]]; update('blocks', b); };
+            const handleUpload = async (e, cb) => {
+                const file = e.target.files[0]; if (!file) return;
+                setUploading(true);
+                const fd = new FormData(); fd.append('media', file); fd.append('caseId', proj.id);
+                try { const r = await fetch(`${API}/upload`, { method:'POST', body:fd, headers:{'X-CMS-Token':sessionStorage.getItem('cms_token')||''} }); const j = await r.json(); if(j.path) cb(j.path); } catch(e) { console.error(e); }
+                setUploading(false);
+            };
+
+            return (
+                <div className="cms-wrap">
+                    <div className="editor-top">
+                        <div style={{display:'flex',gap:'0.5rem',alignItems:'center'}}>
+                            <button className="btn btn-dark btn-sm" onClick={onClose}>← Назад</button>
+                            <span style={{fontSize:'1.1rem',fontWeight:700}}>{proj.title||'—'}</span>
+                        </div>
+                        <div style={{display:'flex',gap:'0.5rem'}}>
+                            <button className="btn btn-red btn-sm" onClick={onDelete}>Удалить</button>
+                            <button className="btn btn-white btn-sm" onClick={() => onSave(proj)}>Сохранить</button>
+                        </div>
+                    </div>
+                    <div className="field-row">
+                        <div><label className="field-label">ID</label><input className="input" value={proj.id} onChange={e=>update('id',e.target.value)}/></div>
+                        <div><label className="field-label">Категория</label><select className="input" value={proj.categoryId} onChange={e=>update('categoryId',e.target.value)}>{Object.entries(categories).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select></div>
+                    </div>
+                    <div className="field-row">
+                        <div><label className="field-label">Название</label><input className="input" value={proj.title} onChange={e=>update('title',e.target.value)}/></div>
+                        <div><label className="field-label">Логотип</label><div style={{display:'flex',gap:'0.5rem'}}><input className="input" value={proj.logo||''} onChange={e=>update('logo',e.target.value)} placeholder="/images/..."/><label className="btn btn-dark btn-sm" style={{cursor:'pointer',whiteSpace:'nowrap'}}><input type="file" style={{display:'none'}} onChange={e=>handleUpload(e,p=>update('logo',p))}/>Файл</label></div></div>
+                    </div>
+                    <div style={{marginBottom:'1rem'}}><label style={{display:'flex',alignItems:'center',gap:'0.5rem',fontSize:'0.85rem',color:'#999'}}><input type="checkbox" checked={proj.isExternal||false} onChange={e=>update('isExternal',e.target.checked)}/>Внешняя ссылка</label>
+                    {proj.isExternal && <input className="input" style={{marginTop:'0.5rem'}} value={proj.externalUrl||''} onChange={e=>update('externalUrl',e.target.value)} placeholder="https://behance.net/..."/>}</div>
+
+                    {!proj.isExternal && (
+                        <div>
+                            <h3 style={{fontSize:'1rem',fontWeight:700,marginBottom:'0.5rem',marginTop:'1.5rem',paddingTop:'1rem',borderTop:'1px solid #222'}}>Блоки ({(proj.blocks||[]).length})</h3>
+                            {(proj.blocks||[]).map((block,i)=>(
+                                <div key={i} className="block-item">
+                                    <div className="block-head">
+                                        <span className="block-type">{BLOCK_TYPES.find(b=>b.type===block.type)?.icon} {block.type}</span>
+                                        <div className="block-actions"><button onClick={()=>moveBlock(i,-1)}>↑</button><button onClick={()=>moveBlock(i,1)}>↓</button><button style={{color:'#c0392b'}} onClick={()=>removeBlock(i)}>✕</button></div>
+                                    </div>
+                                    <BlockEditor block={block} index={i} projId={proj.id} updateBlock={updateBlock} handleUpload={handleUpload}/>
+                                </div>
+                            ))}
+                            <div className="add-bar">{BLOCK_TYPES.map(bt=><button key={bt.type} className="btn btn-dark btn-sm" onClick={()=>addBlock(bt.type)}>{bt.icon} {bt.label}</button>)}</div>
+                        </div>
+                    )}
+                    {uploading && <div className="toast toast-ok">Загрузка...</div>}
+                </div>
+            );
+        }
+
+        // ─── BlockEditor ───
+        function BlockEditor({ block, index, projId, updateBlock, handleUpload }) {
+            if (block.type === 'heading') return (<><div style={{display:'flex',gap:'0.5rem',marginBottom:'0.5rem'}}>{['h1','h2','h3','h4'].map(l=><button key={l} className={`btn btn-sm ${block.level===l?'btn-blue':'btn-dark'}`} onClick={()=>updateBlock(index,'level',l)}>{l.toUpperCase()}</button>)}</div><input className="input" value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="Заголовок"/></>);
+            if (block.type === 'text') return <textarea className="input" value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="Текст..." rows={4}/>;
+            if (block.type === 'image') return (<><div style={{display:'flex',gap:'0.5rem'}}><input className="input" value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="URL"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer',whiteSpace:'nowrap'}}><input type="file" style={{display:'none'}} onChange={e=>handleUpload(e,p=>updateBlock(index,'content',p))}/>Загрузить</label></div>{block.content && <img src={block.content} alt="" style={{maxWidth:'100%',maxHeight:200,marginTop:'0.5rem',borderRadius:6,objectFit:'contain',background:'#000'}}/>}</>);
+            if (block.type === 'video') return (<div style={{display:'flex',gap:'0.5rem'}}><input className="input" value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="URL видео"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer',whiteSpace:'nowrap'}}><input type="file" style={{display:'none'}} accept="video/*" onChange={e=>handleUpload(e,p=>updateBlock(index,'content',p))}/>Загрузить</label></div>);
+            if (block.type === 'gallery') { const imgs=block.images||[]; return (<><div style={{display:'flex',flexWrap:'wrap',gap:'0.5rem',marginBottom:'0.5rem'}}>{imgs.map((img,gi)=><div key={gi} style={{position:'relative',width:80,height:80}}><img src={img} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:4}}/><button onClick={()=>{const n=[...imgs];n.splice(gi,1);updateBlock(index,'images',n);}} style={{position:'absolute',top:-4,right:-4,background:'#c0392b',color:'#fff',border:'none',borderRadius:'50%',width:18,height:18,fontSize:'0.6rem',cursor:'pointer',lineHeight:'18px'}}>✕</button></div>)}</div><label className="btn btn-dark btn-sm" style={{cursor:'pointer'}}><input type="file" style={{display:'none'}} multiple onChange={e=>{Array.from(e.target.files).forEach(file=>{const fd=new FormData();fd.append('media',file);fd.append('caseId',projId);fetch(`${API}/upload`,{method:'POST',body:fd,headers:{'X-CMS-Token':sessionStorage.getItem('cms_token')||''}}).then(r=>r.json()).then(j=>{if(j.path)updateBlock(index,'images',[...(block.images||[]),j.path]);});});}}/>+ Изображения</label></>); }
+            if (block.type === 'spacer') return (<div style={{display:'flex',alignItems:'center',gap:'0.75rem'}}><span style={{fontSize:'0.8rem',color:'#666'}}>Высота:</span><input className="input" type="number" style={{width:100}} value={block.height||80} onChange={e=>updateBlock(index,'height',parseInt(e.target.value)||40)}/><span style={{fontSize:'0.75rem',color:'#555'}}>px</span></div>);
+            if (block.type === 'raw_html') {
+                const srcDoc = `<html><head><link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"><style>:root{--bg-color:#f5f5f5;--text-color:#1a1a1a;--font-title:'Unbounded',sans-serif;--font-body:'Roboto',sans-serif}body{background:var(--bg-color);margin:0;padding:0;color:var(--text-color);font-family:var(--font-body)}img{max-width:100%;height:auto}</style></head><body>${block.content||''}</body></html>`;
+                const scale = 0.62;
+                return (<><textarea className="input" style={{fontFamily:'monospace',fontSize:'0.78rem',minHeight:120}} value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="<div>...</div>"/><div className="preview-wrap"><div className="preview-label">Превью</div><div className="preview-container" style={{height:900*scale,overflow:'hidden'}}><iframe srcDoc={srcDoc} style={{transform:`scale(${scale})`}}/></div></div></>);
+            }
+            return <p style={{color:'#666'}}>Неизвестный тип: {block.type}</p>;
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

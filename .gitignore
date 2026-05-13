@@ -7,3 +7,19 @@ dist
 PDF_Breakdown
 /tmp
 .vercel
+# Python virtual environments
+venv
+.venv-pdf
+# Design source files (not needed in repo)
+ANALOGS WEB
+structure.pdf
+# Stray screenshots
+*.png
+!public/**/*.png
+!editor/**/*.png
+
+# Source images for cases (too large for deploy)
+assets/source-images
+
+# CMS database (local only)
+editor/cms.db

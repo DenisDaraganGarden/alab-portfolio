@@ -79,7 +79,7 @@
     </script>
     
     <!-- Link to Main Stylesheet -->
-    <link rel="stylesheet" href="./style.css">
+
     
     <!-- Preconnect to external CDNs for faster loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -92,11 +92,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     
     <!-- Load Lenis smooth scroll script (CDN, deferred) -->
-    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
     
     <!-- Load GSAP & ScrollTrigger scripts (CDN, deferred) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
 
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript">
@@ -121,6 +121,35 @@
     <!-- Yandex.Metrika noscript fallback -->
     <noscript><div><img src="https://mc.yandex.ru/watch/108408263" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 
+    <!-- Global Contact Header (Blob) -->
+    <header id="global-header" class="global-header">
+        <div class="contact-blob">
+            <div class="blob-icon">hi.</div>
+            <div class="blob-content">
+                <div class="blob-contacts">
+                    <div class="contact-item">
+                        <span class="contact-label">Call</span>
+                        <a href="tel:+79818343286" class="blob-contact-link">+7 (981) 834-32-86</a>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-label">Write</span>
+                        <a href="mailto:work@alab.ru" class="blob-contact-link">work@alab.ru</a>
+                    </div>
+                </div>
+                <div class="blob-socials">
+                    <a href="https://t.me/ALEXANDRALARI" class="blob-social-link" target="_blank" rel="noreferrer" aria-label="Telegram">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.888-.666 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                        <span class="social-label">Telegram</span>
+                    </a>
+                    <a href="https://dzen.ru" class="blob-social-link" target="_blank" rel="noreferrer" aria-label="Dzen">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M11.95 0C5.353 0 0 5.353 0 11.95s5.353 11.95 11.95 11.95 11.95-5.353 11.95-11.95S18.547 0 11.95 0zm6.306 17.51a14.773 14.773 0 0 1-2.946-.682c-.896-.289-3.79-1.378-5.753-3.097-2.607 3.26-4.75 3.518-5.59 3.55a.86.86 0 0 1-.89-.924c.06-1.503 1.055-4.484 2.825-6.726C3.96 7.625 4.316 6.01 4.35 5.513c.017-.26.236-.454.496-.454.265 0 .484.204.484.47 0 .193-.205 2.19 1.705 4.298 2.65-2.795 5.253-3.13 5.865-3.178.272-.02.51.18.533.45.023.266-.176.5-.442.523-1.127.098-3.418.84-5.46 3.524 1.77 1.832 2.637 4.314 2.695 5.856.402-.073 1.343-.342 2.91-1.342 1.313-1.076 2.373-2.583 2.924-3.523.633-1.077 1.265-1.517 1.954-1.517.585 0 1.08.307 1.375.852.482.89.522 2.536.035 4.093-.326 1.03-1.018 1.637-1.127 1.685z"/></svg>
+                        <span class="social-label">Dzen</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
     <!-- Smooth Scrolling Container (Lenis Target) -->
     <div id="smooth-wrapper">
         <div id="smooth-content">
@@ -128,9 +157,43 @@
 
             <!-- Section 1: Hero (Page 1) -->
             <section id="hero" class="section hero-section" data-section="hero">
-                <div class="content">
-                    <h1 class="hero-title">a.lab</h1>
-                    <p class="hero-subtitle">агентство эмоциональной инженерии</p>
+                <!-- Lamp pull cord for spotlight effect -->
+                <div class="lamp-cord-container">
+                    <div class="lamp-cord"></div>
+                    <div class="lamp-pull"></div>
+                </div>
+
+                <!-- Center Main Content -->
+                <div class="hero-center-content">
+                    <h1 class="hero-title">
+                        <span class="char-group letter-trigger" data-service-index="0">
+                            <span class="falling-char">a</span>
+                            <span class="dot-char falling-char">.</span>
+                        </span>
+                        <span class="falling-char letter-trigger" data-service-index="1">l</span>
+                        <span class="falling-char letter-trigger" data-service-index="2">a</span>
+                        <span class="falling-char letter-trigger" data-service-index="3">b</span>
+                    </h1>
+                    <div class="hero-subtitle-wrapper">
+                        <p class="hero-subtitle">агентство эмоциональной инженерии</p>
+                        <ul class="hero-services-list">
+                            <li data-service-index="0">коммуникация бренда</li>
+                            <li data-service-index="1">нейминг</li>
+                            <li data-service-index="2">фирменный стиль</li>
+                            <li data-service-index="3">управление вниманием</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Bottom Right CTA -->
+                <div class="hero-bottom-right">
+                    <div class="hero-cta-wrapper">
+                        <p class="hero-cta-text">готов создать бренд, который вызывает эмоции? <br/>начни с брифа.</p>
+                        <a href="#contacts" class="hero-cta-circular">
+                            <span class="cta-inner-text">бриф</span>
+                            <div class="cta-circle-hover"></div>
+                        </a>
+                    </div>
                 </div>
             </section>
 
@@ -145,9 +208,9 @@
             <section id="profile" class="section profile-section" data-section="profile">
                 <div class="content profile-grid">
                     <div class="profile-left">
-                        <h2 class="profile-quote-heading">делать бизнес без эмоций невозможно</h2>
+                        <h2 class="profile-quote-heading">делать бизнес<br>без эмоций невозможно</h2>
                         <div class="profile-main-content">
-                            <p class="profile-quote">создать что-то значимое без любопытства. запустить что-то масштабное без воодушевления и страха. рассказать, продать, влюбить — и всё только лишь функцией. невозможно. и вполне возможно, что вы просто ещё не знаете свою эмоцию. понять её, вложить в ваше дело и донести до сердец — работа a.lab</p>
+                            <p class="profile-quote">люди не покупают продукты —<br>они покупают <strong>ощущение</strong><br><br>без эмоции нельзя:<br>— заинтересовать<br>— удержать<br>— продать<br><br>можно сделать «нормально»<br>но невозможно сделать <strong>значимо</strong><br><br>мы работаем там, где бренд<br>становится опытом, а не функцией</p>
                             <ul class="profile-services">
                                 <li>аналитика</li>
                                 <li>стратегия</li>
@@ -170,9 +233,9 @@
                             <div class="profile-image-container profile-oval-object">
                                 <div class="profile-oval-shadow"></div>
                                 <div class="profile-oval-body">
-                                    <video class="profile-photo-img" autoplay loop muted playsinline poster="./images/lari.jpg">
-                                        <source src="./images/lari-animated.mp4" type="video/mp4">
-                                        <img src="./images/lari.jpg" alt="Александра Лари" class="profile-photo-img">
+                                    <video class="profile-photo-img" autoplay loop muted playsinline poster="/images/lari.jpg">
+                                        <source src="/images/lari-animated.mp4" type="video/mp4">
+                                        <img src="/images/lari.jpg" alt="Александра Лари" class="profile-photo-img">
                                     </video>
                                     <div class="profile-oval-rim"></div>
                                     <div class="profile-oval-bevel"></div>
@@ -195,9 +258,7 @@
                     <div class="mission-main">
                         <p class="mission-text">насыщать продукты и бренды человеческими эмоциями, резонирующими <span class="dim">с теми, <br>для кого они созданы</span></p>
                     </div>
-                    <div class="mission-footer">
-                        <span class="brand-name">a.lab</span>
-                    </div>
+
                 </div>
             </section>
 
@@ -205,22 +266,35 @@
             <section id="principles" class="section principles-section" data-section="principles">
                 <div class="content principles-container">
                     <div class="principles-header">
-                        <h2 class="principles-title">принципы</h2>
+                        <div class="ee-title-wrapper">
+                            <h2 class="principles-title">эмоциональная<br>инженерия</h2>
+                            <span class="ee-subtitle">составляющие<br>процесса</span>
+                        </div>
                     </div>
                     
-                    <div class="principles-main">
+                    <div class="principles-main" style="margin-top: clamp(80px, 12vh, 180px);">
                         <div class="principles-row">
                             <div class="principle-item" id="p1">
                                 <h3 class="principle-name">диагностика</h3>
-                                <p class="principle-desc">анализируем глубинные смыслы и запросы, чтобы найти ту самую эмоцию, которая станет фундаментом будущего бренда</p>
+                                <div class="principle-points">
+                                    <p class="principle-point"><strong>погружение в контекст</strong></p>
+                                    <p class="principle-point"><strong>исследование аудитории</strong></p>
+                                    <p class="principle-point"><strong>анализ конкурентов</strong></p>
+                                </div>
                             </div>
                             <div class="principle-item" id="p2">
                                 <h3 class="principle-name">проектирование</h3>
-                                <p class="principle-desc">создаем визуальный и вербальный язык бренда, проектируя каждую точку контакта на основе найденной эмоции</p>
+                                <div class="principle-points">
+                                    <p class="principle-point"><strong>формирование эмоциональных целей</strong></p>
+                                    <p class="principle-point"><strong>разработка сценариев</strong></p>
+                                </div>
                             </div>
                             <div class="principle-item" id="p3">
                                 <h3 class="principle-name">реализация</h3>
-                                <p class="principle-desc">воплощаем стратегию в жизнь через дизайн, контент и коммуникации, обеспечивая точность и глубину внедрения смыслов</p>
+                                <div class="principle-points">
+                                    <p class="principle-point"><strong>поведенческие и смысловые элементы</strong></p>
+                                    <p class="principle-point"><strong>сенсорные стимулы</strong></p>
+                                </div>
                             </div>
                         </div>
 
@@ -236,9 +310,7 @@
                         </div>
                     </div>
 
-                    <div class="principles-footer">
-                        <span class="brand-name">a.lab</span>
-                    </div>
+
                 </div>
             </section>
 
@@ -247,39 +319,34 @@
                 <div class="content ee-container">
                     <div class="ee-header">
                         <div class="ee-title-wrapper">
-                            <h2 class="ee-title">эмоциональная<br>инженерия</h2>
-                            <span class="ee-subtitle">составляющие<br>процесса</span>
+                            <h2 class="ee-title">принципы</h2>
                         </div>
                     </div>
-                    <div class="ee-grid">
-                        <div class="ee-column" id="ee-col-1">
-                            <h3 class="ee-col-title">диагностика</h3>
-                            <ul class="ee-list">
-                                <li><strong>погружение в контекст</strong> и запрос заказчика с целью определения его эмоционального профиля</li>
-                                <li><strong>исследование аудитории</strong> с фокусом на эмоциональные потребности, болевые точки и паттерны поведения</li>
-                                <li><strong>анализ конкурентов</strong> и картирование эмоциональной среды продукта/бренда</li>
-                            </ul>
+                    <div class="ee-grid" style="gap: 1rem;">
+                        <div class="ee-column" id="ee-col-1" style="padding: 2.5rem 2rem">
+                            <h3 class="ee-col-title" style="font-size: clamp(1.3rem, 1.8vw, 1.8rem);">эмпатия</h3>
+                            <p class="ee-desc" style="font-size: clamp(1rem, 1.1vw, 1.15rem)"><strong>сначала понимаем — потом создаем:</strong> мы работаем не с аудиторией, а с её состоянием</p>
                         </div>
-                        <div class="ee-arrow">
-                            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                        <div class="ee-arrow" style="margin-top: 2rem; opacity: 0.8">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
                         </div>
-                        <div class="ee-column" id="ee-col-2">
-                            <h3 class="ee-col-title">проектирование</h3>
-                            <ul class="ee-list">
-                                <li><strong>формирование эмоциональных целей</strong> продукта/бренда, проработка на их основе миссии и ценностей</li>
-                                <li><strong>разработка сценариев</strong> эмоционального пути клиента по всем потенциальным коммуникационным и продуктовым тачпоинтам</li>
-                            </ul>
+                        <div class="ee-column" id="ee-col-2" style="padding: 2.5rem 2rem">
+                            <h3 class="ee-col-title" style="font-size: clamp(1.3rem, 1.8vw, 1.8rem);">аутентичность</h3>
+                            <p class="ee-desc" style="font-size: clamp(1rem, 1.1vw, 1.15rem)"><strong>не придумываем — находим настоящее:</strong> сильный бренд — не маска, а усиление сути</p>
                         </div>
-                        <div class="ee-arrow">
-                            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                        <div class="ee-arrow" style="margin-top: 2rem; opacity: 0.8">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
                         </div>
-                        <div class="ee-column" id="ee-col-3">
-                            <h3 class="ee-col-title">реализация</h3>
-                            <p class="ee-desc">имплементация выбранной <strong>эмоциональной составляющей</strong> в архитектуру бренда/продукта в двух направлениях:</p>
-                            <ul class="ee-list bulleted">
-                                <li><strong>поведенческие и смысловые элементы</strong> — через явно отражённое позиционирование и коммуникации</li>
-                                <li><strong>сенсорные стимулы</strong> — через визуальные элементы брендинга и tov</li>
-                            </ul>
+                        <div class="ee-column" id="ee-col-3" style="padding: 2.5rem 2rem">
+                            <h3 class="ee-col-title" style="font-size: clamp(1.3rem, 1.8vw, 1.8rem);">резонанс</h3>
+                            <p class="ee-desc" style="font-size: clamp(1rem, 1.1vw, 1.15rem)"><strong>каждое касание имеет значение:</strong> бренд — это система, а не логотип</p>
+                        </div>
+                        <div class="ee-arrow" style="margin-top: 2rem; opacity: 0.8">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                        </div>
+                        <div class="ee-column" id="ee-col-4" style="padding: 2.5rem 2rem">
+                            <h3 class="ee-col-title" style="font-size: clamp(1.3rem, 1.8vw, 1.8rem);">созидание</h3>
+                            <p class="ee-desc" style="font-size: clamp(1rem, 1.1vw, 1.15rem)"><strong>эмоция должна работать:</strong> мы создаем не впечатление, а результат</p>
                         </div>
                     </div>
                 </div>
@@ -323,25 +390,19 @@
             <!-- Section 8: Contacts (Page 14) -->
             <section id="contacts" class="section contacts-section" data-section="contacts">
                 <div class="content contacts-container">
-                    <div class="contacts-heading-group">
-                        <span class="contacts-kicker">финальный контакт</span>
-                        <h2 class="contacts-title">обсудим бренд,<br>продукт и эмоцию,<br>которую он должен вызывать</h2>
+                    <div class="contacts-brand-block">
+                        <span class="contacts-brand-mark">a.lab</span>
                     </div>
                     
                     <p class="contacts-note">a.lab проектирует эмоциональную архитектуру брендов и продуктов. если вам нужен не просто дизайн, а отклик, давайте начнем разговор.</p>
 
-                    <div class="contacts-brand-block">
-                        <span class="contacts-brand-mark">a.lab</span>
+                    <div class="contacts-heading-group">
+                        <span class="contacts-kicker">финальный контакт</span>
+                        <h2 class="contacts-title">обсудим бренд,<br>продукт и эмоцию,<br>которую он должен вызывать</h2>
                     </div>
 
                     <div class="contacts-form-wrapper" style="position: relative; align-self: end;">
-                        <!-- Animation layer -->
-                        <div class="morph-animation-layer">
-                            <div class="morph-word morph-brand">БРЕНД</div>
-                            <div class="morph-word morph-product">ПРОДУКТ</div>
-                            <div class="morph-word morph-emotion">ЭМОЦИИ</div>
-                            <div class="morph-box reactive-form-container"></div>
-                        </div>
+
 
                         <div class="contacts-card reactive-form-container">
                             <form id="contact-form" class="mirror-form">
@@ -405,647 +466,10 @@
     </div>
     
     <!-- Hidden Content Templates -->
-    <template id="tmpl-domm">
-        <div class="case-study-detail case-domm">
-            <div class="case-logo-wrapper">
-                <img src="/images/DOMM/logo-black.svg" alt="DOMM Logo" class="case-main-logo">
-            </div>
-            <div class="case-visuals">
-                <picture class="case-image-picture">
-                    <source
-                        type="image/webp"
-                        srcset="/images/optimized/DOMM/domm-viz-1-480.webp 480w, /images/optimized/DOMM/domm-viz-1-800.webp 800w, /images/optimized/DOMM/domm-viz-1-1200.webp 1200w, /images/optimized/DOMM/domm-viz-1-1600.webp 1600w, /images/optimized/DOMM/domm-viz-1-2200.webp 2200w, /images/optimized/DOMM/domm-viz-1-4000.webp 4000w"
-                        sizes="100vw"
-                    >
-                    <img
-                        src="/images/optimized/DOMM/domm-viz-1-1600.jpg"
-                        srcset="/images/optimized/DOMM/domm-viz-1-480.jpg 480w, /images/optimized/DOMM/domm-viz-1-800.jpg 800w, /images/optimized/DOMM/domm-viz-1-1200.jpg 1200w, /images/optimized/DOMM/domm-viz-1-1600.jpg 1600w, /images/optimized/DOMM/domm-viz-1-2200.jpg 2200w, /images/optimized/DOMM/domm-viz-1-4000.jpg 4000w"
-                        sizes="100vw"
-                        alt="DOMM Visualization 1"
-                        class="case-image"
-                        width="4000"
-                        height="2734"
-                        loading="lazy"
-                        decoding="async"
-                    >
-                </picture>
-                <picture class="case-image-picture">
-                    <source
-                        type="image/webp"
-                        srcset="/images/optimized/DOMM/domm-viz-2-480.webp 480w, /images/optimized/DOMM/domm-viz-2-800.webp 800w, /images/optimized/DOMM/domm-viz-2-1200.webp 1200w, /images/optimized/DOMM/domm-viz-2-1600.webp 1600w, /images/optimized/DOMM/domm-viz-2-2200.webp 2200w, /images/optimized/DOMM/domm-viz-2-3840.webp 3840w"
-                        sizes="100vw"
-                    >
-                    <img
-                        src="/images/optimized/DOMM/domm-viz-2-1600.jpg"
-                        srcset="/images/optimized/DOMM/domm-viz-2-480.jpg 480w, /images/optimized/DOMM/domm-viz-2-800.jpg 800w, /images/optimized/DOMM/domm-viz-2-1200.jpg 1200w, /images/optimized/DOMM/domm-viz-2-1600.jpg 1600w, /images/optimized/DOMM/domm-viz-2-2200.jpg 2200w, /images/optimized/DOMM/domm-viz-2-3840.jpg 3840w"
-                        sizes="100vw"
-                        alt="DOMM Visualization 2"
-                        class="case-image"
-                        width="3840"
-                        height="2625"
-                        loading="lazy"
-                        decoding="async"
-                    >
-                </picture>
-                <picture class="case-image-picture">
-                    <source
-                        type="image/webp"
-                        srcset="/images/optimized/DOMM/domm-viz-3-480.webp 480w, /images/optimized/DOMM/domm-viz-3-800.webp 800w, /images/optimized/DOMM/domm-viz-3-1200.webp 1200w, /images/optimized/DOMM/domm-viz-3-1600.webp 1600w, /images/optimized/DOMM/domm-viz-3-2200.webp 2200w, /images/optimized/DOMM/domm-viz-3-3840.webp 3840w"
-                        sizes="100vw"
-                    >
-                    <img
-                        src="/images/optimized/DOMM/domm-viz-3-1600.jpg"
-                        srcset="/images/optimized/DOMM/domm-viz-3-480.jpg 480w, /images/optimized/DOMM/domm-viz-3-800.jpg 800w, /images/optimized/DOMM/domm-viz-3-1200.jpg 1200w, /images/optimized/DOMM/domm-viz-3-1600.jpg 1600w, /images/optimized/DOMM/domm-viz-3-2200.jpg 2200w, /images/optimized/DOMM/domm-viz-3-3840.jpg 3840w"
-                        sizes="100vw"
-                        alt="DOMM Visualization 3"
-                        class="case-image"
-                        width="3840"
-                        height="2624"
-                        loading="lazy"
-                        decoding="async"
-                    >
-                </picture>
-            </div>
-        </div>
-    </template>
-
-    <template id="tmpl-l-buro">
-        <div class="case-study-detail case-lburo" style="max-width: 1600px; margin: 0 auto; padding: 0 4vw 8rem;">
-            
-            <div class="case-header" style="height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; max-width: 1400px; padding: 0 2vw;">
-                <h1 style="font-family: var(--font-title); font-size: clamp(4rem, 14vw, 13rem); font-weight: 900; color: var(--text-color); text-transform: uppercase; margin: 0 0 2rem 0; line-height: 0.8; letter-spacing: -0.05em; white-space: nowrap;">L.BURO</h1>
-                <p style="color: var(--text-color); font-family: var(--font-body); font-size: clamp(1.4rem, 4vw, 2.8rem); max-width: 1000px; margin: 0 0 3rem 0; line-height: 1.25; font-weight: 300; opacity: 0.7; letter-spacing: -0.02em;">Ландшафтная архитектура — Разработка веб-приложения, корпоративного сайта и дизайна печатных материалов.</p>
-                <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--bg-color); background: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">UI/UX</span>
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Веб-дизайн</span>
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Полиграфия</span>
-                </div>
-            </div>
-            
-            <div class="case-visuals" style="display: flex; flex-direction: column; gap: clamp(2rem, 5vw, 4rem);">
-                
-                <!-- Full bleed cover photo -->
-                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden;">
-                    <img src="/images/L.BURO/web-assets/preview/opt_LBURO_4854.jpg" alt="L.BURO Landscape Architecture" loading="lazy">
-                </div>
-
-                <!-- Main website page screenshot -->
-                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
-                    <img src="/images/L.BURO/web-assets/preview/site_Главная_page_1.jpg" alt="Главная страница L.BURO" loading="lazy" style="width: 100%; display: block;">
-                </div>
-
-                <!-- 2-column grid -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
-                        <img src="/images/L.BURO/web-assets/preview/site_Портфолио_page_1.jpg" alt="Страница Портфолио" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
-                        <img src="/images/L.BURO/web-assets/preview/site_Проект сада_page_1.jpg" alt="Страница Проект Сада" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
-                        <img src="/images/L.BURO/web-assets/preview/site_Услуги_page_1.jpg" alt="Страница Услуги" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
-                        <img src="/images/L.BURO/web-assets/preview/site_Создание сада_page_1.jpg" alt="Страница Создание Сада" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                </div>
-
-                <!-- Environmental photography -->
-                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden;">
-                    <img src="/images/L.BURO/web-assets/preview/opt_LBURO_5524.jpg" alt="Процесс работы L.BURO" loading="lazy" style="width: 100%; display: block;">
-                </div>
-
-                <!-- 2-column grid -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
-                        <img src="/images/L.BURO/web-assets/preview/site_Команда_page_1.jpg" alt="Страница Команда" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
-                        <img src="/images/L.BURO/web-assets/preview/site_Блог_page_1.jpg" alt="Страница Блог" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
-                        <img src="/images/L.BURO/web-assets/preview/site_Наши награды_page_1.jpg" alt="Наши Награды" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
-                        <img src="/images/L.BURO/web-assets/preview/site_Контакты_page_1.jpg" alt="Контакты" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                </div>
-
-                <!-- Atmospheric Photo Break -->
-                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden;">
-                    <img src="/images/L.BURO/web-assets/preview/opt_DSC08532.jpg" alt="Атмосфера результата" loading="lazy" style="width: 100%; display: block;">
-                </div>
-
-                <!-- Booklet Print showcase -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden;">
-                        <img src="/images/L.BURO/web-assets/preview/lb_page_1.jpg" alt="Буклет L.BURO разворот 1" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden;">
-                        <img src="/images/L.BURO/web-assets/preview/lb_page_2.jpg" alt="Буклет L.BURO разворот 2" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                </div>
-
-                <!-- Final photo block -->
-                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden;">
-                    <img src="/images/L.BURO/web-assets/preview/opt_домHTLFRNB.jpg" alt="Эстетика экстерьера" loading="lazy" style="width: 100%; display: block;">
-                </div>
-
-            </div>
-        </div>
-    </template>
-
-    <template id="tmpl-grani">
-        <div class="case-study-detail case-grani" style="max-width: 1600px; margin: 0 auto; padding: 0 4vw 8rem;">
-            
-            <div class="case-header" style="height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; max-width: 1400px; padding: 0 2vw;">
-                <h1 style="font-family: var(--font-title); font-size: clamp(5rem, 16vw, 14rem); font-weight: 900; color: var(--text-color); text-transform: uppercase; margin: 0 0 2rem 0; line-height: 0.8; letter-spacing: -0.06em; white-space: nowrap;">ГРАНИ</h1>
-                <p style="color: var(--text-color); font-family: var(--font-body); font-size: clamp(1.4rem, 4vw, 2.8rem); max-width: 1000px; margin: 0 0 3rem 0; line-height: 1.25; font-weight: 300; opacity: 0.7; letter-spacing: -0.02em;">Девелопмент — Разработка платформы бренда и визуальной коммуникации.</p>
-                <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--bg-color); background: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Девелопмент</span>
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Платформа Бренда</span>
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Коммуникация</span>
-                </div>
-            </div>
-            
-            <div class="case-visuals" style="display: flex; flex-direction: column; gap: clamp(2rem, 5vw, 4rem);">
-                
-                <!-- Hero Full Width -->
-                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                    <img src="/images/Грани/web-assets/optimized/hero.webp" alt="Грани Обложка" loading="lazy" style="width: 100%; display: block;">
-                </div>
-
-                <!-- 2-column Photos -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/Грани/web-assets/optimized/photo_typo_1.webp" alt="Грани Взаимодействие" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/Грани/web-assets/optimized/photo_typo_2.webp" alt="Грани Позиционирование" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                </div>
-
-                <!-- Graphic Abstract Full Width -->
-                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                    <img src="/images/Грани/web-assets/optimized/gradient.webp" alt="Грани Графика" loading="lazy" style="width: 100%; display: block;">
-                </div>
-
-                <!-- Billboards Grid - 2 columns or stack, we use auto-fit for dynamic flow -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/Грани/web-assets/optimized/billboard_1.webp" alt="Грани Биллборд 1" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/Грани/web-assets/optimized/billboard_2.webp" alt="Грани Биллборд 2" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                </div>
-
-                <!-- Full Width Billboard 3 -->
-                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                    <img src="/images/Грани/web-assets/optimized/billboard_3.webp" alt="Грани Биллборд 3" loading="lazy" style="width: 100%; display: block;">
-                </div>
-
-                <!-- Posters Full Width -->
-                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                    <img src="/images/Грани/web-assets/optimized/posters.webp" alt="Грани Постеры" loading="lazy" style="width: 100%; display: block;">
-                </div>
-
-                <!-- Merch 2-column -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/Грани/web-assets/optimized/merch_bags.webp" alt="Грани Шоперы" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/Грани/web-assets/optimized/merch_cup.webp" alt="Грани Стакан" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                </div>
-                
-                <!-- Merch Full Close-up -->
-                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                    <img src="/images/Грани/web-assets/optimized/merch_bag_close.webp" alt="Грани Шопер Принт" loading="lazy" style="width: 100%; display: block;">
-                </div>
-
-            </div>
-        </div>
-    </template>
-
-    <template id="tmpl-princip32">
-        <div class="case-study-detail case-princip32" style="max-width: 1600px; margin: 0 auto; padding: 0 4vw 8rem;">
-            
-            <div class="case-header" style="height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; max-width: 1400px; padding: 0 2vw;">
-                <h1 style="font-family: var(--font-title); font-size: clamp(5rem, 16vw, 14rem); font-weight: 900; color: var(--text-color); text-transform: uppercase; margin: 0 0 2rem 0; line-height: 0.8; letter-spacing: -0.06em; white-space: nowrap;">Принцип<br>32</h1>
-                <p style="color: var(--text-color); font-family: var(--font-body); font-size: clamp(1.4rem, 4vw, 2.8rem); max-width: 1000px; margin: 0 0 3rem 0; line-height: 1.25; font-weight: 300; opacity: 0.7; letter-spacing: -0.02em;">Медицина, Стоматология — Разработка глубокой платформы бренда, стратегии позиционирования и визуальной айдентики.</p>
-                <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--bg-color); background: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Нейминг</span>
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Стратегия</span>
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Айдентика</span>
-                </div>
-            </div>
-
-            <!-- Unified Image Styles for Princip32 Grid -->
-            <style>
-                .Princip32-img-wrapper {
-                    border-radius: 20px;
-                    overflow: hidden;
-                    box-shadow: 0 40px 80px rgba(0,0,0,0.15);
-                    transform: translateZ(0);
-                    display: flex;
-                    justify-content: flex-start;
-                    background: transparent;
-                }
-                .Princip32-img-wrapper img {
-                    width: 100%;
-                    max-width: 100%;
-                    display: block;
-                    object-fit: contain;
-                }
-                .Princip32-img-wrapper.portrait img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                }
-            </style>
-
-            <div class="case-visuals" style="display: grid; grid-template-columns: 1fr; gap: clamp(2rem, 6vw, 6rem);">
-                
-                <!-- Full bleed cover image -->
-                <div class="Princip32-img-wrapper">
-                    <img src="/images/Принцип 32/web-assets/preview/page_1.jpg" alt="Обложка" loading="lazy">
-                </div>
-
-                <!-- 2-column grid for stationery -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="Princip32-img-wrapper portrait">
-                        <img src="/images/Принцип 32/web-assets/preview/page_31.jpg" alt="Блокноты и Визитки" loading="lazy">
-                    </div>
-                    <div class="Princip32-img-wrapper portrait">
-                        <img src="/images/Принцип 32/web-assets/preview/page_32.jpg" alt="Конверты и Канцелярия" loading="lazy">
-                    </div>
-                </div>
-
-                <!-- Single Showcase -->
-                <div class="Princip32-img-wrapper">
-                    <img src="/images/Принцип 32/web-assets/preview/page_34.jpg" alt="Брендинг витрины" loading="lazy">
-                </div>
-
-                <!-- 2-column grid for digital -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="Princip32-img-wrapper portrait">
-                        <img src="/images/Принцип 32/web-assets/preview/page_36.jpg" alt="Вебсайт на ноутбуке" loading="lazy">
-                    </div>
-                    <div class="Princip32-img-wrapper portrait">
-                        <img src="/images/Принцип 32/web-assets/preview/page_37.jpg" alt="Мобильное приложение" loading="lazy">
-                    </div>
-                </div>
-                
-                <!-- Single Large Outdoor -->
-                <div class="Princip32-img-wrapper">
-                    <img src="/images/Принцип 32/web-assets/preview/page_35.jpg" alt="Биллборды" loading="lazy">
-                </div>
-                
-                <!-- 2-column grid for navigation/totems -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="Princip32-img-wrapper portrait">
-                        <img src="/images/Принцип 32/web-assets/preview/page_38.jpg" alt="Уличный тотем 1" loading="lazy">
-                    </div>
-                    <div class="Princip32-img-wrapper portrait">
-                        <img src="/images/Принцип 32/web-assets/preview/page_39.jpg" alt="Уличный тотем 2" loading="lazy">
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </template>
-
-    <template id="tmpl-tut">
-        <div class="case-study-detail case-tut" style="max-width: 1600px; margin: 0 auto; padding: 0 4vw 8rem;">
-            
-            <div class="case-header" style="height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; max-width: 1400px; padding: 0 2vw;">
-                <h1 style="font-family: var(--font-title); font-size: clamp(5rem, 16vw, 14rem); font-weight: 900; color: var(--text-color); text-transform: uppercase; margin: 0 0 2rem 0; line-height: 0.8; letter-spacing: -0.06em; white-space: nowrap;">TUT</h1>
-                <p style="color: var(--text-color); font-family: var(--font-body); font-size: clamp(1.4rem, 4vw, 2.8rem); max-width: 1000px; margin: 0 0 3rem 0; line-height: 1.25; font-weight: 300; opacity: 0.7; letter-spacing: -0.02em;">Сервисы — Разработка комплексной визуальной айдентики и оформления для социальных платформ бренда.</p>
-                <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--bg-color); background: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Айдентика</span>
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Дизайн Соцсетей</span>
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Брендинг</span>
-                </div>
-            </div>
-            
-            <div class="case-visuals" style="display: flex; flex-direction: column; gap: clamp(2rem, 5vw, 4rem);">
-                
-                <!-- Main Header / Banner (YouTube) -->
-                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; background: #EAEAEA; display: flex; justify-content: center; align-items: center; padding: 2vw;">
-                    <img src="/images/TUT/web-assets/preview/youtube_banner.png" alt="TUT YouTube Banner" loading="lazy" style="width: 100%; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
-                </div>
-
-                <!-- 4 Avatars Grid -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: clamp(1rem, 2vw, 2rem);">
-                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; background: #FCFCFC; display: flex; justify-content: center; align-items: center; padding: 4vw;">
-                        <img src="/images/TUT/web-assets/preview/avatar_1.png" alt="TUT Avatar Variant 1" loading="lazy" style="width: 100%; max-width: 200px;">
-                    </div>
-                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; background: #FCFCFC; display: flex; justify-content: center; align-items: center; padding: 4vw;">
-                        <img src="/images/TUT/web-assets/preview/avatar_2.png" alt="TUT Avatar Variant 2" loading="lazy" style="width: 100%; max-width: 200px;">
-                    </div>
-                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; background: #111; display: flex; justify-content: center; align-items: center; padding: 4vw;">
-                        <img src="/images/TUT/web-assets/preview/avatar_3.png" alt="TUT Avatar Variant 3" loading="lazy" style="width: 100%; max-width: 200px;">
-                    </div>
-                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; background: #111; display: flex; justify-content: center; align-items: center; padding: 4vw;">
-                        <img src="/images/TUT/web-assets/preview/avatar_4.png" alt="TUT Avatar Variant 4" loading="lazy" style="width: 100%; max-width: 200px;">
-                    </div>
-                </div>
-
-                <!-- Short Logos / Watermarks Grid -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; background: #FFF; display: flex; justify-content: center; align-items: center; padding: 6vw;">
-                        <img src="/images/TUT/web-assets/preview/logo_short_1.png" alt="TUT Short Logo Black" loading="lazy" style="width: 60%; display: block; filter: invert(0);">
-                    </div>
-                    <div class="case-img-wrapper portrait" style="border-radius: 16px; overflow: hidden; background: #111; display: flex; justify-content: center; align-items: center; padding: 6vw;">
-                        <img src="/images/TUT/web-assets/preview/logo_short_2.png" alt="TUT Short Logo Color" loading="lazy" style="width: 60%; display: block;">
-                    </div>
-                </div>
-
-                <!-- Final Full Logo showcase -->
-                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; background: #222; display: flex; justify-content: center; align-items: center; padding: 8vw;">
-                    <img src="/images/TUT/web-assets/preview/logo_dual.png" alt="TUT Dual Color Logo" loading="lazy" style="width: 80%; display: block;">
-                </div>
-
-            </div>
-        </div>
-    </template>
-
-    <template id="tmpl-aquadolce">
-        <div class="case-study-detail case-aquadolce" style="max-width: 1600px; margin: 0 auto; padding: 0 4vw 8rem;">
-            
-            <div class="case-header" style="height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; max-width: 1400px; padding: 0 2vw;">
-                <h1 style="font-family: var(--font-title); font-size: clamp(4rem, 13vw, 12rem); font-weight: 900; color: var(--text-color); text-transform: uppercase; margin: 0 0 2rem 0; line-height: 0.85; letter-spacing: -0.04em;">AQUA DOLCE</h1>
-                <p style="color: var(--text-color); font-family: var(--font-body); font-size: clamp(1.4rem, 4vw, 2.8rem); max-width: 1000px; margin: 0 0 3rem 0; line-height: 1.25; font-weight: 300; opacity: 0.7; letter-spacing: -0.02em;">FMCG — Разработка комплексной визуальной айдентики, упаковки и носителей бренда напитков.</p>
-                <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--bg-color); background: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">FMCG</span>
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Упаковка</span>
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Айдентика</span>
-                </div>
-            </div>
-            
-            <div class="case-visuals" style="display: flex; flex-direction: column; gap: clamp(2rem, 5vw, 4rem);">
-                
-                <!-- Hero Full Width -->
-                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                    <img src="/images/AquaDolce/web-assets/optimized/hero.webp" alt="AquaDolce Обложка" loading="lazy" style="width: 100%; display: block;">
-                </div>
-
-                <!-- 2-column Product Intro -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/AquaDolce/web-assets/optimized/can_mint.webp" alt="AquaDolce Мята" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/AquaDolce/web-assets/optimized/bottles_fruit.webp" alt="AquaDolce Фрукты" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                </div>
-
-                <!-- Massive Impact Full Width -->
-                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                    <img src="/images/AquaDolce/web-assets/optimized/water_splash.webp" alt="AquaDolce Всплеск" loading="lazy" style="width: 100%; display: block;">
-                </div>
-
-                <!-- 2-column Lineup and Lifestyle -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/AquaDolce/web-assets/optimized/three_cans.webp" alt="AquaDolce Линейка банок" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/AquaDolce/web-assets/optimized/cooler_ice.webp" alt="AquaDolce Холодильник со льдом" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                </div>
-
-                <!-- Store displays and Boxes -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/AquaDolce/web-assets/optimized/bottles_display.webp" alt="AquaDolce Выкладка" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/AquaDolce/web-assets/optimized/product_boxes.webp" alt="AquaDolce Упаковка" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                </div>
-
-                <!-- Full Width Truck Merch -->
-                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                    <img src="/images/AquaDolce/web-assets/optimized/branded_truck.webp" alt="AquaDolce Фургон" loading="lazy" style="width: 100%; display: block;">
-                </div>
-
-                <!-- Machines and OOH -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/AquaDolce/web-assets/optimized/vending_machine.webp" alt="AquaDolce Вендинг" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/AquaDolce/web-assets/optimized/billboard.webp" alt="AquaDolce Билборд" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </template>
-
-    <template id="tmpl-kukis">
-        <!-- Reusable unified grid styles -->
-        <style>
-            .case-img-wrapper {
-                border-radius: 20px;
-                overflow: hidden;
-                box-shadow: 0 40px 80px rgba(0,0,0,0.15);
-                transform: translateZ(0);
-                display: flex;
-                justify-content: flex-start;
-                background: transparent;
-            }
-            .case-img-wrapper img {
-                width: 100%;
-                max-width: 100%;
-                display: block;
-                object-fit: contain;
-            }
-            .case-img-wrapper.portrait img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
-        </style>
-        <div class="case-study-detail case-kukis" style="max-width: 1600px; margin: 0 auto; padding: 0 4vw 8rem;">
-            
-            <div class="case-header" style="height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; max-width: 1400px; padding: 0 2vw;">
-                <h1 style="font-family: var(--font-title); font-size: clamp(5rem, 16vw, 14rem); font-weight: 900; color: var(--text-color); text-transform: uppercase; margin: 0 0 2rem 0; line-height: 0.8; letter-spacing: -0.06em; white-space: nowrap;">KUKIS</h1>
-                <p style="color: var(--text-color); font-family: var(--font-body); font-size: clamp(1.4rem, 4vw, 2.8rem); max-width: 1000px; margin: 0 0 3rem 0; line-height: 1.25; font-weight: 300; opacity: 0.7; letter-spacing: -0.02em;">Образование, Кулинарная школа — Комплексная разработка стратегии позиционирования и визуальной коммуникации бренда.</p>
-                <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--bg-color); background: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Стратегия</span>
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Айдентика</span>
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Коммуникация</span>
-                </div>
-            </div>
-            
-            <div class="case-visuals" style="display: flex; flex-direction: column; gap: clamp(2rem, 5vw, 4rem);">
-                
-                <!-- Full bleed cover image -->
-                <div class="case-img-wrapper">
-                    <img src="/images/KUKIS/web-assets/preview/kuk2_page_4.jpg" alt="Обложка Кукис" loading="lazy">
-                </div>
-
-                <!-- 2-column grid for details -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="case-img-wrapper portrait">
-                        <img src="/images/KUKIS/web-assets/preview/kuk2_page_6.jpg" alt="Наклейки и стикеры" loading="lazy">
-                    </div>
-                    <div class="case-img-wrapper portrait">
-                        <img src="/images/KUKIS/web-assets/preview/kuk2_page_7.jpg" alt="Паттерны" loading="lazy">
-                    </div>
-                </div>
-
-                <!-- Single Showcase -->
-                <div class="case-img-wrapper">
-                    <img src="/images/KUKIS/web-assets/preview/kuk2_page_9.jpg" alt="Упаковка для выпечки" loading="lazy">
-                </div>
-
-                <!-- 2-column grid for merch -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="case-img-wrapper portrait">
-                        <img src="/images/KUKIS/web-assets/preview/kuk2_page_11.jpg" alt="Шопперы и пакеты" loading="lazy">
-                    </div>
-                    <div class="case-img-wrapper portrait">
-                        <img src="/images/KUKIS/web-assets/preview/kuk2_page_13.jpg" alt="Стаканчики и витрина" loading="lazy">
-                    </div>
-                </div>
-                
-                <!-- Single Showcase Digital -->
-                <div class="case-img-wrapper">
-                    <img src="/images/KUKIS/web-assets/preview/kukis_brand_page_11.jpg" alt="Мобильное приложение" loading="lazy">
-                </div>
-
-            </div>
-        </div>
-    </template>
-
-    <template id="tmpl-verde">
-        <div class="case-study-detail case-verde" style="max-width: 1600px; margin: 0 auto; padding: 0 4vw 8rem;">
-            
-            <div class="case-header" style="height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; max-width: 1400px; padding: 0 2vw;">
-                <h1 style="font-family: var(--font-title); font-size: clamp(4rem, 13vw, 12rem); font-weight: 900; color: var(--text-color); text-transform: uppercase; margin: 0 0 2rem 0; line-height: 0.85; letter-spacing: -0.04em;">VERDE TECH</h1>
-                <p style="color: var(--text-color); font-family: var(--font-body); font-size: clamp(1.4rem, 4vw, 2.8rem); max-width: 1000px; margin: 0 0 3rem 0; line-height: 1.25; font-weight: 300; opacity: 0.7; letter-spacing: -0.02em;">Косметика — Разработка визуальной стратегии, комплексного брендинга и уникальной премиум-упаковки.</p>
-                <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--bg-color); background: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Косметика</span>
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Брендинг</span>
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">Упаковка</span>
-                    <span style="padding: 0.8rem 1.6rem; border: 1px solid var(--text-color); border-radius: 100px; font-size: 1.1rem; color: var(--text-color); text-transform: uppercase; font-weight: 600; font-family: var(--font-body); letter-spacing: 0.05em;">3D-Дизайн</span>
-                </div>
-            </div>
-            
-            <div class="case-visuals" style="display: flex; flex-direction: column; gap: clamp(2rem, 5vw, 4rem);">
-                
-                <!-- Hero Full Width -->
-                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                    <img src="/images/VERDE/web-assets/optimized/hero.webp" alt="VERDE Обложка" loading="lazy" style="width: 100%; display: block;">
-                </div>
-
-                <!-- Digital Touchpoints -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/VERDE/web-assets/optimized/app_ui_1.webp" alt="VERDE App Interface 1" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/VERDE/web-assets/optimized/app_ui_2.webp" alt="VERDE App Interface 2" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                </div>
-
-                <!-- Identity Elements -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/VERDE/web-assets/optimized/glass_ui.webp" alt="VERDE Glassmorphism" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/VERDE/web-assets/optimized/lanyard.webp" alt="VERDE Pass Card" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                </div>
-
-                <!-- Abstract 3D Render -->
-                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                    <img src="/images/VERDE/web-assets/optimized/abstract_liquid.webp" alt="VERDE 3D Liquid Art" loading="lazy" style="width: 100%; display: block;">
-                </div>
-
-                <!-- Premium Cosmetic Packaging 1 -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/VERDE/web-assets/optimized/cosmetic_tube.webp" alt="VERDE Cosmetic Tube" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/VERDE/web-assets/optimized/cosmetic_jar.webp" alt="VERDE Cosmetic Jar" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                </div>
-
-                <!-- Detailed Serum Hero Shot -->
-                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                    <img src="/images/VERDE/web-assets/optimized/serum_bottle.webp" alt="VERDE Serum Bottle Close-up" loading="lazy" style="width: 100%; display: block;">
-                </div>
-
-                <!-- Cosmetic Packaging 2 -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/VERDE/web-assets/optimized/lifestyle_jars.webp" alt="VERDE Jar Lifestyle" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/VERDE/web-assets/optimized/product_line.webp" alt="VERDE Product Line" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                </div>
-
-                <!-- Geometric Abstract 3D -->
-                <div class="case-img-wrapper" style="border-radius: 24px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                    <img src="/images/VERDE/web-assets/optimized/glass_cube.webp" alt="VERDE Glass Cube Architecture" loading="lazy" style="width: 100%; display: block;">
-                </div>
-
-                <!-- Delivery & Shopping -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/VERDE/web-assets/optimized/shopping_bags.webp" alt="VERDE Shopping Bags" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/VERDE/web-assets/optimized/truck.webp" alt="VERDE Delivery Truck" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                </div>
-
-                <!-- Billboard and Apparel -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem);">
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/VERDE/web-assets/optimized/street_billboard.webp" alt="VERDE Street Billboard" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                    <div class="case-img-wrapper" style="border-radius: 16px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-                        <img src="/images/VERDE/web-assets/optimized/merch_tshirt.webp" alt="VERDE Merch T-Shirt" loading="lazy" style="width: 100%; display: block;">
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </template>
-
-    <template id="tmpl-neft">
-        <div class="case-study-detail case-neft">
-            <div class="case-logo-wrapper" style="text-align: center; margin-bottom: 4rem; padding-top: 4rem;">
-                <h1 style="font-family: 'Unbounded', sans-serif; font-size: 4rem; color: #fff; text-transform: uppercase;">НЕФТЬ</h1>
-                <p style="color: #888; font-size: 1.2rem; margin-top: 1rem;">Бренд — Коммуникация и Айдентика</p>
-            </div>
-            <div class="case-visuals" style="display: flex; flex-direction: column; gap: 2rem;">
-                <img src="/images/НЕФТЬ/web-assets/preview/page_1.jpg" alt="НЕФТЬ Slide" class="case-image" style="width: 100%; border-radius: 8px;" loading="lazy">
-                <img src="/images/НЕФТЬ/web-assets/preview/page_5.jpg" alt="НЕФТЬ Slide" class="case-image" style="width: 100%; border-radius: 8px;" loading="lazy">
-                <img src="/images/НЕФТЬ/web-assets/preview/page_10.jpg" alt="НЕФТЬ Slide" class="case-image" style="width: 100%; border-radius: 8px;" loading="lazy">
-                <img src="/images/НЕФТЬ/web-assets/preview/page_14.jpg" alt="НЕФТЬ Slide" class="case-image" style="width: 100%; border-radius: 8px;" loading="lazy">
-            </div>
-        </div>
-    </template>
     <!-- Organic Masks for Sections -->
     <svg width="0" height="0" style="position: absolute; pointer-events: none;" aria-hidden="true" focusable="false">
         <defs>
+            <!-- Original Faska etc -->
             <clipPath id="organic-profile-clip" clipPathUnits="objectBoundingBox">
                 <path d="M0.45,0.02 C0.25,0.05 0.05,0.2 0.02,0.45 C-0.01,0.7 0.15,0.9 0.4,0.97 C0.65,1.05 0.9,0.9 0.97,0.65 C1.05,0.4 0.95,0.15 0.75,0.05 C0.65,0.01 0.55,0.01 0.45,0.02 Z" />
             </clipPath>
@@ -1058,6 +482,8 @@
                 <stop offset="82%" style="stop-color:rgba(218,205,255,0.3);stop-opacity:1" />
                 <stop offset="100%" style="stop-color:rgba(46,34,69,0.38);stop-opacity:1" />
             </linearGradient>
+
+
         </defs>
     </svg>
 

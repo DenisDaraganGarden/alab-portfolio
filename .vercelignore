@@ -8,5 +8,19 @@ output
 PDF_Breakdown
 ANALOGS WEB
 structure.pdf
+venv
+.venv-pdf
+scripts/tools
+tmp
 public/images/.DS_Store
 public/images/DOMM/*.webloc
+# Design source files that shouldn't be deployed
+public/images/**/*.ai
+public/images/**/*.psd
+public/images/**/*.eps
+public/images/**/*.tif
+public/images/**/*.dwg
+public/images/**/*.xlsx
+public/images/**/*.doc
+public/images/**/*.pptx
+public/images/**/*.zip

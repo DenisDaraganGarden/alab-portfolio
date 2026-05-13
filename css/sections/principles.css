@@ -1,0 +1,253 @@
+/* Principles Section */
+.principles-section {
+  background-color: transparent;
+  padding: var(--page-section-space) var(--page-gutter);
+  min-height: calc(var(--app-height) * 100);
+  z-index: 10;
+}
+
+.principles-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: calc((var(--app-height) * 100) - (var(--page-section-space) * 2));
+  height: auto;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.principles-header {
+  align-self: flex-start;
+}
+
+.principles-title {
+  font-family: var(--font-title);
+  font-size: clamp(2rem, 5.5vw, 5.5rem);
+  line-height: 1;
+  font-weight: 700;
+  text-transform: lowercase;
+  letter-spacing: -0.04em;
+  margin: 0;
+}
+
+.principles-main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  min-height: clamp(320px, 52vh, 560px);
+  gap: 6vw;
+  position: relative;
+}
+
+.the-box-wrapper {
+  --principles-box-size: clamp(100px, 10vw, 150px);
+  position: relative;
+  width: var(--principles-box-size);
+  height: var(--principles-box-size);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  perspective: 1200px;
+}
+
+@media (max-width: 900px) {
+  .the-box-wrapper {
+    --principles-box-size: clamp(120px, 15vw, 160px);
+    margin-top: 20px;
+  }
+}
+
+.the-box {
+  width: 140px;
+  position: relative;
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+}
+
+.principles-row {
+    --principle-block-width: min(24vw, 380px);
+    --principle-title-size: clamp(1.85rem, 2.1vw, 2.7rem);
+    --principle-title-spacing: -0.04em;
+    --principle-desc-size: clamp(0.92rem, 0.95vw, 1rem);
+    --principle-desc-width: 23ch;
+    perspective: 1200px;
+    position: absolute;
+    top: calc(50% - clamp(190px, 24vh, 250px));
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: clamp(170px, 20vh, 230px);
+    pointer-events: none;
+    z-index: 100;
+}
+
+.principles-row-slot {
+    flex: 0 1 300px;
+    text-align: left;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    transform: translateY(20px);
+}
+
+.principle-item {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: var(--principle-block-width);
+  max-width: none;
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0, 20px, 0);
+  overflow: visible;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform, opacity, filter, clip-path;
+}
+
+.principle-name {
+  font-family: var(--font-title);
+  font-size: var(--principle-title-size);
+  font-weight: 700;
+  line-height: 0.98;
+  text-transform: lowercase;
+  letter-spacing: var(--principle-title-spacing);
+  margin-bottom: 18px;
+  color: var(--text-color);
+  text-wrap: balance;
+  overflow: visible;
+}
+
+.principle-desc {
+  font-family: var(--font-body);
+  font-size: var(--principle-desc-size);
+  color: var(--text-color);
+  max-width: var(--principle-desc-width);
+  margin: 0 auto;
+  line-height: 1.45;
+  opacity: 0.8;
+  text-wrap: pretty;
+}
+
+/* 3D Box Styling */
+.the-box-wrapper {
+  perspective: 1000px;
+  margin-top: 40px;
+  z-index: 1000;
+  pointer-events: auto;
+}
+
+.the-box {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.1s;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+.box-face {
+  position: absolute;
+  width: var(--principles-box-size);
+  height: var(--principles-box-size);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.05);
+}
+
+.box-face.front  { transform: rotateY(0deg) translateZ(calc(var(--principles-box-size) / 2)); }
+.box-face.back   { transform: rotateY(180deg) translateZ(calc(var(--principles-box-size) / 2)); }
+.box-face.left   { transform: rotateY(-90deg) translateZ(calc(var(--principles-box-size) / 2)); }
+.box-face.right  { transform: rotateY(90deg) translateZ(calc(var(--principles-box-size) / 2)); }
+.box-face.top    { 
+    transform: rotateX(90deg) translateZ(calc(var(--principles-box-size) / 2)); 
+    background: rgba(255, 255, 255, 0.05); 
+    border-color: rgba(0, 0, 0, 0.12);
+}
+.box-face.bottom { 
+    transform: rotateX(-90deg) translateZ(calc(var(--principles-box-size) / 2)); 
+    background: rgba(0, 0, 0, 0.02);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12); 
+}
+
+@media (max-width: 900px) {
+  .box-face {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Glow for the box when active/jumping */
+.the-box.active .box-face {
+  border-color: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.box-label {
+  font-family: var(--font-title);
+  font-size: clamp(0.7rem, 1.2vw, 1rem);
+  font-weight: 700;
+  color: var(--text-color);
+  opacity: 0.4;
+  letter-spacing: 0.1em;
+  text-shadow: 0 2px 4px rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+}
+
+@media (max-width: 900px) {
+  .box-label {
+    opacity: 0.6;
+    font-size: 0.85rem;
+  }
+}
+
+.principles-footer {
+  align-self: flex-start;
+}
+
+@media (max-width: 768px) {
+  .principles-row {
+    --principle-block-width: min(86vw, 420px);
+    --principle-title-size: clamp(1.75rem, 7vw, 2.5rem);
+    --principle-desc-size: clamp(0.95rem, 3.8vw, 1.02rem);
+    --principle-desc-width: 26ch;
+    top: calc(50% - 210px);
+    height: 220px;
+  }
+}
+
+/* Principle Points (bold-only, no bullets) */
+.principle-points {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.principle-point {
+  font-family: var(--font-body);
+  font-size: clamp(0.95rem, 1.1vw, 1.1rem);
+  line-height: 1.4;
+  color: var(--text-color);
+  opacity: 0.85;
+  margin: 0;
+  text-align: center;
+}
+
+.principle-point strong {
+  font-weight: 600;
+}

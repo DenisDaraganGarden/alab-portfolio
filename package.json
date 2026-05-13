@@ -9,14 +9,20 @@
     "dev": "node node_modules/vite/bin/vite.js",
     "prebuild": "npm run optimize-images",
     "build": "node node_modules/vite/bin/vite.js build",
-    "preview": "node node_modules/vite/bin/vite.js preview"
+    "preview": "node node_modules/vite/bin/vite.js preview",
+    "editor": "node editor/server.mjs"
   },
   "devDependencies": {
     "vite": "^6.0.0"
   },
   "dependencies": {
+    "better-sqlite3": "^12.9.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "gsap": "^3.12.5",
     "lenis": "^1.1.13",
+    "multer": "^2.1.1",
     "sharp": "^0.34.5"
   }
 }

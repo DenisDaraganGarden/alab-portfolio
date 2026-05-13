@@ -3,10 +3,15 @@
  * Handles entry animations and powerful interactive physics for the main landing area.
  */
 
+import { audioEngine } from '../utils/WebAudioEngine.js';
+
 export const initHero = (container) => {
     if (!container) return;
-    const title = container.querySelector('.hero-title');
+    const fallingChars = container.querySelectorAll('.falling-char');
     const subtitle = container.querySelector('.hero-subtitle');
+    const servicesItems = container.querySelectorAll('.hero-services-list li');
+    const ctaBlock = container.querySelector('.hero-bottom-right');
+    const letterTriggers = container.querySelectorAll('.letter-trigger');
 
     // Helper to safely split text for animation, preserving words to avoid weird wrapping
     const splitText = (element) => {
@@ -43,20 +48,49 @@ export const initHero = (container) => {
         return chars;
     };
 
-    const titleChars = splitText(title);
-    const subtitleChars = splitText(subtitle);
-    const allChars = [...titleChars, ...subtitleChars];
+    let subtitleChars = [];
+    if (subtitle) {
+        subtitleChars = splitText(subtitle);
+    }
 
     if (typeof gsap !== 'undefined') {
-        gsap.from(allChars, {
-            y: (i) => 20 + Math.random() * 40,
-            x: (i) => (Math.random() - 0.5) * 40,
-            rotationZ: (i) => (Math.random() - 0.5) * 45,
+        // Animate falling characters
+        if (fallingChars.length > 0) {
+            gsap.from(fallingChars, {
+                y: -150,
+                opacity: 0,
+                duration: 1.2,
+                stagger: 0.15,
+                ease: 'bounce.out',
+                delay: 0.1,
+                onComplete: () => {
+                    gsap.set(fallingChars, { clearProps: "transform,opacity,willChange" });
+                }
+            });
+        }
+
+        // Animate subtitle chars
+        if (subtitleChars.length > 0) {
+            gsap.from(subtitleChars, {
+                y: (i) => 20 + Math.random() * 40,
+                x: (i) => (Math.random() - 0.5) * 40,
+                rotationZ: (i) => (Math.random() - 0.5) * 45,
+                opacity: 0,
+                duration: 1.5,
+                stagger: 0.015,
+                ease: 'elastic.out(1, 0.5)',
+                delay: 0.5
+            });
+        }
+
+        // Fade in new elements
+        gsap.from([servicesItems, ctaBlock], {
+            y: 20,
             opacity: 0,
-            duration: 1.5,
-            stagger: 0.015,
-            ease: 'elastic.out(1, 0.5)',
-            delay: 0.2
+            duration: 1,
+            stagger: 0.1,
+            ease: 'power2.out',
+            delay: 0.8
         });
     }
 
@@ -64,8 +98,8 @@ export const initHero = (container) => {
     // Interactive Physics (Repulsion & Springs)
     // -----------------------------------------
     
-    // Store physics state for each letter
-    const charsData = allChars.map(char => ({
+    // Store physics state for each letter (Applied ONLY to subtitle)
+    const charsData = subtitleChars.map(char => ({
         el: char,
         x: 0,
         y: 0,
@@ -178,6 +212,16 @@ export const initHero = (container) => {
                 cd.el.style.transform = `none`;
                 cd.el.style.opacity = 1;
             }
+
+            // Sync windows if they are attached to this element
+            if (cd.el === currentTargetForWindow && activeWindowToSync) {
+                const elRect = cd.el.getBoundingClientRect();
+                const containerRect = container.getBoundingClientRect();
+                const left = elRect.left - containerRect.left + (elRect.width / 2);
+                const top = elRect.top - containerRect.top + (elRect.height / 2);
+                activeWindowToSync.style.left = `${left}px`;
+                activeWindowToSync.style.top = `${top}px`;
+            }
         });
 
         // Always loop (it's relatively cheap, about 30 elements), 
@@ -185,8 +229,372 @@ export const initHero = (container) => {
         animationFrame = requestAnimationFrame(updatePhysics);
     };
 
+    let currentTargetForWindow = null;
+    let activeWindowToSync = null;
+
     // Start physics loop
     updatePhysics();
+
+    // -----------------------------------------
+    // Tactile Typography Interactions
+    // -----------------------------------------
+    
+    // Unlock Audio Context silently on first interaction
+    const unlockAudio = () => {
+        audioEngine.unlock();
+        window.removeEventListener('click', unlockAudio);
+        window.removeEventListener('touchstart', unlockAudio);
+        window.removeEventListener('keydown', unlockAudio);
+    };
+    window.addEventListener('click', unlockAudio);
+    window.addEventListener('touchstart', unlockAudio, { passive: true });
+    window.addEventListener('keydown', unlockAudio);
+
+    // Scramble Text Utility for 'l'
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
+    let scrambleIntervals = new Map();
+
+    const scrambleText = (el) => {
+        if (!el.dataset.originalText) el.dataset.originalText = el.innerText;
+        const originalText = el.dataset.originalText;
+        
+        let iteration = 0;
+        clearInterval(scrambleIntervals.get(el));
+
+        const interval = setInterval(() => {
+            el.innerText = originalText.split("")
+                .map((letter, index) => {
+                    if(index < iteration) {
+                        return originalText[index];
+                    }
+                    return letters[Math.floor(Math.random() * letters.length)];
+                })
+                .join("");
+            
+            if(iteration >= originalText.length){
+                clearInterval(interval);
+            }
+            iteration += 1 / 3;
+        }, 30);
+        scrambleIntervals.set(el, interval);
+    };
+
+    const resetScrambleText = (el) => {
+        clearInterval(scrambleIntervals.get(el));
+        if (el.dataset.originalText) {
+            el.innerText = el.dataset.originalText;
+        }
+    };
+
+    let namingTimeouts = [];
+    let namingIntervals = [];
+    let currentNamingWindow = null;
+
+    const startNamingSequence = (el) => {
+        currentTargetForWindow = el;
+
+        if (!currentNamingWindow) {
+            currentNamingWindow = document.createElement('div');
+            currentNamingWindow.className = 'naming-window';
+            
+            const textEl = document.createElement('div');
+            textEl.className = 'naming-text';
+            currentNamingWindow.appendChild(textEl);
+            
+            const cursor = document.createElement('span');
+            cursor.className = 'naming-cursor';
+            currentNamingWindow.appendChild(cursor);
+            
+            container.appendChild(currentNamingWindow);
+        }
+        
+        activeWindowToSync = currentNamingWindow;
+        
+        // Initial positioning
+        const elRect = el.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        currentNamingWindow.style.left = `${elRect.left - containerRect.left + (elRect.width / 2)}px`;
+        currentNamingWindow.style.top = `${elRect.top - containerRect.top + (elRect.height / 2)}px`;
+
+        // Small delay to allow CSS transitions to trigger
+        setTimeout(() => {
+            currentNamingWindow.classList.add('is-visible');
+        }, 10);
+
+        const textEl = currentNamingWindow.querySelector('.naming-text');
+        textEl.innerText = '';
+        
+        namingTimeouts.forEach(t => clearTimeout(t));
+        namingIntervals.forEach(t => clearInterval(t));
+        namingTimeouts = [];
+        namingIntervals = [];
+        
+        const sequence = [
+            { text: "Анализ: инновационный продукт", type: "type", time: 500 },
+            { text: "Анализ: инновационный продукт", type: "delete", time: 3000 },
+            { text: "Смыслы: точность, нейрон, связь", type: "type", time: 3800 },
+            { text: "Смыслы: точность, нейрон, связь", type: "delete", time: 6300 },
+            { text: "Синтез морфем: Neu + Core", type: "type", time: 7000 },
+            { text: "Синтез морфем: Neu + Core", type: "delete", time: 9500 },
+            { text: "NEUCORE?", type: "type", time: 10200 },
+            { text: "NEUCORE?", type: "delete", time: 11500 },
+            { text: "Слишком линейно.", type: "type", time: 12000 },
+            { text: "Слишком линейно.", type: "delete", time: 13500 },
+            { text: "Поиск абстракции...", type: "type", time: 14000 },
+            { text: "Поиск абстракции...", type: "delete", time: 15500 },
+            { text: "A X O N I A", type: "type", time: 16000 },
+            { text: "A X O N I A", type: "delete", time: 18000 },
+            { text: "Идеально.", type: "type", time: 18500 },
+            { text: "Идеально.", type: "delete", time: 20000 },
+            { text: "A.LAB / Нейминг", type: "type", time: 20500 }
+        ];
+
+        sequence.forEach(step => {
+            namingTimeouts.push(setTimeout(() => {
+                if (step.type === 'type') {
+                    let i = 0;
+                    const interval = setInterval(() => {
+                        textEl.innerText += step.text[i];
+                        i++;
+                        if (i >= step.text.length) {
+                            clearInterval(interval);
+                        }
+                    }, 40);
+                    namingIntervals.push(interval);
+                } else if (step.type === 'delete') {
+                    const interval = setInterval(() => {
+                        if (textEl.innerText.length > 0) {
+                            textEl.innerText = textEl.innerText.slice(0, -1);
+                        } else {
+                            clearInterval(interval);
+                        }
+                    }, 20);
+                    namingIntervals.push(interval);
+                }
+            }, step.time));
+        });
+    };
+
+    const stopNamingSequence = (el) => {
+        namingTimeouts.forEach(t => clearTimeout(t));
+        namingIntervals.forEach(t => clearInterval(t));
+        namingTimeouts = [];
+        namingIntervals = [];
+        
+        if (currentNamingWindow) {
+            currentNamingWindow.classList.remove('is-visible');
+            setTimeout(() => {
+                if (currentNamingWindow && currentNamingWindow.parentNode) {
+                    currentNamingWindow.remove();
+                    currentNamingWindow = null;
+                    if (activeWindowToSync === currentNamingWindow) {
+                        activeWindowToSync = null;
+                        currentTargetForWindow = null;
+                    }
+                }
+            }, 300);
+        }
+    };
+
+    let chatTimeouts = [];
+    let currentChatWindow = null;
+
+    const chatMessages = [
+        { text: "а может давай усложним? 🤔✨", type: "left", style: "effect-complex", delay: 500 },
+        { text: "нее, давай упростим! 🛑", type: "right", style: "effect-simple", delay: 1500 },
+        { text: "а давай вот так? вооооооооооо! 🤯💫", type: "left", style: "effect-wow", delay: 2500 },
+        { text: "не, так не читается вообще 🧐", type: "left", style: "effect-fonts", delay: 3800 },
+        { text: "а может вот так? 💿✨", type: "left", style: "effect-chrome", delay: 4800 },
+        { text: "все, рилизим! 🚀", type: "right", style: "effect-morph", delay: 5800 },
+        { text: "постой, еще немножко! 😅", type: "left", style: "effect-release", delay: 6800 },
+        { text: "все же первый вариант был самым классным! 📐", type: "left", style: "effect-blueprint", delay: 8000 },
+        { text: "да! согласна! 💯", type: "right", style: "effect-blueprint", delay: 9500 },
+        { text: "все согласны! в продакшн! 🎉🚀", type: "left", style: "effect-blueprint", delay: 10500 },
+    ];
+
+    const startChatSequence = (el) => {
+        currentTargetForWindow = el;
+
+        if (!currentChatWindow) {
+            currentChatWindow = document.createElement('div');
+            currentChatWindow.className = 'joke-chat-window';
+            container.appendChild(currentChatWindow);
+        }
+        
+        activeWindowToSync = currentChatWindow;
+        
+        // Initial positioning
+        const elRect = el.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        currentChatWindow.style.left = `${elRect.left - containerRect.left + (elRect.width / 2)}px`;
+        currentChatWindow.style.top = `${elRect.top - containerRect.top}px`;
+
+        currentChatWindow.innerHTML = '';
+        setTimeout(() => {
+            currentChatWindow.classList.add('is-visible');
+        }, 10);
+        
+        chatTimeouts.forEach(t => clearTimeout(t));
+        chatTimeouts = [];
+        
+        const removeAllEffects = () => {
+            ['effect-blueprint', 'effect-complex', 'effect-simple', 'effect-wow', 'effect-fonts', 'effect-chrome', 'effect-morph', 'effect-release'].forEach(cls => {
+                el.classList.remove(cls);
+            });
+        };
+
+        removeAllEffects();
+
+        const showTyping = (align) => {
+            const typing = document.createElement('div');
+            typing.className = `typing-indicator ${align}`;
+            typing.innerHTML = '<span></span><span></span><span></span>';
+            currentChatWindow.appendChild(typing);
+            // scroll to bottom
+            setTimeout(() => {
+                currentChatWindow.scrollTop = currentChatWindow.scrollHeight;
+            }, 10);
+            return typing;
+        };
+
+        el.classList.add('effect-blueprint');
+
+        let typingIndicator = null;
+        
+        chatMessages.forEach((msg, idx) => {
+            if (idx > 0) {
+                const typingDelay = msg.delay - 600;
+                chatTimeouts.push(setTimeout(() => {
+                    typingIndicator = showTyping(msg.type);
+                }, typingDelay));
+            }
+
+            chatTimeouts.push(setTimeout(() => {
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                const bubble = document.createElement('div');
+                bubble.className = `chat-bubble ${msg.type}`;
+                bubble.innerText = msg.text;
+                currentChatWindow.appendChild(bubble);
+                // scroll to bottom
+                setTimeout(() => {
+                    currentChatWindow.scrollTop = currentChatWindow.scrollHeight;
+                }, 10);
+
+                removeAllEffects();
+                if (msg.style) {
+                    el.classList.add(msg.style);
+                }
+            }, msg.delay));
+        });
+    };
+
+    const stopChatSequence = (el) => {
+        chatTimeouts.forEach(t => clearTimeout(t));
+        chatTimeouts = [];
+        if (currentChatWindow) {
+            currentChatWindow.classList.remove('is-visible');
+            setTimeout(() => {
+                if (currentChatWindow && currentChatWindow.parentNode) {
+                    currentChatWindow.remove();
+                    currentChatWindow = null;
+                    if (activeWindowToSync === currentChatWindow) {
+                        activeWindowToSync = null;
+                        currentTargetForWindow = null;
+                    }
+                }
+            }, 300);
+        }
+        ['effect-blueprint', 'effect-complex', 'effect-simple', 'effect-wow', 'effect-fonts', 'effect-chrome', 'effect-morph', 'effect-release'].forEach(cls => {
+            el.classList.remove(cls);
+        });
+    };
+
+    // Event Handlers
+    const handleMouseEnter = (index, triggerEl, serviceEl) => {
+        audioEngine.unlock(); // Ensure it's unlocked if possible
+        
+        // Add active classes
+        triggerEl.classList.add('is-active');
+        serviceEl.classList.add('is-highlighted');
+
+        // Dim siblings
+        letterTriggers.forEach(t => { if (t !== triggerEl) t.classList.add('dimmed-sibling'); });
+        servicesItems.forEach(s => { if (s !== serviceEl) s.classList.add('dimmed-sibling'); });
+
+        switch(index) {
+            case '0': // a.
+                triggerEl.classList.add('effect-vibrate');
+                audioEngine.playVibration();
+                break;
+            case '1': // l
+                triggerEl.classList.add('effect-rotate-l');
+                audioEngine.playGlitch(); // keep sound for flavor
+                startNamingSequence(triggerEl);
+                scrambleText(serviceEl);
+                break;
+            case '2': // a
+                container.classList.add('effect-chat-active');
+                document.body.classList.add('chat-global-active');
+                startChatSequence(triggerEl);
+                break;
+            case '3': // b
+                // Spotlight applies globally to the section
+                container.classList.add('effect-spotlight-active');
+                document.body.classList.add('spotlight-global-active');
+                triggerEl.classList.add('effect-spotlight');
+                audioEngine.playSpotlight();
+                break;
+        }
+    };
+
+    const handleMouseLeave = (index, triggerEl, serviceEl) => {
+        triggerEl.classList.remove('is-active', 'effect-vibrate', 'effect-glitch', 'effect-blueprint', 'effect-spotlight', 'effect-rotate-l');
+        serviceEl.classList.remove('is-highlighted');
+
+        letterTriggers.forEach(t => t.classList.remove('dimmed-sibling'));
+        servicesItems.forEach(s => s.classList.remove('dimmed-sibling'));
+        container.classList.remove('effect-spotlight-active', 'effect-chat-active');
+
+        switch(index) {
+            case '0':
+                audioEngine.stopVibration();
+                break;
+            case '1':
+                audioEngine.stopGlitch();
+                stopNamingSequence(triggerEl);
+                // resetScrambleText(triggerEl); // no longer scrambled
+                resetScrambleText(serviceEl);
+                break;
+            case '2':
+                document.body.classList.remove('chat-global-active');
+                stopChatSequence(triggerEl);
+                break;
+            case '3':
+                document.body.classList.remove('spotlight-global-active');
+                audioEngine.stopSpotlight();
+                break;
+        }
+    };
+
+    // Attach to triggers
+    letterTriggers.forEach(trigger => {
+        const index = trigger.dataset.serviceIndex;
+        const service = Array.from(servicesItems).find(s => s.dataset.serviceIndex === index);
+        
+        if (service) {
+            const onEnter = () => handleMouseEnter(index, trigger, service);
+            const onLeave = () => handleMouseLeave(index, trigger, service);
+            
+            trigger.addEventListener('mouseenter', onEnter);
+            trigger.addEventListener('mouseleave', onLeave);
+            
+            // Bidirectional syncing
+            service.addEventListener('mouseenter', onEnter);
+            service.addEventListener('mouseleave', onLeave);
+        }
+    });
 
     // Clean up
     return () => {
@@ -196,5 +604,9 @@ export const initHero = (container) => {
         window.removeEventListener('mouseleave', clearPointer);
         window.removeEventListener('touchend', clearPointer);
         window.removeEventListener('touchcancel', clearPointer);
+        
+        window.removeEventListener('click', unlockAudio);
+        window.removeEventListener('touchstart', unlockAudio);
+        window.removeEventListener('keydown', unlockAudio);
     };
 };

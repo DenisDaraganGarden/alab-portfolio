@@ -3,10 +3,9 @@
  * Handles interactions for the portfolio section, including the case study full-screen modal.
  */
 
-export function initPortfolio(container) {
+export async function initPortfolio(container) {
     console.log('[A.LAB] Инициализация Portfolio Module...');
 
-    // Category routing and sub-menu logic
     const mainGrid = container.querySelector('#main-portfolio-grid');
     const submenuContainer = container.querySelector('#portfolio-submenu');
     const submenuGrid = container.querySelector('#portfolio-submenu-grid');
@@ -14,56 +13,31 @@ export function initPortfolio(container) {
     const backBtn = container.querySelector('#portfolio-back-btn');
     const categoryCards = container.querySelectorAll('.category-card');
 
-    // Handle portfolio slider safely if it exists in the DOM
-    const portfolioSlider = container.querySelector('.portfolio-slider');
-    if (portfolioSlider) {
-        console.log('[A.LAB] Инициализация portfolio-slider...');
-        // Slider init logic would go here if needed in the future
-        // e.g., new Swiper('.portfolio-slider', { ... });
+    let portfolioData = null;
+    
+    try {
+        const response = await fetch('/data/cases.json');
+        portfolioData = await response.json();
+    } catch (e) {
+        console.error('[A.LAB] Ошибка загрузки cases.json', e);
+        return;
     }
-
-    const projectsData = {
-        development: [
-            { id: 'domm', title: 'Девелопмент / DOMM', logo: '/images/DOMM/logo-black.svg' },
-            { id: 'l-buro', title: 'Ландшафтная архитектура / L.BURO' },
-            { id: 'grani', title: 'Девелопмент / Грани' }
-        ],
-        services: [
-            { id: 'princip32', title: 'Медицина / Принцип 32' },
-            { id: 'tut', title: 'Сервисы / TUT' }
-        ],
-        production: [
-            { id: 'aquadolce', title: 'FMCG / AquaDolce' },
-            { id: 'kukis', title: 'FMCG / KUKIS' },
-            { id: 'verde', title: 'Эко-технологии / VERDE' },
-            { id: 'neft', title: 'Бренд / НЕФТЬ' }
-        ]
-    };
-
-    const categoryTitles = {
-        development: 'Девелопмент и Архитектура',
-        services: 'Услуги',
-        production: 'Производство'
-    };
 
     if (categoryCards && mainGrid && submenuContainer && backBtn) {
         categoryCards.forEach(card => {
             card.addEventListener('click', () => {
-                const category = card.getAttribute('data-category');
-                openCategory(category);
+                const categoryId = card.getAttribute('data-category');
+                openCategory(categoryId);
             });
         });
 
-        backBtn.addEventListener('click', () => {
-            closeCategory();
-        });
+        backBtn.addEventListener('click', () => closeCategory());
     }
 
-    function openCategory(category) {
-        const projects = projectsData[category] || [];
-        const title = categoryTitles[category] || category;
+    function openCategory(categoryId) {
+        const title = portfolioData.categories[categoryId] || categoryId;
+        const projects = portfolioData.projects.filter(p => p.categoryId === categoryId);
 
-        // Render projects
         submenuGrid.innerHTML = '';
         projects.forEach(proj => {
             const card = document.createElement('div');
@@ -76,10 +50,12 @@ export function initPortfolio(container) {
                 </div>
             `;
             
-            // Re-attach modal listener to new cards
             card.addEventListener('click', () => {
-                const caseId = card.getAttribute('data-case');
-                if (caseId) openModal(caseId);
+                if (proj.isExternal && proj.externalUrl) {
+                    window.open(proj.externalUrl, '_blank');
+                } else {
+                    openModal(proj);
+                }
             });
 
             submenuGrid.appendChild(card);
@@ -87,11 +63,9 @@ export function initPortfolio(container) {
 
         submenuTitle.textContent = title;
 
-        // Animate transition
         mainGrid.style.display = 'none';
         submenuContainer.style.display = 'flex';
         
-        // Optional GSAP if available
         if (window.gsap) {
             gsap.fromTo(submenuContainer, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" });
         }
@@ -100,13 +74,12 @@ export function initPortfolio(container) {
     function closeCategory() {
         submenuContainer.style.display = 'none';
         mainGrid.style.display = 'grid';
-        
         if (window.gsap) {
             gsap.fromTo(mainGrid, { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" });
         }
     }
 
-    // Modal logic (existing)
+    // Modal logic
     const modal = document.getElementById('case-study-modal');
     const modalScrollArea = modal?.querySelector('.modal-scroll-area');
     const modalContent = document.getElementById('modal-content');
@@ -119,10 +92,7 @@ export function initPortfolio(container) {
     let lastKnownScrollTop = 0;
     let touchStartY = null;
 
-    if (!modal || !modalScrollArea || !modalContent) {
-        console.warn('[A.LAB] Не удалось найти необходимые элементы Portfolio модулю');
-        return;
-    }
+    if (!modal || !modalScrollArea || !modalContent) return;
 
     const restorePagePosition = () => {
         if (window.lenis) {
@@ -130,14 +100,12 @@ export function initPortfolio(container) {
             window.lenis.scrollTo(pageScrollBeforeOpen, { immediate: true, force: true });
             return;
         }
-
         document.body.style.overflow = '';
         window.scrollTo(0, pageScrollBeforeOpen);
     };
 
     const closeModal = () => {
         if (!isOpen || isClosing) return;
-
         isClosing = true;
         isOpen = false;
         touchStartY = null;
@@ -156,21 +124,13 @@ export function initPortfolio(container) {
 
     const tryCloseFromScrollIntent = (direction) => {
         if (!isOpen || isClosing) return;
-
         const { scrollTop, scrollHeight, clientHeight } = modalScrollArea;
-        const atTop = scrollTop <= CLOSE_THRESHOLD;
-        const atBottom = scrollTop + clientHeight >= scrollHeight - CLOSE_THRESHOLD;
-
-        if (direction < 0 && atTop) {
-            closeModal();
-        } else if (direction > 0 && atBottom) {
-            closeModal();
-        }
+        if (direction < 0 && scrollTop <= CLOSE_THRESHOLD) closeModal();
+        else if (direction > 0 && scrollTop + clientHeight >= scrollHeight - CLOSE_THRESHOLD) closeModal();
     };
 
     const handleModalScroll = () => {
         if (!isOpen || isClosing) return;
-
         const currentScrollTop = modalScrollArea.scrollTop;
         const direction = currentScrollTop > lastKnownScrollTop ? 1 : currentScrollTop < lastKnownScrollTop ? -1 : 0;
         lastKnownScrollTop = currentScrollTop;
@@ -178,23 +138,29 @@ export function initPortfolio(container) {
         if (!direction) return;
 
         const maxScrollTop = Math.max(0, modalScrollArea.scrollHeight - modalScrollArea.clientHeight);
-        if (direction > 0 && currentScrollTop >= maxScrollTop - CLOSE_THRESHOLD) {
-            closeModal();
-            return;
-        }
-
-        if (direction < 0 && currentScrollTop <= CLOSE_THRESHOLD) {
-            closeModal();
-        }
+        if (direction > 0 && currentScrollTop >= maxScrollTop - CLOSE_THRESHOLD) closeModal();
+        if (direction < 0 && currentScrollTop <= CLOSE_THRESHOLD) closeModal();
     };
 
-    const openModal = (caseId) => {
-        const template = document.getElementById(`tmpl-${caseId}`);
-        if (template) {
-            modalContent.innerHTML = '';
-            modalContent.appendChild(template.content.cloneNode(true));
-        } else {
-            modalContent.innerHTML = `<div class="case-study-detail case-placeholder" style="padding: 10rem 5%; color: white;"><h2 class="placeholder-title" style="font-size: 3rem;">Кейс в разработке</h2><p class="placeholder-text">Описание для ${caseId} скоро появится.</p></div>`;
+    const openModal = (proj) => {
+        modalContent.innerHTML = '';
+        
+        let foundRaw = false;
+        if (proj.blocks) {
+            proj.blocks.forEach(block => {
+                if (block.type === 'raw_html') {
+                    modalContent.innerHTML += block.content;
+                    foundRaw = true;
+                }
+            });
+        }
+        
+        if (!foundRaw) {
+            modalContent.innerHTML = `
+                <div class="case-study-detail case-placeholder" style="padding: 10rem 5%; color: white;">
+                    <h2 class="placeholder-title" style="font-size: 3rem;">${proj.title}</h2>
+                    <p class="placeholder-text">Динамическая генерация контента...</p>
+                </div>`;
         }
 
         pageScrollBeforeOpen = window.scrollY || window.pageYOffset || 0;
@@ -206,41 +172,20 @@ export function initPortfolio(container) {
         modal.setAttribute('aria-hidden', 'false');
         modalScrollArea.scrollTop = 0;
 
-        if (window.lenis) {
-            window.lenis.stop();
-        } else {
-            document.body.style.overflow = 'hidden';
-        }
+        if (window.lenis) window.lenis.stop();
+        else document.body.style.overflow = 'hidden';
         
-        requestAnimationFrame(() => {
-            modalScrollArea.scrollTop = 0;
-        });
+        requestAnimationFrame(() => modalScrollArea.scrollTop = 0);
     };
 
     modalScrollArea.addEventListener('scroll', handleModalScroll, { passive: true });
-    
-    modalScrollArea.addEventListener('wheel', (event) => {
-        tryCloseFromScrollIntent(Math.sign(event.deltaY));
-    }, { passive: true });
-
-    modalScrollArea.addEventListener('touchstart', (event) => {
-        touchStartY = event.touches[0]?.clientY ?? null;
-    }, { passive: true });
-
-    modalScrollArea.addEventListener('touchmove', (event) => {
-        const currentTouchY = event.touches[0]?.clientY;
+    modalScrollArea.addEventListener('wheel', e => tryCloseFromScrollIntent(Math.sign(e.deltaY)), { passive: true });
+    modalScrollArea.addEventListener('touchstart', e => touchStartY = e.touches[0]?.clientY ?? null, { passive: true });
+    modalScrollArea.addEventListener('touchmove', e => {
+        const currentTouchY = e.touches[0]?.clientY;
         if (touchStartY == null || currentTouchY == null) return;
-        const deltaY = touchStartY - currentTouchY;
-        tryCloseFromScrollIntent(Math.sign(deltaY));
+        tryCloseFromScrollIntent(Math.sign(touchStartY - currentTouchY));
     }, { passive: true });
-
-    modalScrollArea.addEventListener('touchend', () => {
-        touchStartY = null;
-    }, { passive: true });
-
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && isOpen) {
-            closeModal();
-        }
-    });
+    modalScrollArea.addEventListener('touchend', () => touchStartY = null, { passive: true });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && isOpen) closeModal(); });
 }

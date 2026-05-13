@@ -1,3 +1,15 @@
+import './css/base.css';
+import './css/layout.css';
+import './css/components/header.css';
+import './css/sections/hero.css';
+import './css/sections/manifesto.css';
+import './css/sections/profile.css';
+import './css/sections/mission.css';
+import './css/sections/principles.css';
+import './css/sections/emotional-engineering.css';
+import './css/sections/portfolio.css';
+import './css/sections/contacts.css';
+
 import { initHero } from './js/sections/hero.js';
 import { initManifesto } from './js/sections/manifesto.js';
 import { initProfile } from './js/sections/profile.js';
@@ -6,7 +18,6 @@ import { initPrinciples } from './js/sections/principles.js';
 import { initEmotionalEngineering } from './js/sections/emotional-engineering.js';
 import { initPortfolio } from './js/sections/portfolio.js';
 import { initContacts } from './js/sections/contacts.js';
-import { getSectionLoader } from './js/section-registry.js';
 import { initViewportMetrics } from './js/utils/viewport.js';
 import { initIridescentTrail } from './js/effects/iridescent-trail.js';
 
@@ -49,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'contacts', init: initContacts }
     ];
 
-    // 3. Цикл динамической инициализации
+    // 3. Цикл инициализации секций
     sections.forEach(section => {
         const element = document.querySelector(`[data-section="${section.id}"]`);
         if (element) {
@@ -60,13 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error(`[A.LAB] Ошибка инициализации секции ${section.id}:`, error);
             }
         } else {
-            const loader = getSectionLoader(section.id);
-            if (loader) {
-                console.log(`[A.LAB] Найден динамический загрузчик для: ${section.id}`);
-                loader();
-            } else {
-                console.warn(`[A.LAB] Контейнер секции не найден: ${section.id}`);
-            }
+            console.warn(`[A.LAB] Контейнер секции не найден: ${section.id}`);
         }
     });
 

@@ -1,0 +1,28 @@
+/* Manifesto Section */
+.section-manifesto {
+  text-align: center;
+}
+
+.manifesto-text .char {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* Fluid entire-text gradient effect */
+.manifesto-text {
+  font-family: var(--font-title);
+  font-size: clamp(1.5rem, 3.5vw, 3rem);
+  line-height: 1.2;
+  max-width: 1100px;
+  margin: 0 auto;
+  font-weight: 700;
+  text-transform: lowercase;
+  letter-spacing: -0.03em;
+  color: var(--text-color);
+}
+
+.manifesto-text .char {
+  display: inline-block;
+  will-change: transform, opacity;
+  transition: color 0.5s ease;
+}
