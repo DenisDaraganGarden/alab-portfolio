@@ -1,0 +1,54 @@
+/* ─── Mobile Performance Optimizations ─── */
+/* Reduce GPU-heavy effects on mobile to improve scroll smoothness */
+
+@media (max-width: 768px), (pointer: coarse) {
+    /* Reduce backdrop-filter blur on mobile (major GPU hog) */
+    .ee-section,
+    .contact-section-inner,
+    .contact-card-frame {
+        backdrop-filter: blur(6px) !important;
+        -webkit-backdrop-filter: blur(6px) !important;
+    }
+
+    /* Slow down infinite animations (less repaints) */
+    .contact-card-frame::before,
+    .contact-card-frame::after {
+        animation-duration: 12s !important;
+    }
+
+    /* Remove will-change from elements not actively animating
+       (each will-change creates a new compositor layer = memory + GPU) */
+    .manifesto-line,
+    .principle-card,
+    .ee-column {
+        will-change: auto !important;
+    }
+
+    .profile-oval-body,
+    .profile-image-wrapper {
+        will-change: auto !important;
+    }
+
+    /* Simplify profile shadows */
+    .profile-oval-shadow {
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3) !important;
+    }
+
+    /* Disable 3D transforms on principles cards (causes repaints during scroll) */
+    .principle-card {
+        transform: none !important;
+        backface-visibility: visible !important;
+        transform-style: flat !important;
+    }
+
+    /* Ensure native smooth scrolling */
+    html {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Reduce card shimmer animation GPU usage */
+    @keyframes card-shimmer {
+        from { background-position: -200% 0; }
+        to { background-position: 200% 0; }
+    }
+}

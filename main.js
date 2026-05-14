@@ -9,6 +9,7 @@ import './css/sections/principles.css';
 import './css/sections/emotional-engineering.css';
 import './css/sections/portfolio.css';
 import './css/sections/contacts.css';
+import './css/mobile-perf.css';
 
 import { initHero } from './js/sections/hero.js';
 import { initManifesto } from './js/sections/manifesto.js';

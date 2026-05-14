@@ -4,6 +4,23 @@
 
 export const initProfile = (container) => {
     if (!container || typeof gsap === 'undefined') return;
+
+    // Force video autoplay on mobile (iOS blocks autoplay even with muted)
+    const profileVideo = container.querySelector('video.profile-photo-img');
+    if (profileVideo) {
+        const forceVideoPlay = () => {
+            profileVideo.muted = true;
+            profileVideo.play().catch(() => {});
+        };
+        forceVideoPlay();
+        document.addEventListener('touchstart', forceVideoPlay, { once: true });
+        document.addEventListener('scroll', forceVideoPlay, { once: true, passive: true });
+        // Re-trigger when entering viewport
+        const videoObserver = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) forceVideoPlay(); });
+        }, { threshold: 0.1 });
+        videoObserver.observe(profileVideo);
+    }
     
     const heading = container.querySelector('.profile-quote-heading');
     const quote = container.querySelector('.profile-quote');

@@ -166,8 +166,8 @@ export const initIridescentTrail = () => {
     const resizeSimulation = () => {
         state.width = window.innerWidth;
         state.height = window.innerHeight;
-        state.dpr = Math.min(window.devicePixelRatio || 1, isTouchLike() ? 2.5 : 2);
-        state.cellSize = isTouchLike() ? 7 : 11;
+        state.dpr = Math.min(window.devicePixelRatio || 1, isTouchLike() ? 1.5 : 2);
+        state.cellSize = isTouchLike() ? 10 : 11;
         state.gridWidth = Math.max(72, Math.ceil(state.width / state.cellSize));
         state.gridHeight = Math.max(48, Math.ceil(state.height / state.cellSize));
 
