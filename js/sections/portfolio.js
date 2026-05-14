@@ -201,20 +201,19 @@ export async function initPortfolio(container) {
                             const cp = block.clipPath || 'circle(50% at 50% 50%)';
                             modalContent.innerHTML += `<div class="case-block-image"><img src="${block.content}" alt="" style="clip-path:${cp};"/></div>`;
                         }
-                        break;
-                    case 'columns': {
+                                     case 'columns': {
                         const cols = block.cols || [];
-                        modalContent.innerHTML += `<div class="case-block-columns" style="display:grid;grid-template-columns:repeat(${cols.length},1fr);gap:2rem;padding:1.5rem 5%">${cols.map(col => `<div>${col.image ? `<img src="${col.image}" alt="" style="width:100%;border-radius:8px;margin-bottom:1rem"/>` : ''}${col.text ? `<p style="line-height:1.6">${col.text.replace(/\n/g,'<br>')}</p>` : ''}</div>`).join('')}</div>`;
+                        modalContent.innerHTML += `<div class="case-block-columns" data-cols="${cols.length}">${cols.map(col => `<div class="case-col">${col.image ? `<img src="${col.image}" alt=""/>` : ''}${col.text ? `<p>${col.text.replace(/\\n/g,'<br>')}</p>` : ''}</div>`).join('')}</div>`;
                         break;
                     }
                     case 'compare': {
                         if (block.before && block.after) {
                             const uid = 'cmp-' + Math.random().toString(36).slice(2,8);
-                            modalContent.innerHTML += `<div class="case-block-compare" id="${uid}" style="position:relative;margin:1.5rem 5%;overflow:hidden;border-radius:12px;cursor:col-resize;user-select:none"><img src="${block.after}" style="width:100%;display:block"/><div class="cmp-before" style="position:absolute;inset:0;width:50%;overflow:hidden"><img src="${block.before}" style="width:200%;max-width:none;display:block"/></div><div class="cmp-line" style="position:absolute;top:0;bottom:0;left:50%;width:3px;background:#fff;pointer-events:none"></div><span style="position:absolute;top:12px;left:12px;background:rgba(0,0,0,0.6);color:#fff;padding:4px 10px;border-radius:6px;font-size:0.75rem;font-weight:600">ДО</span><span style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.6);color:#fff;padding:4px 10px;border-radius:6px;font-size:0.75rem;font-weight:600">ПОСЛЕ</span></div>`;
+                            modalContent.innerHTML += `<div class="case-block-compare" id="${uid}"><img src="${block.after}" class="cmp-after" alt=""/><div class="cmp-before"><img src="${block.before}" class="cmp-before-img" alt=""/></div><div class="cmp-line"></div><span class="cmp-label cmp-label--before">ДО</span><span class="cmp-label cmp-label--after">ПОСЛЕ</span></div>`;
                             requestAnimationFrame(() => {
                                 const el = document.getElementById(uid);
                                 if (!el) return;
-                                const onMove = (x) => { const r = el.getBoundingClientRect(); const pct = Math.max(0,Math.min(100,((x-r.left)/r.width)*100)); el.querySelector('.cmp-before').style.width=pct+'%'; el.querySelector('.cmp-line').style.left=pct+'%'; };
+                                const onMove = (x) => { const r = el.getBoundingClientRect(); const pct = Math.max(0,Math.min(100,((x-r.left)/r.width)*100)); el.querySelector('.cmp-before').style.clipPath = `polygon(0 0, ${pct}% 0, ${pct}% 100%, 0 100%)`; el.querySelector('.cmp-line').style.left=pct+'%'; };
                                 el.addEventListener('mousemove', e => onMove(e.clientX));
                                 el.addEventListener('touchmove', e => { e.preventDefault(); onMove(e.touches[0].clientX); }, {passive:false});
                             });
@@ -222,10 +221,10 @@ export async function initPortfolio(container) {
                         break;
                     }
                     case 'quote':
-                        modalContent.innerHTML += `<blockquote class="case-block-quote" style="margin:2rem 5%;padding:2rem 2.5rem;border-left:4px solid var(--accent,#2980b9);background:rgba(0,0,0,0.03);border-radius:0 12px 12px 0"><p style="font-size:1.2rem;font-style:italic;line-height:1.6;margin-bottom:1rem">${block.text||''}</p><div style="display:flex;align-items:center;gap:0.75rem">${block.photo?`<img src="${block.photo}" style="width:44px;height:44px;border-radius:50%;object-fit:cover"/>`:''}${'<div>'}<strong>${block.author||''}</strong>${block.role?`<br><span style="font-size:0.85rem;opacity:0.6">${block.role}</span>`:''}</div></div></blockquote>`;
+                        modalContent.innerHTML += `<blockquote class="case-block-quote"><p class="case-quote-text">${block.text||''}</p><div class="case-quote-author">${block.photo?`<img class="case-quote-photo" src="${block.photo}" alt=""/>`:''}<div><strong>${block.author||''}</strong>${block.role?`<br><span class="case-quote-role">${block.role}</span>`:''}</div></div></blockquote>`;
                         break;
                     case 'metrics':
-                        modalContent.innerHTML += `<div class="case-block-metrics" style="display:flex;gap:2.5rem;justify-content:center;flex-wrap:wrap;margin:2.5rem 5%;padding:2.5rem;background:rgba(0,0,0,0.03);border-radius:16px">${(block.items||[]).map(m => `<div style="text-align:center;min-width:100px"><div style="font-family:var(--font-title,'Unbounded'),sans-serif;font-size:2.5rem;font-weight:700;color:var(--accent,#2980b9)">${m.value||''}</div><div style="font-size:0.9rem;opacity:0.6;margin-top:0.4rem">${m.label||''}</div></div>`).join('')}</div>`;
+                        modalContent.innerHTML += `<div class="case-block-metrics">${(block.items||[]).map(m => `<div class="case-metric"><div class="case-metric-value">${m.value||''}</div><div class="case-metric-label">${m.label||''}</div></div>`).join('')}</div>`;
                         break;
                 }
             });
