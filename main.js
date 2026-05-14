@@ -8,6 +8,7 @@ import './css/sections/mission.css';
 import './css/sections/principles.css';
 import './css/sections/emotional-engineering.css';
 import './css/sections/portfolio.css';
+import './css/sections/case-blocks.css';
 import './css/sections/contacts.css';
 import './css/mobile-perf.css';
 

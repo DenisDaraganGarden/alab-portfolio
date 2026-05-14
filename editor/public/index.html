@@ -34,7 +34,7 @@
         .btn-white{background:#fff;color:#000}
         .btn-dark{background:#1a1a1a;color:#ccc;border:1px solid #333}
         .btn-red{background:#c0392b;color:#fff}
-        .btn-blue{background:#2980b9;color:#fff}
+        .btn-blue{background:#6b6b6b;color:#fff}
         .btn-sm{padding:0.35rem 0.7rem;font-size:0.78rem}
         .btn-ghost{background:none;border:none;color:#666;cursor:pointer;font-size:0.78rem;padding:0.3rem 0.5rem}
         .btn-ghost:hover{color:#eee}
@@ -91,7 +91,7 @@
         .style-bar .sb-group{display:flex;gap:2px;align-items:center;padding-right:0.5rem;border-right:1px solid #222}
         .style-bar .sb-group:last-child{border:none}
         .style-bar button{background:#1a1a1a;border:1px solid #333;color:#999;width:28px;height:28px;border-radius:4px;cursor:pointer;font-size:0.75rem;display:flex;align-items:center;justify-content:center}
-        .style-bar button.active{background:#2980b9;color:#fff;border-color:#2980b9}
+        .style-bar button.active{background:#6b6b6b;color:#fff;border-color:#6b6b6b}
         .style-bar button:hover{border-color:#555;color:#eee}
         .style-bar select{background:#1a1a1a;border:1px solid #333;color:#ccc;padding:0.2rem;border-radius:4px;font-size:0.72rem;height:28px}
         .style-bar input[type=color]{width:28px;height:28px;padding:0;border:1px solid #333;border-radius:4px;background:none;cursor:pointer}
@@ -109,13 +109,13 @@
 
         .proj-card{display:flex;align-items:center;gap:0.75rem;background:#141414;border:1px solid #222;border-radius:8px;padding:1rem;cursor:pointer;transition:background 0.3s}
         .proj-card-logo{width:48px;height:48px;object-fit:contain;border-radius:8px;background:#222;padding:6px;flex-shrink:0}
-        .proj-card-nologo{width:48px;height:48px;border-radius:8px;background:linear-gradient(135deg,#2980b9,#8e44ad);display:flex;align-items:center;justify-content:center;font-family:'Unbounded',sans-serif;font-size:1.2rem;font-weight:700;color:#fff;flex-shrink:0}
+        .proj-card-nologo{width:48px;height:48px;border-radius:8px;background:linear-gradient(135deg,#6b6b6b,#8e44ad);display:flex;align-items:center;justify-content:center;font-family:'Unbounded',sans-serif;font-size:1.2rem;font-weight:700;color:#fff;flex-shrink:0}
 
 
         /* Drag & Drop */
         .block-item{transition:transform 0.2s,opacity 0.2s}
         .block-item.dragging{opacity:0.4;transform:scale(0.97)}
-        .block-item.drag-over{border-color:#2980b9;box-shadow:0 0 0 2px rgba(41,128,185,0.3)}
+        .block-item.drag-over{border-color:#6b6b6b;box-shadow:0 0 0 2px rgba(41,128,185,0.3)}
         .drag-handle{cursor:grab;color:#555;font-size:1rem;padding:0 4px;user-select:none}
         .drag-handle:active{cursor:grabbing}
 
@@ -129,19 +129,19 @@
         .save-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
         .save-dot.saved{background:#27ae60}
         .save-dot.unsaved{background:#e67e22}
-        .save-dot.saving{background:#2980b9;animation:pulse 1s infinite}
+        .save-dot.saving{background:#6b6b6b;animation:pulse 1s infinite}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 
         /* Mobile preview toggle */
         .preview-mode-btn{padding:0.2rem 0.5rem;font-size:0.7rem;border-radius:4px;border:1px solid #333;background:#1a1a1a;color:#999;cursor:pointer}
-        .preview-mode-btn.active{background:#2980b9;color:#fff;border-color:#2980b9}
+        .preview-mode-btn.active{background:#6b6b6b;color:#fff;border-color:#6b6b6b}
 
         /* Template modal */
         .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:9998}
         .modal-box{background:#111;border:1px solid #333;border-radius:12px;padding:2rem;max-width:500px;width:90%}
         .modal-title{font-size:1.1rem;font-weight:700;margin-bottom:1rem}
         .template-card{padding:1rem;background:#1a1a1a;border:1px solid #222;border-radius:8px;cursor:pointer;transition:border-color 0.2s;margin-bottom:0.5rem}
-        .template-card:hover{border-color:#2980b9}
+        .template-card:hover{border-color:#6b6b6b}
         .template-name{font-weight:600;margin-bottom:0.2rem}
         .template-desc{font-size:0.8rem;color:#666}
 
@@ -750,7 +750,7 @@
                         <div className="seo-section" style={{marginTop:0}}>
                             <div className="seo-label">🎨 Стиль кейса</div>
                             <div style={{display:'flex',gap:'0.5rem',marginBottom:'0.5rem'}}>{['light','dark'].map(t=><button key={t} className={`btn btn-sm ${(proj.theme||'light')===t?'btn-blue':'btn-dark'}`} onClick={()=>update('theme',t)}>{t==='light'?'☀ Светлый':'🌙 Тёмный'}</button>)}</div>
-                            <div style={{display:'flex',gap:'0.5rem',alignItems:'center'}}><span className="field-label" style={{margin:0}}>Accent:</span><input type="color" value={proj.accentColor||'#2980b9'} onChange={e=>update('accentColor',e.target.value)} style={{width:32,height:32,border:'1px solid #333',borderRadius:4,background:'none',cursor:'pointer'}}/><span style={{fontSize:'0.75rem',color:'#555'}}>{proj.accentColor||'#2980b9'}</span></div>
+                            <div style={{display:'flex',gap:'0.5rem',alignItems:'center'}}><span className="field-label" style={{margin:0}}>Accent:</span><input type="color" value={proj.accentColor||'#6b6b6b'} onChange={e=>update('accentColor',e.target.value)} style={{width:32,height:32,border:'1px solid #333',borderRadius:4,background:'none',cursor:'pointer'}}/><span style={{fontSize:'0.75rem',color:'#555'}}>{proj.accentColor||'#6b6b6b'}</span></div>
                         </div>
                         <div className="seo-section" style={{marginTop:0}}>
                             <div className="seo-label">🔍 SEO</div>
@@ -934,8 +934,8 @@
                     case 'masked_image': return b.content ? `<div style="margin:1rem 5%;text-align:center"><img src="${b.content}" style="max-width:100%;${b.clipPath&&b.clipPath!=='none'?'clip-path:'+b.clipPath:''}" /></div>` : '';
                     case 'columns': {const cols=b.cols||[];return `<div style="display:grid;grid-template-columns:repeat(${cols.length},1fr);gap:1.5rem;margin:1.5rem 5%">${cols.map(col=>`<div>${col.image?`<img src="${col.image}" style="width:100%;border-radius:8px;margin-bottom:0.5rem"/>`:''}${col.text?`<p style="font-family:'Roboto',sans-serif;line-height:1.6;font-size:1rem">${col.text.replace(/\n/g,'<br>')}</p>`:''}</div>`).join('')}</div>`;}
                     case 'compare': return (b.before&&b.after)?`<div style="position:relative;margin:1.5rem 5%;overflow:hidden;border-radius:8px"><img src="${b.after}" style="width:100%;display:block"/><div style="position:absolute;inset:0;width:50%;overflow:hidden"><img src="${b.before}" style="width:200%;max-width:none;display:block"/></div><div style="position:absolute;top:0;bottom:0;left:50%;width:3px;background:#fff"></div><span style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 8px;border-radius:4px;font-size:0.7rem">ДО</span><span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 8px;border-radius:4px;font-size:0.7rem">ПОСЛЕ</span></div>`:'';
-                    case 'quote': return `<blockquote style="margin:2rem 5%;padding:1.5rem 2rem;border-left:4px solid #2980b9;background:#f0f4f8;border-radius:0 8px 8px 0"><p style="font-family:'Roboto',sans-serif;font-size:1.1rem;font-style:italic;line-height:1.6;margin-bottom:0.75rem">${b.text||''}</p><div style="display:flex;align-items:center;gap:0.75rem">${b.photo?`<img src="${b.photo}" style="width:40px;height:40px;border-radius:50%;object-fit:cover"/>`:''}<div><strong>${b.author||''}</strong>${b.role?`<br><span style="font-size:0.85rem;color:#666">${b.role}</span>`:''}</div></div></blockquote>`;
-                    case 'metrics': return `<div style="display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;margin:2rem 5%;padding:2rem;background:#f8f9fa;border-radius:12px">${(b.items||[]).map(m=>`<div style="text-align:center;min-width:100px"><div style="font-family:'Unbounded',sans-serif;font-size:2rem;font-weight:700;color:#2980b9">${m.value||''}</div><div style="font-size:0.85rem;color:#666;margin-top:0.3rem">${m.label||''}</div></div>`).join('')}</div>`;
+                    case 'quote': return `<blockquote style="margin:2rem 5%;padding:1.5rem 2rem;border-left:4px solid #6b6b6b;background:#f0f4f8;border-radius:0 8px 8px 0"><p style="font-family:'Roboto',sans-serif;font-size:1.1rem;font-style:italic;line-height:1.6;margin-bottom:0.75rem">${b.text||''}</p><div style="display:flex;align-items:center;gap:0.75rem">${b.photo?`<img src="${b.photo}" style="width:40px;height:40px;border-radius:50%;object-fit:cover"/>`:''}<div><strong>${b.author||''}</strong>${b.role?`<br><span style="font-size:0.85rem;color:#666">${b.role}</span>`:''}</div></div></blockquote>`;
+                    case 'metrics': return `<div style="display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;margin:2rem 5%;padding:2rem;background:#f8f9fa;border-radius:12px">${(b.items||[]).map(m=>`<div style="text-align:center;min-width:100px"><div style="font-family:'Unbounded',sans-serif;font-size:2rem;font-weight:700;color:#6b6b6b">${m.value||''}</div><div style="font-size:0.85rem;color:#666;margin-top:0.3rem">${m.label||''}</div></div>`).join('')}</div>`;
                     default: return '';
                 }
             }).join('\n');

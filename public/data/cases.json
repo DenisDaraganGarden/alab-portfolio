@@ -14,107 +14,150 @@
       "blocks": [
         {
           "type": "image",
-          "content": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1600&q=85",
+          "content": "https://static1.squarespace.com/static/60f1a490a90ed8713c41c36c/6115a1d8295f857705d9e51d/6115a20a1c0aa935b8a92e4e/1772491365892/37-design-powers-url-structure.jpg?format=1500w",
           "caption": "",
-          "enabled": true
-        },
-        {
-          "type": "spacer",
-          "height": 40,
-          "enabled": true
-        },
-        {
-          "type": "heading",
-          "level": "h1",
-          "content": "DOMM — когда архитектура становится брендом",
-          "enabled": true
-        },
-        {
-          "type": "text",
-          "content": "Девелоперская компания DOMM обратилась с задачей: создать бренд, который будет продавать не квадратные метры, а образ жизни. Мы разработали полную систему идентичности — от философии и нейминга до визуального языка, который работает на каждом касании с аудиторией.\n\nПроект длился 4 месяца. Результат — бренд, который узнают с первого взгляда.",
-          "enabled": true
-        },
-        {
-          "type": "spacer",
-          "height": 60,
-          "enabled": true
-        },
-        {
-          "type": "metrics",
-          "items": [
-            {
-              "value": "340%",
-              "label": "рост узнаваемости"
-            },
-            {
-              "value": "4 мес",
-              "label": "от брифа до запуска"
-            },
-            {
-              "value": "12",
-              "label": "точек контакта"
-            },
-            {
-              "value": "96%",
-              "label": "одобрение фокус-группы"
-            }
-          ],
-          "enabled": true
-        },
-        {
-          "type": "spacer",
-          "height": 60,
-          "enabled": true
-        },
-        {
-          "type": "heading",
-          "level": "h2",
-          "content": "Задача",
           "enabled": true
         },
         {
           "type": "columns",
           "cols": [
             {
-              "text": "Рынок недвижимости перенасыщен однотипными предложениями. Каждый второй ЖК обещает «комфорт» и «удобство», но не вызывает эмоций.\n\nDOMM хотели выделиться: стать не просто застройщиком, а символом осознанной городской жизни. Бренд должен транслировать премиальность без пафоса.",
+              "text": "вавававава",
               "image": "/images/domm/1778741817567-02a1890e6dc50074f108e6608c606dd6.jpg"
             },
             {
-              "text": "Мы провели аудит рынка, изучили 15 конкурентов и провели глубинные интервью с целевой аудиторией. Ключевой инсайт: люди покупают не квартиру — они покупают контекст, в котором хотят жить.\n\nЭто стало отправной точкой для всей системы.",
+              "text": "вававвав",
               "image": "/images/domm/1778741821969-44a4a44fa4c40746a2a8b982155e06f4.jpg"
             }
           ],
           "enabled": true
         },
         {
+          "type": "quote",
+          "text": "аввававава",
+          "author": "вававвава",
+          "role": "",
+          "photo": "",
+          "enabled": true
+        }
+      ],
+      "status": "published",
+      "theme": "light",
+      "accentColor": "#6b6b6b"
+    },
+    {
+      "id": "demo-case",
+      "title": "Пример кейса / Demo",
+      "logo": "",
+      "isExternal": false,
+      "categoryId": "development",
+      "status": "published",
+      "theme": "light",
+      "accentColor": "#6b6b6b",
+      "blocks": [
+        {
+          "type": "image",
+          "content": "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1600&q=85",
+          "caption": "",
+          "enabled": true
+        },
+        {
           "type": "spacer",
-          "height": 60,
+          "height": 48,
           "enabled": true
         },
         {
           "type": "heading",
-          "level": "h2",
-          "content": "Визуальная система",
+          "level": "h1",
+          "content": "Резиденция у моря — брендинг жилого комплекса",
           "enabled": true
         },
         {
           "type": "text",
-          "content": "Мы создали визуальный язык, основанный на контрасте: тёплое золото на глубоком чёрном. Типографика — геометричная и уверенная. Фотостиль — архитектурная съёмка в режимное время, когда здания выглядят как скульптуры.",
+          "content": "Минималистичный жилой проект, где каждая деталь продумана. Мы разработали визуальную идентичность, которая передаёт ощущение тишины, света и натуральных материалов.\n\nКонцепция вдохновлена работами Винсента Ван Дуйсена — архитектура как медитация.",
           "enabled": true
         },
         {
-          "type": "gallery",
-          "images": [
-            "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80",
-            "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80",
-            "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80",
-            "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80"
+          "type": "spacer",
+          "height": 56,
+          "enabled": true
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "value": "280%",
+              "label": "рост продаж"
+            },
+            {
+              "value": "6 мес",
+              "label": "от концепции до запуска"
+            },
+            {
+              "value": "18",
+              "label": "точек контакта"
+            },
+            {
+              "value": "4.9",
+              "label": "оценка аудитории"
+            }
           ],
           "enabled": true
         },
         {
           "type": "spacer",
-          "height": 60,
+          "height": 56,
+          "enabled": true
+        },
+        {
+          "type": "heading",
+          "level": "h2",
+          "content": "Философия проекта",
+          "enabled": true
+        },
+        {
+          "type": "columns",
+          "cols": [
+            {
+              "text": "Мы искали баланс между монументальностью и теплотой. Бетон, дерево, свет — три материала, три эмоции.\n\nКаждый носитель бренда должен вызывать одно ощущение: здесь хочется жить.",
+              "image": "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&q=80"
+            },
+            {
+              "text": "Цветовая палитра — оттенки серого камня, тёплого дерева и приглушённого белого. Никаких кричащих акцентов.\n\nТипографика спокойная и уверенная, как архитектура самого здания.",
+              "image": "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800&q=80"
+            }
+          ],
+          "enabled": true
+        },
+        {
+          "type": "spacer",
+          "height": 56,
+          "enabled": true
+        },
+        {
+          "type": "heading",
+          "level": "h2",
+          "content": "Визуальный язык",
+          "enabled": true
+        },
+        {
+          "type": "text",
+          "content": "Фотостиль проекта — мягкий естественный свет, тёплые тона, минимум обработки. Каждый кадр передаёт тактильность материалов и глубину пространства.",
+          "enabled": true
+        },
+        {
+          "type": "gallery",
+          "images": [
+            "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80",
+            "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800&q=80",
+            "https://images.unsplash.com/photo-1600573472556-e636c2acda9e?w=800&q=80",
+            "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80"
+          ],
+          "enabled": true
+        },
+        {
+          "type": "spacer",
+          "height": 56,
           "enabled": true
         },
         {
@@ -125,37 +168,32 @@
         },
         {
           "type": "compare",
-          "before": "https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?w=1200&q=80",
-          "after": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80",
-          "enabled": true
-        },
-        {
-          "type": "text",
-          "content": "Слева — типичная подача девелоперского проекта. Справа — как мы переосмыслили визуальную коммуникацию. Каждый кадр стал частью истории бренда.",
+          "before": "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=1200&q=80",
+          "after": "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1200&q=80",
           "enabled": true
         },
         {
           "type": "spacer",
-          "height": 60,
+          "height": 56,
           "enabled": true
         },
         {
           "type": "heading",
           "level": "h3",
-          "content": "Что говорит клиент",
+          "content": "Отзыв заказчика",
           "enabled": true
         },
         {
           "type": "quote",
-          "text": "A.LAB не просто сделали нам красивый логотип — они создали бренд, в который хочется верить. Продажи на этапе pre-launch превысили план на 40%. Это не дизайн, это стратегическое оружие.",
-          "author": "Михаил Верещагин",
-          "role": "CEO, DOMM Development",
-          "photo": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80",
+          "text": "Они не просто создали бренд — они нашли язык, на котором архитектура говорит с людьми. Каждая деталь точна, каждый материал оправдан.",
+          "author": "Елена Маркова",
+          "role": "Директор по маркетингу",
+          "photo": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80",
           "enabled": true
         },
         {
           "type": "spacer",
-          "height": 60,
+          "height": 56,
           "enabled": true
         },
         {
@@ -166,7 +204,7 @@
         },
         {
           "type": "image",
-          "content": "https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=1400&q=85",
+          "content": "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1400&q=85",
           "caption": "",
           "enabled": true
         },
@@ -179,38 +217,33 @@
           "type": "columns",
           "cols": [
             {
-              "text": "Деловая документация\n\nВизитки, бланки, презентации — каждый элемент несёт ДНК бренда. Золотое тиснение на плотной чёрной бумаге 350 gsm.",
-              "image": "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=600&q=80"
+              "text": "Печатные материалы\n\nВизитки на фактурной бумаге, каталоги с вшитыми образцами материалов.",
+              "image": "https://images.unsplash.com/photo-1600573472591-ee6b68d14c68?w=600&q=80"
             },
             {
-              "text": "Digital-присутствие\n\nСайт, социальные сети, email-рассылки — единый визуальный стандарт. Адаптивный UI с анимацией.",
-              "image": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80"
+              "text": "Цифровая среда\n\nСайт с интерактивной 3D-моделью здания, адаптивные презентации.",
+              "image": "https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=600&q=80"
             },
             {
-              "text": "Среда и навигация\n\nВывески, указатели, брендирование стройплощадки. Человек узнаёт DOMM ещё до входа в отдел продаж.",
-              "image": "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=80"
+              "text": "Среда продаж\n\nОформление шоурума, навигация, тактильные стенды с образцами.",
+              "image": "https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=600&q=80"
             }
           ],
           "enabled": true
         },
         {
           "type": "spacer",
-          "height": 60,
+          "height": 56,
           "enabled": true
         },
         {
           "type": "raw_html",
-          "content": "<div style=\"background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);padding:4rem 5%;border-radius:16px;text-align:center;margin:0 5%\"><h3 style=\"font-family:'Unbounded',sans-serif;color:#c9a96e;font-size:1.8rem;margin-bottom:1rem\">Результат</h3><p style=\"color:#999;font-size:1.1rem;max-width:600px;margin:0 auto;line-height:1.8\">Бренд DOMM стал эталоном на рынке премиальной недвижимости города. За первые 6 месяцев после запуска — <span style=\"color:#c9a96e;font-weight:700\">92% узнаваемости</span> среди целевой аудитории.</p></div>",
+          "content": "<div style=\"background:linear-gradient(135deg,#2a2a2a 0%,#3a3a3a 100%);padding:3.5rem 5%;border-radius:12px;text-align:center;max-width:1100px;margin:0 auto\"><h3 style=\"font-family:'Unbounded',sans-serif;color:#e0d5c7;font-size:1.4rem;margin-bottom:1rem;font-weight:400\">Результат</h3><p style=\"color:#a0a0a0;font-size:1rem;max-width:560px;margin:0 auto;line-height:1.8\">Бренд стал синонимом осознанного выбора. За первый квартал — <span style=\"color:#e0d5c7;font-weight:500\">68% квартир</span> продано на этапе строительства.</p></div>",
           "enabled": true
         },
         {
           "type": "spacer",
           "height": 40,
-          "enabled": true
-        },
-        {
-          "type": "video",
-          "content": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
           "enabled": true
         }
       ]
