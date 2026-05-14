@@ -251,38 +251,38 @@
     {
       "id": "case-1778748627478",
       "title": "VERDETECH",
+      "logo": "/images/VERDETECH/logo.png",
       "isExternal": true,
       "categoryId": "production",
       "blocks": [],
       "status": "published",
       "theme": "light",
       "accentColor": "#6b6b6b",
-      "externalUrl": "https://www.behance.net/gallery/247989821/brending-ajdentika-filosofija-VERDETECH",
-      "logo": "/images/VERDETECH/logo.png"
+      "externalUrl": "https://www.behance.net/gallery/247989821/brending-ajdentika-filosofija-VERDETECH"
     },
     {
       "id": "case-1778748689044",
       "title": "DOMM",
+      "logo": "/images/DOMM/logo.png",
       "isExternal": true,
       "categoryId": "development",
       "blocks": [],
       "status": "published",
       "theme": "light",
       "accentColor": "#6b6b6b",
-      "externalUrl": "https://www.behance.net/gallery/248044035/brending-ajdentika-filosofija-DOMM",
-      "logo": "/images/DOMM/logo.png"
+      "externalUrl": "https://www.behance.net/gallery/248044035/brending-ajdentika-filosofija-DOMM"
     },
     {
       "id": "case-1778748719490",
       "title": "princip-32",
+      "logo": "/images/princip-32/logo.png",
       "isExternal": true,
       "categoryId": "services",
       "blocks": [],
       "status": "published",
       "theme": "light",
       "accentColor": "#6b6b6b",
-      "externalUrl": "https://www.behance.net/gallery/248044653/brending-ajdentika-filosofija-princip-32",
-      "logo": "/images/princip-32/logo.png"
+      "externalUrl": "https://www.behance.net/gallery/248044653/brending-ajdentika-filosofija-princip-32"
     },
     {
       "id": "case-1778748764324",
@@ -293,19 +293,20 @@
       "status": "published",
       "theme": "light",
       "accentColor": "#6b6b6b",
-      "externalUrl": "https://www.behance.net/gallery/248044845/brending-ajdentika-filosofija-LBURO"
+      "externalUrl": "https://www.behance.net/gallery/248044845/brending-ajdentika-filosofija-LBURO",
+      "logo": "/images/LBURO/lburo-logo-color-2.svg"
     },
     {
       "id": "case-1778748805391",
       "title": "TUT-development",
+      "logo": "/images/TUT-development/logo.png",
       "isExternal": true,
       "categoryId": "services",
       "blocks": [],
       "status": "published",
       "theme": "light",
       "accentColor": "#6b6b6b",
-      "externalUrl": "https://www.behance.net/gallery/248042129/brending-ajdentika-filosofija-TUT-development",
-      "logo": "/images/TUT-development/logo.png"
+      "externalUrl": "https://www.behance.net/gallery/248042129/brending-ajdentika-filosofija-TUT-development"
     }
   ]
 }
