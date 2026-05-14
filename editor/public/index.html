@@ -704,7 +704,7 @@
             const handleUpload = async (e, cb) => {
                 const file = e.target.files[0]; if (!file) return;
                 setUploading(true);
-                const fd = new FormData(); fd.append('media', file); fd.append('caseId', proj.id);
+                const fd = new FormData(); fd.append('caseId', proj.id); fd.append('media', file);
                 try { const r = await fetch(`${API}/upload`, { method:'POST', body:fd, headers:{'X-CMS-Token':sessionStorage.getItem('cms_token')||''} }); const j = await r.json(); if(j.path) cb(j.path); } catch(e) { console.error(e); }
                 setUploading(false);
             };
@@ -784,7 +784,7 @@
                                     const files = Array.from(e.target.files); if(!files.length) return;
                                     const gallery = {type:'gallery',images:[]};
                                     let loaded = 0;
-                                    files.forEach(file=>{const fd=new FormData();fd.append('media',file);fd.append('caseId',proj.id);
+                                    files.forEach(file=>{const fd=new FormData();fd.append('caseId',proj.id);fd.append('media',file);
                                     fetch(`${API}/upload`,{method:'POST',body:fd,headers:{'X-CMS-Token':sessionStorage.getItem('cms_token')||''}}).then(r=>r.json()).then(j=>{
                                         if(j.path){gallery.images.push(j.path);loaded++;if(loaded===files.length)update('blocks',[...(proj.blocks||[]),gallery])}
                                     })})
@@ -940,7 +940,7 @@
                 }
             }).join('\n');
 
-            const srcDoc = `<!DOCTYPE html><html><head><link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}body{background:#f5f5f5;color:#1a1a1a;font-family:'Roboto',sans-serif;padding:2rem 0}img{max-width:100%;height:auto}</style></head><body>${html||`<div style="padding:8rem 5%;text-align:center;color:#999"><p>Добавьте блоки</p></div>`}</body></html>`;
+            const srcDoc = `<!DOCTYPE html><html><head><base href="${window.location.origin}/"/><link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}body{background:#f5f5f5;color:#1a1a1a;font-family:'Roboto',sans-serif;padding:2rem 0}img{max-width:100%;height:auto}</style></head><body>${html||`<div style="padding:8rem 5%;text-align:center;color:#999"><p>Добавьте блоки</p></div>`}</body></html>`;
 
             return (
                 <div className="live-preview-frame" ref={ref} style={{height: iframeH * scale}}>
@@ -955,7 +955,7 @@
             if (block.type === 'text') return <RichEditor block={block} index={index} updateBlock={updateBlock} placeholder="Введите текст..."/>;
             if (block.type === 'image') return (<><div style={{display:'flex',gap:'0.5rem',flexWrap:'wrap'}}><input className="input" style={{flex:1,minWidth:200}} value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="Ссылка или Figma URL"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer',whiteSpace:'nowrap'}}><input type="file" style={{display:'none'}} onChange={e=>handleUpload(e,p=>updateBlock(index,'content',p))}/>Загрузить</label></div>{block.content && <img src={block.content} alt="" style={{maxWidth:'100%',maxHeight:200,marginTop:'0.5rem',borderRadius:6,objectFit:'contain',background:'#000'}}/>}</>);
             if (block.type === 'video') return (<div style={{display:'flex',gap:'0.5rem'}}><input className="input" value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="Ссылка на видео"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer',whiteSpace:'nowrap'}}><input type="file" style={{display:'none'}} accept="video/*" onChange={e=>handleUpload(e,p=>updateBlock(index,'content',p))}/>Загрузить</label></div>);
-            if (block.type === 'gallery') { const imgs=block.images||[]; return (<><div style={{display:'flex',flexWrap:'wrap',gap:'0.5rem',marginBottom:'0.5rem'}}>{imgs.map((img,gi)=><div key={gi} style={{position:'relative',width:80,height:80}}><img src={img} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:4}}/><button onClick={()=>{const n=[...imgs];n.splice(gi,1);updateBlock(index,'images',n);}} style={{position:'absolute',top:-4,right:-4,background:'#c0392b',color:'#fff',border:'none',borderRadius:'50%',width:18,height:18,fontSize:'0.6rem',cursor:'pointer',lineHeight:'18px'}}>✕</button></div>)}</div><label className="btn btn-dark btn-sm" style={{cursor:'pointer'}}><input type="file" style={{display:'none'}} multiple onChange={e=>{Array.from(e.target.files).forEach(file=>{const fd=new FormData();fd.append('media',file);fd.append('caseId',projId);fetch(`${API}/upload`,{method:'POST',body:fd,headers:{'X-CMS-Token':sessionStorage.getItem('cms_token')||''}}).then(r=>r.json()).then(j=>{if(j.path)updateBlock(index,'images',[...(block.images||[]),j.path]);});});}}/>+ Изображения</label></>); }
+            if (block.type === 'gallery') { const imgs=block.images||[]; return (<><div style={{display:'flex',flexWrap:'wrap',gap:'0.5rem',marginBottom:'0.5rem'}}>{imgs.map((img,gi)=><div key={gi} style={{position:'relative',width:80,height:80}}><img src={img} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:4}}/><button onClick={()=>{const n=[...imgs];n.splice(gi,1);updateBlock(index,'images',n);}} style={{position:'absolute',top:-4,right:-4,background:'#c0392b',color:'#fff',border:'none',borderRadius:'50%',width:18,height:18,fontSize:'0.6rem',cursor:'pointer',lineHeight:'18px'}}>✕</button></div>)}</div><label className="btn btn-dark btn-sm" style={{cursor:'pointer'}}><input type="file" style={{display:'none'}} multiple onChange={e=>{Array.from(e.target.files).forEach(file=>{const fd=new FormData();fd.append('caseId',projId);fd.append('media',file);fetch(`${API}/upload`,{method:'POST',body:fd,headers:{'X-CMS-Token':sessionStorage.getItem('cms_token')||''}}).then(r=>r.json()).then(j=>{if(j.path)updateBlock(index,'images',[...(block.images||[]),j.path]);});});}}/>+ Изображения</label></>); }
             if (block.type === 'spacer') return (<div style={{display:'flex',alignItems:'center',gap:'0.75rem'}}><span style={{fontSize:'0.8rem',color:'#666'}}>Высота:</span><input className="input" type="number" style={{width:100}} value={block.height||80} onChange={e=>updateBlock(index,'height',parseInt(e.target.value)||40)}/><span style={{fontSize:'0.75rem',color:'#555'}}>px</span></div>);
             if (block.type === 'raw_html') return <textarea className="input" style={{fontFamily:'monospace',fontSize:'0.78rem',minHeight:120}} value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="HTML-код..."/>;
             if (block.type === 'masked_image') {
