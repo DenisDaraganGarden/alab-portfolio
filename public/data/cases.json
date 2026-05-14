@@ -13,30 +13,205 @@
       "categoryId": "development",
       "blocks": [
         {
-          "type": "raw_html",
-          "content": "<div class=\"case-study-detail case-domm\">\n            <div class=\"case-logo-wrapper\">\n                <img src=\"/images/DOMM/logo-black.svg\" alt=\"DOMM Logo\" class=\"case-main-logo\">\n            </div>\n            <div class=\"case-visuals\">\n                <picture class=\"case-image-picture\">\n                    <source\n                        type=\"image/webp\"\n                        srcset=\"/images/optimized/DOMM/domm-viz-1-480.webp 480w, /images/optimized/DOMM/domm-viz-1-800.webp 800w, /images/optimized/DOMM/domm-viz-1-1200.webp 1200w, /images/optimized/DOMM/domm-viz-1-1600.webp 1600w, /images/optimized/DOMM/domm-viz-1-2200.webp 2200w, /images/optimized/DOMM/domm-viz-1-4000.webp 4000w\"\n                        sizes=\"100vw\"\n                    >\n                    <img\n                        src=\"/images/optimized/DOMM/domm-viz-1-1600.jpg\"\n                        srcset=\"/images/optimized/DOMM/domm-viz-1-480.jpg 480w, /images/optimized/DOMM/domm-viz-1-800.jpg 800w, /images/optimized/DOMM/domm-viz-1-1200.jpg 1200w, /images/optimized/DOMM/domm-viz-1-1600.jpg 1600w, /images/optimized/DOMM/domm-viz-1-2200.jpg 2200w, /images/optimized/DOMM/domm-viz-1-4000.jpg 4000w\"\n                        sizes=\"100vw\"\n                        alt=\"DOMM Visualization 1\"\n                        class=\"case-image\"\n                        width=\"4000\"\n                        height=\"2734\"\n                        loading=\"lazy\"\n                        decoding=\"async\"\n                    >\n                </picture>\n                <picture class=\"case-image-picture\">\n                    <source\n                        type=\"image/webp\"\n                        srcset=\"/images/optimized/DOMM/domm-viz-2-480.webp 480w, /images/optimized/DOMM/domm-viz-2-800.webp 800w, /images/optimized/DOMM/domm-viz-2-1200.webp 1200w, /images/optimized/DOMM/domm-viz-2-1600.webp 1600w, /images/optimized/DOMM/domm-viz-2-2200.webp 2200w, /images/optimized/DOMM/domm-viz-2-3840.webp 3840w\"\n                        sizes=\"100vw\"\n                    >\n                    <img\n                        src=\"/images/optimized/DOMM/domm-viz-2-1600.jpg\"\n                        srcset=\"/images/optimized/DOMM/domm-viz-2-480.jpg 480w, /images/optimized/DOMM/domm-viz-2-800.jpg 800w, /images/optimized/DOMM/domm-viz-2-1200.jpg 1200w, /images/optimized/DOMM/domm-viz-2-1600.jpg 1600w, /images/optimized/DOMM/domm-viz-2-2200.jpg 2200w, /images/optimized/DOMM/domm-viz-2-3840.jpg 3840w\"\n                        sizes=\"100vw\"\n                        alt=\"DOMM Visualization 2\"\n                        class=\"case-image\"\n                        width=\"3840\"\n                        height=\"2625\"\n                        loading=\"lazy\"\n                        decoding=\"async\"\n                    >\n                </picture>\n                <picture class=\"case-image-picture\">\n                    <source\n                        type=\"image/webp\"\n                        srcset=\"/images/optimized/DOMM/domm-viz-3-480.webp 480w, /images/optimized/DOMM/domm-viz-3-800.webp 800w, /images/optimized/DOMM/domm-viz-3-1200.webp 1200w, /images/optimized/DOMM/domm-viz-3-1600.webp 1600w, /images/optimized/DOMM/domm-viz-3-2200.webp 2200w, /images/optimized/DOMM/domm-viz-3-3840.webp 3840w\"\n                        sizes=\"100vw\"\n                    >\n                    <img\n                        src=\"/images/optimized/DOMM/domm-viz-3-1600.jpg\"\n                        srcset=\"/images/optimized/DOMM/domm-viz-3-480.jpg 480w, /images/optimized/DOMM/domm-viz-3-800.jpg 800w, /images/optimized/DOMM/domm-viz-3-1200.jpg 1200w, /images/optimized/DOMM/domm-viz-3-1600.jpg 1600w, /images/optimized/DOMM/domm-viz-3-2200.jpg 2200w, /images/optimized/DOMM/domm-viz-3-3840.jpg 3840w\"\n                        sizes=\"100vw\"\n                        alt=\"DOMM Visualization 3\"\n                        class=\"case-image\"\n                        width=\"3840\"\n                        height=\"2624\"\n                        loading=\"lazy\"\n                        decoding=\"async\"\n                    >\n                </picture>\n            </div>\n        </div>"
-        },
-        {
-          "type": "gallery",
-          "images": []
-        },
-        {
-          "type": "text",
-          "content": ""
-        },
-        {
           "type": "image",
-          "content": "/images/domm/1778698978848-image_2025-03-02_02-47-52_ÐºÐ¾Ð¿Ð¸Ñ_2.png",
-          "caption": ""
+          "content": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1600&q=85",
+          "caption": "",
+          "enabled": true
+        },
+        {
+          "type": "spacer",
+          "height": 40,
+          "enabled": true
         },
         {
           "type": "heading",
           "level": "h1",
-          "content": ""
+          "content": "DOMM — когда архитектура становится брендом",
+          "enabled": true
         },
         {
           "type": "text",
-          "content": "ваапкпк"
+          "content": "Девелоперская компания DOMM обратилась с задачей: создать бренд, который будет продавать не квадратные метры, а образ жизни. Мы разработали полную систему идентичности — от философии и нейминга до визуального языка, который работает на каждом касании с аудиторией.\n\nПроект длился 4 месяца. Результат — бренд, который узнают с первого взгляда.",
+          "enabled": true
+        },
+        {
+          "type": "spacer",
+          "height": 60,
+          "enabled": true
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "value": "340%",
+              "label": "рост узнаваемости"
+            },
+            {
+              "value": "4 мес",
+              "label": "от брифа до запуска"
+            },
+            {
+              "value": "12",
+              "label": "точек контакта"
+            },
+            {
+              "value": "96%",
+              "label": "одобрение фокус-группы"
+            }
+          ],
+          "enabled": true
+        },
+        {
+          "type": "spacer",
+          "height": 60,
+          "enabled": true
+        },
+        {
+          "type": "heading",
+          "level": "h2",
+          "content": "Задача",
+          "enabled": true
+        },
+        {
+          "type": "columns",
+          "cols": [
+            {
+              "text": "Рынок недвижимости перенасыщен однотипными предложениями. Каждый второй ЖК обещает «комфорт» и «удобство», но не вызывает эмоций.\n\nDOMM хотели выделиться: стать не просто застройщиком, а символом осознанной городской жизни. Бренд должен транслировать премиальность без пафоса.",
+              "image": "/images/domm/1778741817567-02a1890e6dc50074f108e6608c606dd6.jpg"
+            },
+            {
+              "text": "Мы провели аудит рынка, изучили 15 конкурентов и провели глубинные интервью с целевой аудиторией. Ключевой инсайт: люди покупают не квартиру — они покупают контекст, в котором хотят жить.\n\nЭто стало отправной точкой для всей системы.",
+              "image": "/images/domm/1778741821969-44a4a44fa4c40746a2a8b982155e06f4.jpg"
+            }
+          ],
+          "enabled": true
+        },
+        {
+          "type": "spacer",
+          "height": 60,
+          "enabled": true
+        },
+        {
+          "type": "heading",
+          "level": "h2",
+          "content": "Визуальная система",
+          "enabled": true
+        },
+        {
+          "type": "text",
+          "content": "Мы создали визуальный язык, основанный на контрасте: тёплое золото на глубоком чёрном. Типографика — геометричная и уверенная. Фотостиль — архитектурная съёмка в режимное время, когда здания выглядят как скульптуры.",
+          "enabled": true
+        },
+        {
+          "type": "gallery",
+          "images": [
+            "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80",
+            "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80",
+            "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80",
+            "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80"
+          ],
+          "enabled": true
+        },
+        {
+          "type": "spacer",
+          "height": 60,
+          "enabled": true
+        },
+        {
+          "type": "heading",
+          "level": "h2",
+          "content": "Трансформация",
+          "enabled": true
+        },
+        {
+          "type": "compare",
+          "before": "https://images.unsplash.com/photo-1517581177682-a085bb7ffb15?w=1200&q=80",
+          "after": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80",
+          "enabled": true
+        },
+        {
+          "type": "text",
+          "content": "Слева — типичная подача девелоперского проекта. Справа — как мы переосмыслили визуальную коммуникацию. Каждый кадр стал частью истории бренда.",
+          "enabled": true
+        },
+        {
+          "type": "spacer",
+          "height": 60,
+          "enabled": true
+        },
+        {
+          "type": "heading",
+          "level": "h3",
+          "content": "Что говорит клиент",
+          "enabled": true
+        },
+        {
+          "type": "quote",
+          "text": "A.LAB не просто сделали нам красивый логотип — они создали бренд, в который хочется верить. Продажи на этапе pre-launch превысили план на 40%. Это не дизайн, это стратегическое оружие.",
+          "author": "Михаил Верещагин",
+          "role": "CEO, DOMM Development",
+          "photo": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80",
+          "enabled": true
+        },
+        {
+          "type": "spacer",
+          "height": 60,
+          "enabled": true
+        },
+        {
+          "type": "heading",
+          "level": "h2",
+          "content": "Носители бренда",
+          "enabled": true
+        },
+        {
+          "type": "image",
+          "content": "https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=1400&q=85",
+          "caption": "",
+          "enabled": true
+        },
+        {
+          "type": "spacer",
+          "height": 40,
+          "enabled": true
+        },
+        {
+          "type": "columns",
+          "cols": [
+            {
+              "text": "Деловая документация\n\nВизитки, бланки, презентации — каждый элемент несёт ДНК бренда. Золотое тиснение на плотной чёрной бумаге 350 gsm.",
+              "image": "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=600&q=80"
+            },
+            {
+              "text": "Digital-присутствие\n\nСайт, социальные сети, email-рассылки — единый визуальный стандарт. Адаптивный UI с анимацией.",
+              "image": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80"
+            },
+            {
+              "text": "Среда и навигация\n\nВывески, указатели, брендирование стройплощадки. Человек узнаёт DOMM ещё до входа в отдел продаж.",
+              "image": "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=80"
+            }
+          ],
+          "enabled": true
+        },
+        {
+          "type": "spacer",
+          "height": 60,
+          "enabled": true
+        },
+        {
+          "type": "raw_html",
+          "content": "<div style=\"background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);padding:4rem 5%;border-radius:16px;text-align:center;margin:0 5%\"><h3 style=\"font-family:'Unbounded',sans-serif;color:#c9a96e;font-size:1.8rem;margin-bottom:1rem\">Результат</h3><p style=\"color:#999;font-size:1.1rem;max-width:600px;margin:0 auto;line-height:1.8\">Бренд DOMM стал эталоном на рынке премиальной недвижимости города. За первые 6 месяцев после запуска — <span style=\"color:#c9a96e;font-weight:700\">92% узнаваемости</span> среди целевой аудитории.</p></div>",
+          "enabled": true
+        },
+        {
+          "type": "spacer",
+          "height": 40,
+          "enabled": true
+        },
+        {
+          "type": "video",
+          "content": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+          "enabled": true
         }
       ]
     }

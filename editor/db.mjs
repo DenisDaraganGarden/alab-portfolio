@@ -45,7 +45,14 @@ export function getCases() {
         logo: row.logo || undefined,
         isExternal: row.isExternal === 1,
         categoryId: row.categoryId,
-        blocks: JSON.parse(row.blocks)
+        blocks: JSON.parse(row.blocks),
+        status: row.status || 'published',
+        theme: row.theme || 'light',
+        accentColor: row.accentColor || '#2980b9',
+        seoTitle: row.seoTitle || undefined,
+        seoDesc: row.seoDesc || undefined,
+        ogImage: row.ogImage || undefined,
+        externalUrl: row.externalUrl || undefined
     }));
 
     return { categories, projects };
@@ -58,7 +65,7 @@ export function saveCases(payload) {
     const clearProjects = db.prepare('DELETE FROM projects');
     
     const insertCategory = db.prepare('INSERT INTO categories (id, title) VALUES (?, ?)');
-    const insertProject = db.prepare('INSERT INTO projects (id, title, logo, isExternal, categoryId, blocks, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)');
+    const insertProject = db.prepare('INSERT INTO projects (id, title, logo, isExternal, categoryId, blocks, sort_order, status, theme, accentColor, seoTitle, seoDesc, ogImage, externalUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
 
     const transaction = db.transaction(() => {
         clearCategories.run();
@@ -79,7 +86,14 @@ export function saveCases(payload) {
                     proj.isExternal ? 1 : 0,
                     proj.categoryId || null,
                     JSON.stringify(proj.blocks || []),
-                    index // preserve the array order
+                    index,
+                    proj.status || 'published',
+                    proj.theme || 'light',
+                    proj.accentColor || '#2980b9',
+                    proj.seoTitle || null,
+                    proj.seoDesc || null,
+                    proj.ogImage || null,
+                    proj.externalUrl || null
                 );
             });
         }
