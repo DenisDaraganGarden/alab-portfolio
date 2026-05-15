@@ -24,3 +24,6 @@ public/images/**/*.xlsx
 public/images/**/*.doc
 public/images/**/*.pptx
 public/images/**/*.zip
+
+# Legacy uploads with mojibake names exceed Vercel/Linux filename limits.
+public/images/uploads/*MR_-_*

@@ -242,12 +242,13 @@
   font-family: var(--font-body);
   font-size: clamp(0.95rem, 1.1vw, 1.1rem);
   line-height: 1.4;
-  color: var(--text-color);
-  opacity: 0.85;
+  color: var(--text-muted);
+  opacity: 1;
   margin: 0;
   text-align: center;
 }
 
 .principle-point strong {
-  font-weight: 600;
+  color: inherit;
+  font-weight: 500;
 }

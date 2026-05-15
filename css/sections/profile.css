@@ -35,12 +35,17 @@
 }
 
 .profile-quote {
-  font-size: clamp(1rem, 1.4vw, 1.4rem);
-  line-height: 1.4;
-  max-width: 550px;
+  font-size: clamp(1rem, 1.12vw, 1.2rem);
+  line-height: 1.55;
+  max-width: 500px;
   margin-bottom: 4vw;
-  color: var(--text-color);
+  color: rgba(29, 29, 31, 0.68);
   font-weight: 500;
+}
+
+.profile-quote strong {
+  color: rgba(29, 29, 31, 0.82);
+  font-weight: 650;
 }
 
 .profile-services {

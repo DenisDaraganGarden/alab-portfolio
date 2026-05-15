@@ -13,6 +13,17 @@ export const initHero = (container) => {
     const ctaBlock = container.querySelector('.hero-bottom-right');
     const letterTriggers = container.querySelectorAll('.letter-trigger');
 
+    audioEngine.configure({ audio: { enabled: false } });
+
+    fetch('/data/settings.json', { cache: 'no-store' })
+        .then(response => response.ok ? response.json() : null)
+        .then(settings => {
+            audioEngine.configure(settings || { audio: { enabled: false } });
+        })
+        .catch(() => {
+            audioEngine.configure({ audio: { enabled: false } });
+        });
+
     // Helper to safely split text for animation, preserving words to avoid weird wrapping
     const splitText = (element) => {
         if (!element) return [];
@@ -286,9 +297,9 @@ export const initHero = (container) => {
         }
     };
 
-    let namingTimeouts = [];
-    let namingIntervals = [];
     let currentNamingWindow = null;
+    let namingRevealTimer = null;
+    const namingMarqueeText = 'контекст -> аудитория -> смыслы -> морфемы -> звучание -> A.LAB / нейминг -> ';
 
     const startNamingSequence = (el) => {
         currentTargetForWindow = el;
@@ -296,14 +307,11 @@ export const initHero = (container) => {
         if (!currentNamingWindow) {
             currentNamingWindow = document.createElement('div');
             currentNamingWindow.className = 'naming-window';
-            
-            const textEl = document.createElement('div');
-            textEl.className = 'naming-text';
-            currentNamingWindow.appendChild(textEl);
-            
-            const cursor = document.createElement('span');
-            cursor.className = 'naming-cursor';
-            currentNamingWindow.appendChild(cursor);
+
+            const track = document.createElement('div');
+            track.className = 'naming-track';
+            track.innerHTML = `<span>${namingMarqueeText}</span><span aria-hidden="true">${namingMarqueeText}</span>`;
+            currentNamingWindow.appendChild(track);
             
             container.appendChild(currentNamingWindow);
         }
@@ -316,199 +324,85 @@ export const initHero = (container) => {
         currentNamingWindow.style.left = `${elRect.left - containerRect.left + (elRect.width / 2)}px`;
         currentNamingWindow.style.top = `${elRect.top - containerRect.top + (elRect.height / 2)}px`;
 
-        // Small delay to allow CSS transitions to trigger
-        setTimeout(() => {
-            currentNamingWindow.classList.add('is-visible');
-        }, 10);
-
-        const textEl = currentNamingWindow.querySelector('.naming-text');
-        textEl.innerText = '';
-        
-        namingTimeouts.forEach(t => clearTimeout(t));
-        namingIntervals.forEach(t => clearInterval(t));
-        namingTimeouts = [];
-        namingIntervals = [];
-        
-        const sequence = [
-            { text: "Анализ: инновационный продукт", type: "type", time: 500 },
-            { text: "Анализ: инновационный продукт", type: "delete", time: 3000 },
-            { text: "Смыслы: точность, нейрон, связь", type: "type", time: 3800 },
-            { text: "Смыслы: точность, нейрон, связь", type: "delete", time: 6300 },
-            { text: "Синтез морфем: Neu + Core", type: "type", time: 7000 },
-            { text: "Синтез морфем: Neu + Core", type: "delete", time: 9500 },
-            { text: "NEUCORE?", type: "type", time: 10200 },
-            { text: "NEUCORE?", type: "delete", time: 11500 },
-            { text: "Слишком линейно.", type: "type", time: 12000 },
-            { text: "Слишком линейно.", type: "delete", time: 13500 },
-            { text: "Поиск абстракции...", type: "type", time: 14000 },
-            { text: "Поиск абстракции...", type: "delete", time: 15500 },
-            { text: "A X O N I A", type: "type", time: 16000 },
-            { text: "A X O N I A", type: "delete", time: 18000 },
-            { text: "Идеально.", type: "type", time: 18500 },
-            { text: "Идеально.", type: "delete", time: 20000 },
-            { text: "A.LAB / Нейминг", type: "type", time: 20500 }
-        ];
-
-        sequence.forEach(step => {
-            namingTimeouts.push(setTimeout(() => {
-                if (step.type === 'type') {
-                    let i = 0;
-                    const interval = setInterval(() => {
-                        textEl.innerText += step.text[i];
-                        i++;
-                        if (i >= step.text.length) {
-                            clearInterval(interval);
-                        }
-                    }, 40);
-                    namingIntervals.push(interval);
-                } else if (step.type === 'delete') {
-                    const interval = setInterval(() => {
-                        if (textEl.innerText.length > 0) {
-                            textEl.innerText = textEl.innerText.slice(0, -1);
-                        } else {
-                            clearInterval(interval);
-                        }
-                    }, 20);
-                    namingIntervals.push(interval);
-                }
-            }, step.time));
-        });
+        clearTimeout(namingRevealTimer);
+        namingRevealTimer = setTimeout(() => {
+            currentNamingWindow?.classList.add('is-visible');
+        }, 20);
     };
 
-    const stopNamingSequence = (el) => {
-        namingTimeouts.forEach(t => clearTimeout(t));
-        namingIntervals.forEach(t => clearInterval(t));
-        namingTimeouts = [];
-        namingIntervals = [];
+    const stopNamingSequence = () => {
+        clearTimeout(namingRevealTimer);
+        namingRevealTimer = null;
         
         if (currentNamingWindow) {
-            currentNamingWindow.classList.remove('is-visible');
+            const windowToRemove = currentNamingWindow;
+            windowToRemove.classList.remove('is-visible');
             setTimeout(() => {
-                if (currentNamingWindow && currentNamingWindow.parentNode) {
-                    currentNamingWindow.remove();
-                    currentNamingWindow = null;
-                    if (activeWindowToSync === currentNamingWindow) {
+                if (windowToRemove.parentNode) {
+                    windowToRemove.remove();
+                    if (activeWindowToSync === windowToRemove) {
                         activeWindowToSync = null;
                         currentTargetForWindow = null;
                     }
                 }
+                if (currentNamingWindow === windowToRemove) currentNamingWindow = null;
             }, 300);
         }
     };
 
-    let chatTimeouts = [];
-    let currentChatWindow = null;
-
-    const chatMessages = [
-        { text: "а может давай усложним? 🤔✨", type: "left", style: "effect-complex", delay: 500 },
-        { text: "нее, давай упростим! 🛑", type: "right", style: "effect-simple", delay: 1500 },
-        { text: "а давай вот так? вооооооооооо! 🤯💫", type: "left", style: "effect-wow", delay: 2500 },
-        { text: "не, так не читается вообще 🧐", type: "left", style: "effect-fonts", delay: 3800 },
-        { text: "а может вот так? 💿✨", type: "left", style: "effect-chrome", delay: 4800 },
-        { text: "все, рилизим! 🚀", type: "right", style: "effect-morph", delay: 5800 },
-        { text: "постой, еще немножко! 😅", type: "left", style: "effect-release", delay: 6800 },
-        { text: "все же первый вариант был самым классным! 📐", type: "left", style: "effect-blueprint", delay: 8000 },
-        { text: "да! согласна! 💯", type: "right", style: "effect-blueprint", delay: 9500 },
-        { text: "все согласны! в продакшн! 🎉🚀", type: "left", style: "effect-blueprint", delay: 10500 },
+    const brandStyleClasses = [
+        'effect-blueprint',
+        'effect-complex',
+        'effect-simple',
+        'effect-wow',
+        'effect-fonts',
+        'effect-chrome',
+        'effect-morph',
+        'effect-release'
     ];
+    const brandStyleSteps = [
+        { cls: 'effect-blueprint', delay: 0 },
+        { cls: 'effect-complex', delay: 500 },
+        { cls: 'effect-simple', delay: 1500 },
+        { cls: 'effect-wow', delay: 2500 },
+        { cls: 'effect-fonts', delay: 3800 },
+        { cls: 'effect-chrome', delay: 4800 },
+        { cls: 'effect-morph', delay: 5800 },
+        { cls: 'effect-release', delay: 6800 },
+        { cls: 'effect-blueprint', delay: 8000 }
+    ];
+    let brandStyleTimers = [];
+    let brandStyleLoopTimer = null;
 
-    const startChatSequence = (el) => {
-        currentTargetForWindow = el;
-
-        if (!currentChatWindow) {
-            currentChatWindow = document.createElement('div');
-            currentChatWindow.className = 'joke-chat-window';
-            container.appendChild(currentChatWindow);
-        }
-        
-        activeWindowToSync = currentChatWindow;
-        
-        // Initial positioning
-        const elRect = el.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-        currentChatWindow.style.left = `${elRect.left - containerRect.left + (elRect.width / 2)}px`;
-        currentChatWindow.style.top = `${elRect.top - containerRect.top}px`;
-
-        currentChatWindow.innerHTML = '';
-        setTimeout(() => {
-            currentChatWindow.classList.add('is-visible');
-        }, 10);
-        
-        chatTimeouts.forEach(t => clearTimeout(t));
-        chatTimeouts = [];
-        
-        const removeAllEffects = () => {
-            ['effect-blueprint', 'effect-complex', 'effect-simple', 'effect-wow', 'effect-fonts', 'effect-chrome', 'effect-morph', 'effect-release'].forEach(cls => {
-                el.classList.remove(cls);
-            });
-        };
-
-        removeAllEffects();
-
-        const showTyping = (align) => {
-            const typing = document.createElement('div');
-            typing.className = `typing-indicator ${align}`;
-            typing.innerHTML = '<span></span><span></span><span></span>';
-            currentChatWindow.appendChild(typing);
-            // scroll to bottom
-            setTimeout(() => {
-                currentChatWindow.scrollTop = currentChatWindow.scrollHeight;
-            }, 10);
-            return typing;
-        };
-
-        el.classList.add('effect-blueprint');
-
-        let typingIndicator = null;
-        
-        chatMessages.forEach((msg, idx) => {
-            if (idx > 0) {
-                const typingDelay = msg.delay - 600;
-                chatTimeouts.push(setTimeout(() => {
-                    typingIndicator = showTyping(msg.type);
-                }, typingDelay));
-            }
-
-            chatTimeouts.push(setTimeout(() => {
-                if (typingIndicator) {
-                    typingIndicator.remove();
-                }
-                const bubble = document.createElement('div');
-                bubble.className = `chat-bubble ${msg.type}`;
-                bubble.innerText = msg.text;
-                currentChatWindow.appendChild(bubble);
-                // scroll to bottom
-                setTimeout(() => {
-                    currentChatWindow.scrollTop = currentChatWindow.scrollHeight;
-                }, 10);
-
-                removeAllEffects();
-                if (msg.style) {
-                    el.classList.add(msg.style);
-                }
-            }, msg.delay));
-        });
+    const clearBrandStyles = (el) => {
+        brandStyleClasses.forEach(cls => el?.classList.remove(cls));
     };
 
-    const stopChatSequence = (el) => {
-        chatTimeouts.forEach(t => clearTimeout(t));
-        chatTimeouts = [];
-        if (currentChatWindow) {
-            currentChatWindow.classList.remove('is-visible');
-            setTimeout(() => {
-                if (currentChatWindow && currentChatWindow.parentNode) {
-                    currentChatWindow.remove();
-                    currentChatWindow = null;
-                    if (activeWindowToSync === currentChatWindow) {
-                        activeWindowToSync = null;
-                        currentTargetForWindow = null;
-                    }
-                }
-            }, 300);
-        }
-        ['effect-blueprint', 'effect-complex', 'effect-simple', 'effect-wow', 'effect-fonts', 'effect-chrome', 'effect-morph', 'effect-release'].forEach(cls => {
-            el.classList.remove(cls);
-        });
+    const applyBrandStyle = (el, cls) => {
+        clearBrandStyles(el);
+        el?.classList.add(cls);
+    };
+
+    const stopBrandStyleSequence = (el) => {
+        brandStyleTimers.forEach(timer => clearTimeout(timer));
+        brandStyleTimers = [];
+        clearTimeout(brandStyleLoopTimer);
+        brandStyleLoopTimer = null;
+        clearBrandStyles(el);
+    };
+
+    const startBrandStyleSequence = (el) => {
+        stopBrandStyleSequence(el);
+
+        const run = () => {
+            brandStyleTimers = [];
+            brandStyleSteps.forEach(step => {
+                brandStyleTimers.push(setTimeout(() => applyBrandStyle(el, step.cls), step.delay));
+            });
+            brandStyleLoopTimer = setTimeout(run, 9200);
+        };
+
+        run();
     };
 
     // Event Handlers
@@ -525,7 +419,7 @@ export const initHero = (container) => {
 
         switch(index) {
             case '0': // a.
-                triggerEl.classList.add('effect-vibrate');
+                triggerEl.classList.add('effect-communication');
                 break;
             case '1': // l
                 triggerEl.classList.add('effect-rotate-l');
@@ -533,9 +427,7 @@ export const initHero = (container) => {
                 scrambleText(serviceEl);
                 break;
             case '2': // a
-                container.classList.add('effect-chat-active');
-                document.body.classList.add('chat-global-active');
-                startChatSequence(triggerEl);
+                startBrandStyleSequence(triggerEl);
                 break;
             case '3': // b
                 // Spotlight applies globally to the section
@@ -547,12 +439,12 @@ export const initHero = (container) => {
     };
 
     const handleMouseLeave = (index, triggerEl, serviceEl) => {
-        triggerEl.classList.remove('is-active', 'effect-vibrate', 'effect-glitch', 'effect-blueprint', 'effect-spotlight', 'effect-rotate-l');
+        triggerEl.classList.remove('is-active', 'effect-communication', 'effect-glitch', 'effect-spotlight', 'effect-rotate-l');
         serviceEl.classList.remove('is-highlighted');
 
         letterTriggers.forEach(t => t.classList.remove('dimmed-sibling'));
         servicesItems.forEach(s => s.classList.remove('dimmed-sibling'));
-        container.classList.remove('effect-spotlight-active', 'effect-chat-active');
+        container.classList.remove('effect-spotlight-active');
 
         switch(index) {
             case '0':
@@ -563,8 +455,7 @@ export const initHero = (container) => {
                 resetScrambleText(serviceEl);
                 break;
             case '2':
-                document.body.classList.remove('chat-global-active');
-                stopChatSequence(triggerEl);
+                stopBrandStyleSequence(triggerEl);
                 break;
             case '3':
                 document.body.classList.remove('spotlight-global-active');
@@ -574,29 +465,55 @@ export const initHero = (container) => {
 
     // Click handler for audio (toggle on/off)
     const audioPlaying = new Set();
+    const audioActiveTimers = new Map();
+
+    const stopActiveAudio = (index, triggerEl) => {
+        audioEngine.stopLetter(index);
+        audioPlaying.delete(index);
+        window.clearTimeout(audioActiveTimers.get(index));
+        audioActiveTimers.delete(index);
+        triggerEl?.classList.remove('audio-active');
+    };
+
+    const stopAllAudio = () => {
+        audioEngine.stopAll();
+        audioPlaying.clear();
+        audioActiveTimers.forEach(timer => window.clearTimeout(timer));
+        audioActiveTimers.clear();
+        letterTriggers.forEach(trigger => trigger.classList.remove('audio-active'));
+    };
+
     const handleClick = (index, triggerEl) => {
+        if (!audioEngine.enabled) return;
+
         audioEngine.unlock();
         if (audioPlaying.has(index)) {
-            // Stop
-            switch(index) {
-                case '0': audioEngine.stopVibration(); break;
-                case '1': audioEngine.stopGlitch(); break;
-                case '3': audioEngine.stopSpotlight(); break;
-            }
-            audioPlaying.delete(index);
-            triggerEl.classList.remove('audio-active');
+            stopActiveAudio(index, triggerEl);
         } else {
-            // Play
-            switch(index) {
-                case '0': audioEngine.playVibration(); break;
-                case '1': audioEngine.playGlitch(); break;
-                case '2': audioEngine.playGlass(); break;
-                case '3': audioEngine.playSpotlight(); break;
-            }
-            audioPlaying.add(index);
+            const result = audioEngine.playLetter(index);
+            if (!result.playing) return;
+
             triggerEl.classList.add('audio-active');
+
+            if (result.oneShot) {
+                window.clearTimeout(audioActiveTimers.get(index));
+                audioActiveTimers.set(index, window.setTimeout(() => {
+                    triggerEl.classList.remove('audio-active');
+                    audioActiveTimers.delete(index);
+                }, 900));
+            } else {
+                audioPlaying.add(index);
+            }
         }
     };
+
+    const handleVisibilityStop = () => {
+        if (document.hidden) stopAllAudio();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityStop);
+    window.addEventListener('pagehide', stopAllAudio);
+    window.addEventListener('blur', stopAllAudio);
 
     // Attach to triggers
     letterTriggers.forEach(trigger => {
@@ -616,27 +533,25 @@ export const initHero = (container) => {
             service.addEventListener('mouseenter', onEnter);
             service.addEventListener('mouseleave', onLeave);
         }
-    
-  // ─── CTA rotating phrases ───
-  const ctaEl = document.getElementById('heroCta');
-  if (ctaEl) {
-    const phrases = [
-      'готов создать бренд, который вызывает эмоции?',
-      'начни с брифа.',
-      'расскажи о проекте — мы загоримся.'
-    ];
-    let pi = 0;
-    setInterval(() => {
-      ctaEl.classList.add('fade-out');
-      setTimeout(() => {
-        pi = (pi + 1) % phrases.length;
-        ctaEl.textContent = phrases[pi];
-        ctaEl.classList.remove('fade-out');
-      }, 500);
-    }, 3000);
-  }
+    });
 
-});
+    // ─── CTA rotating phrases ───
+    const ctaEl = document.getElementById('heroCta');
+    if (ctaEl) {
+        const phrases = [
+            'готов создать бренд, который вызывает эмоции?',
+            'начни с брифа.'
+        ];
+        let pi = 0;
+        setInterval(() => {
+            ctaEl.classList.add('fade-out');
+            setTimeout(() => {
+                pi = (pi + 1) % phrases.length;
+                ctaEl.textContent = phrases[pi];
+                ctaEl.classList.remove('fade-out');
+            }, 500);
+        }, 3000);
+    }
 
     // Clean up
     return () => {
@@ -650,5 +565,10 @@ export const initHero = (container) => {
         window.removeEventListener('click', unlockAudio);
         window.removeEventListener('touchstart', unlockAudio);
         window.removeEventListener('keydown', unlockAudio);
+        document.removeEventListener('visibilitychange', handleVisibilityStop);
+        window.removeEventListener('pagehide', stopAllAudio);
+        window.removeEventListener('blur', stopAllAudio);
+        letterTriggers.forEach(trigger => stopBrandStyleSequence(trigger));
+        stopAllAudio();
     };
 };

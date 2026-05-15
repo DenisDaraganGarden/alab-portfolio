@@ -1,0 +1,1127 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A.LAB — инструкция по сайту и редактору</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f5f5f7;
+      --ink: #1d1d1f;
+      --muted: #6e6e73;
+      --faint: #9a9aa0;
+      --line: rgba(29, 29, 31, 0.12);
+      --line-strong: rgba(29, 29, 31, 0.2);
+      --white: #ffffff;
+      --soft: #e9e9ec;
+      --accent: #efb8ff;
+      --blue: #dfe7ff;
+      --green: #e1f0d2;
+      --yellow: #fff3b8;
+      --font-title: "Unbounded", system-ui, sans-serif;
+      --font-body: "Roboto", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background: #dadade;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, #fbfbfc 0%, var(--paper) 28%, #ededf0 100%);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.18em;
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 40px 0 80px;
+    }
+
+    .sheet {
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid rgba(255, 255, 255, 0.84);
+      box-shadow: 0 24px 80px rgba(29, 29, 31, 0.1);
+      overflow: hidden;
+    }
+
+    .hero {
+      min-height: 74vh;
+      display: grid;
+      align-content: space-between;
+      gap: 72px;
+      padding: clamp(32px, 7vw, 82px);
+      position: relative;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(235, 235, 238, 0.78)),
+        linear-gradient(90deg, rgba(239, 184, 255, 0.16), rgba(223, 231, 255, 0.12));
+    }
+
+    .brand-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-family: var(--font-title);
+      font-weight: 800;
+      font-size: 1.08rem;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: inset 0 0 0 1px rgba(29, 29, 31, 0.08), 0 14px 34px rgba(29, 29, 31, 0.08);
+      font-family: var(--font-title);
+      font-weight: 800;
+      font-size: 0.92rem;
+    }
+
+    .doc-meta {
+      max-width: 320px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      text-align: right;
+    }
+
+    .hero-title {
+      max-width: 980px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 24px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 44px;
+      height: 1px;
+      background: var(--line-strong);
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: var(--font-title);
+      letter-spacing: 0;
+      line-height: 1.04;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(2.6rem, 8.4vw, 7.5rem);
+      max-width: 11ch;
+    }
+
+    .lead {
+      max-width: 760px;
+      margin-top: 28px;
+      color: rgba(29, 29, 31, 0.72);
+      font-size: clamp(1.05rem, 1.45vw, 1.3rem);
+      line-height: 1.5;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stat {
+      min-height: 118px;
+      padding: 18px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.64);
+      border: 1px solid rgba(29, 29, 31, 0.08);
+    }
+
+    .stat strong {
+      display: block;
+      font-family: var(--font-title);
+      font-size: 1.28rem;
+      line-height: 1.08;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.35;
+    }
+
+    .toc {
+      padding: 30px clamp(24px, 6vw, 72px);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: rgba(245, 245, 247, 0.66);
+    }
+
+    .toc-title {
+      font-family: var(--font-title);
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 14px;
+    }
+
+    .toc ol {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px 28px;
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .toc li {
+      color: var(--muted);
+      padding-left: 6px;
+    }
+
+    .toc a {
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .section {
+      padding: clamp(32px, 6vw, 72px);
+      border-bottom: 1px solid var(--line);
+      page-break-inside: avoid;
+    }
+
+    .section:last-child {
+      border-bottom: 0;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+      gap: clamp(22px, 5vw, 80px);
+      align-items: start;
+      margin-bottom: 30px;
+    }
+
+    .section-kicker {
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      font-size: clamp(2rem, 4.6vw, 4.2rem);
+      max-width: 12ch;
+    }
+
+    .section-summary {
+      color: rgba(29, 29, 31, 0.68);
+      font-size: 1.05rem;
+      line-height: 1.55;
+      max-width: 720px;
+    }
+
+    h3 {
+      font-size: 1.08rem;
+      margin-bottom: 12px;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    ul,
+    ol {
+      margin: 0;
+      padding-left: 22px;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    code {
+      padding: 0.12em 0.36em;
+      border-radius: 5px;
+      background: rgba(29, 29, 31, 0.08);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.92em;
+    }
+
+    pre {
+      margin: 14px 0 0;
+      padding: 16px;
+      border-radius: 8px;
+      overflow: auto;
+      background: #1d1d1f;
+      color: #f5f5f7;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.86rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .grid-2,
+    .grid-3 {
+      display: grid;
+      gap: 12px;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .panel {
+      padding: 18px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.64);
+      border: 1px solid rgba(29, 29, 31, 0.08);
+      min-width: 0;
+    }
+
+    .panel.blue {
+      background: linear-gradient(145deg, rgba(223, 231, 255, 0.82), rgba(255, 255, 255, 0.58));
+    }
+
+    .panel.green {
+      background: linear-gradient(145deg, rgba(225, 240, 210, 0.82), rgba(255, 255, 255, 0.58));
+    }
+
+    .panel.yellow {
+      background: linear-gradient(145deg, rgba(255, 243, 184, 0.72), rgba(255, 255, 255, 0.58));
+    }
+
+    .panel.pink {
+      background: linear-gradient(145deg, rgba(239, 184, 255, 0.42), rgba(255, 255, 255, 0.64));
+    }
+
+    .panel p,
+    .panel li {
+      color: rgba(29, 29, 31, 0.7);
+      font-size: 0.94rem;
+    }
+
+    .note {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-radius: 8px;
+      background: rgba(29, 29, 31, 0.06);
+      border: 1px solid rgba(29, 29, 31, 0.08);
+      color: rgba(29, 29, 31, 0.72);
+    }
+
+    .warning {
+      background: rgba(255, 243, 184, 0.5);
+      border-color: rgba(145, 113, 0, 0.18);
+    }
+
+    .steps {
+      counter-reset: step;
+      display: grid;
+      gap: 12px;
+    }
+
+    .step {
+      counter-increment: step;
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr);
+      gap: 14px;
+      padding: 18px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.64);
+      border: 1px solid rgba(29, 29, 31, 0.08);
+    }
+
+    .step::before {
+      content: counter(step);
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--ink);
+      color: #fff;
+      font-family: var(--font-title);
+      font-weight: 700;
+      font-size: 0.82rem;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 8px;
+    }
+
+    .check {
+      display: grid;
+      grid-template-columns: 18px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      color: rgba(29, 29, 31, 0.72);
+    }
+
+    .check::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      margin-top: 7px;
+      border-radius: 50%;
+      background: var(--ink);
+      box-shadow: 0 0 0 4px rgba(29, 29, 31, 0.08);
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.64);
+      border: 1px solid var(--line);
+    }
+
+    .table th,
+    .table td {
+      padding: 13px 14px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.94rem;
+    }
+
+    .table th {
+      font-family: var(--font-title);
+      font-size: 0.8rem;
+      background: rgba(29, 29, 31, 0.06);
+    }
+
+    .table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .tag-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(29, 29, 31, 0.08);
+      color: rgba(29, 29, 31, 0.72);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .footer {
+      padding: 34px clamp(24px, 6vw, 72px);
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      background: rgba(245, 245, 247, 0.72);
+    }
+
+    @media (max-width: 860px) {
+      .page {
+        width: 100%;
+        padding: 0;
+      }
+
+      .sheet {
+        border: 0;
+        box-shadow: none;
+      }
+
+      .brand-row,
+      .section-head,
+      .footer {
+        grid-template-columns: 1fr;
+        flex-direction: column;
+      }
+
+      .doc-meta {
+        text-align: left;
+      }
+
+      .hero-grid,
+      .toc ol,
+      .grid-2,
+      .grid-3,
+      .analytics-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      html,
+      body {
+        background: #fff !important;
+      }
+
+      body {
+        font-size: 10.5pt;
+      }
+
+      .page {
+        width: 100%;
+        padding: 0;
+      }
+
+      .sheet {
+        box-shadow: none;
+        border: 0;
+        background: #fff;
+      }
+
+      .hero {
+        min-height: 0;
+        padding: 18mm 0 14mm;
+      }
+
+      .section,
+      .toc,
+      .footer {
+        padding-left: 0;
+        padding-right: 0;
+      }
+
+      .section {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      h1 {
+        font-size: 44pt;
+      }
+
+      h2 {
+        font-size: 26pt;
+      }
+
+      .hero-grid,
+      .grid-2,
+      .grid-3,
+      .toc ol {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .panel,
+      .stat,
+      .step,
+      .table {
+        background: #fff !important;
+        box-shadow: none !important;
+      }
+
+      a {
+        text-decoration: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <article class="sheet">
+      <header class="hero">
+        <div class="brand-row">
+          <div class="brand">
+            <div class="brand-mark">a.</div>
+            <div>a.lab</div>
+          </div>
+          <div class="doc-meta">
+            Инструкция по сайту, редактору и дальнейшей поддержке<br>
+            Версия документа: 15 мая 2026
+          </div>
+        </div>
+
+        <div class="hero-title">
+          <div class="eyebrow">документ для заказчика</div>
+          <h1>сайт и редактор</h1>
+          <p class="lead">
+            Этот документ объясняет, как устроен сайт A.LAB, как пользоваться внутренним редактором,
+            что нужно для запуска редактора в сети, как безопасно вносить изменения через AI-агентов
+            и как публиковать обновления.
+          </p>
+        </div>
+
+        <div class="hero-grid">
+          <div class="stat">
+            <strong>one-page</strong>
+            <span>Сайт собран как цельная лендинговая история с секциями, кейсами и контактами.</span>
+          </div>
+          <div class="stat">
+            <strong>cms</strong>
+            <span>Редактор управляет кейсами, медиа, SEO-полями, настройками карточек, аудио и статистикой.</span>
+          </div>
+          <div class="stat">
+            <strong>deploy</strong>
+            <span>Публичный сайт деплоится как статическая сборка, редактор требует отдельного backend.</span>
+          </div>
+          <div class="stat">
+            <strong>agents</strong>
+            <span>Codex и Antigravity можно использовать для аккуратных правок дизайна, кода и деплоя.</span>
+          </div>
+        </div>
+      </header>
+
+      <nav class="toc" aria-label="Оглавление">
+        <div class="toc-title">Оглавление</div>
+        <ol>
+          <li><a href="#site">Что представляет собой сайт</a></li>
+          <li><a href="#designers">Памятка для дизайнеров</a></li>
+          <li><a href="#cms">Как пользоваться редактором</a></li>
+          <li><a href="#online">Как запустить редактор в сети</a></li>
+          <li><a href="#agents">Изменения через AI-агентов</a></li>
+          <li><a href="#deploy">Деплой и публикация</a></li>
+          <li><a href="#maintenance">Поддержка и безопасность</a></li>
+          <li><a href="#pdf">Как сделать PDF</a></li>
+        </ol>
+      </nav>
+
+      <section class="section" id="site">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">01 / архитектура</div>
+            <h2>что представляет собой сайт</h2>
+          </div>
+          <p class="section-summary">
+            A.LAB — это не шаблонный сайт с набором карточек, а интерактивная презентация агентства:
+            бренд, эмоциональная инженерия, принципы работы, кейсы и быстрый контакт.
+            Публичная часть собрана как Vite-сайт, а контент кейсов подключается из JSON, который
+            формирует редактор.
+          </p>
+        </div>
+
+        <div class="grid-3">
+          <div class="panel blue">
+            <h3>Публичный сайт</h3>
+            <p>Главный экран с интерактивным логотипом, блоки о подходе, принципы, кейсы, контакты, QR и плавающий контактный блок.</p>
+            <div class="tag-row">
+              <span class="tag">index.html</span>
+              <span class="tag">main.js</span>
+              <span class="tag">css/sections</span>
+            </div>
+          </div>
+          <div class="panel pink">
+            <h3>Редактор</h3>
+            <p>Внутренняя CMS для проектов, настроек, медиа, SEO, статистики и предпросмотра кейсов.</p>
+            <div class="tag-row">
+              <span class="tag">editor/server.mjs</span>
+              <span class="tag">editor/public</span>
+              <span class="tag">editor/cms.db</span>
+            </div>
+          </div>
+          <div class="panel green">
+            <h3>Данные</h3>
+            <p>Публичный сайт читает опубликованные проекты из <code>public/data/cases.json</code>. Черновики остаются только в редакторе.</p>
+            <div class="tag-row">
+              <span class="tag">cases.json</span>
+              <span class="tag">settings.json</span>
+              <span class="tag">public/images</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="note">
+          Важная логика публикации: проект появляется на сайте только если в редакторе у него статус
+          <strong>“Опубликован”</strong>. Черновики можно готовить спокойно, не показывая их посетителям.
+        </div>
+      </section>
+
+      <section class="section" id="designers">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">02 / дизайн-процесс</div>
+            <h2>памятка для дизайнеров</h2>
+          </div>
+          <p class="section-summary">
+            Сайт построен на спокойной серой базе, крупной типографике Unbounded и мягких стеклянных поверхностях.
+            Для новых кейсов важно сохранять визуальный язык: меньше декоративного шума, больше воздуха,
+            четкие логотипы, аккуратные медиа и понятная иерархия.
+          </p>
+        </div>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Что готовить</th>
+              <th>Рекомендация</th>
+              <th>Почему это важно</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Логотип кейса</td>
+              <td>SVG предпочтительно. PNG/WebP допустимы, если фон прозрачный и есть запас по размеру.</td>
+              <td>Карточки портфолио показывают логотип крупно, без дополнительного названия сверху.</td>
+            </tr>
+            <tr>
+              <td>Изображения</td>
+              <td>Горизонтальные hero-кадры 1600-2400 px, WebP/JPG. Не загружать исходники на 20-50 MB без нужды.</td>
+              <td>Сайт должен быстро открываться на мобильных и не терять качество на больших экранах.</td>
+            </tr>
+            <tr>
+              <td>Тексты</td>
+              <td>Короткие заголовки, ясные подписи, без длинных абзацев в карточках и компактных панелях.</td>
+              <td>Визуальная система держится на плотной, но легкой подаче информации.</td>
+            </tr>
+            <tr>
+              <td>Цвета</td>
+              <td>Использовать сдержанные акценты. Не превращать секцию в один доминирующий цвет.</td>
+              <td>Бренд A.LAB должен оставаться главным, а кейсы — аккуратно раскрывать портфолио.</td>
+            </tr>
+            <tr>
+              <td>Мобильная версия</td>
+              <td>После каждой крупной правки проверять ширины 390-430 px и 768 px.</td>
+              <td>Большая типографика и карточки требуют отдельной проверки на переносы и наложения.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="grid-2" style="margin-top: 14px;">
+          <div class="panel">
+            <h3>Хороший кейс</h3>
+            <div class="checklist">
+              <div class="check">Есть логотип и понятная категория.</div>
+              <div class="check">Есть 1-2 сильных визуальных кадра.</div>
+              <div class="check">Текст говорит о задаче, подходе и результате.</div>
+              <div class="check">SEO-title и SEO-description заполнены.</div>
+            </div>
+          </div>
+          <div class="panel">
+            <h3>Чего избегать</h3>
+            <div class="checklist">
+              <div class="check">Размытые картинки, скриншоты с лишними рамками, водяные знаки.</div>
+              <div class="check">Слишком длинные названия в карточках и блоках.</div>
+              <div class="check">Медиа без оптимизации, тяжелые видео без необходимости.</div>
+              <div class="check">Правки напрямую в JSON без бэкапа.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="cms">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">03 / редактор</div>
+            <h2>как пользоваться редактором</h2>
+          </div>
+          <p class="section-summary">
+            Редактор запускается отдельно от публичного сайта. Локальный адрес по умолчанию:
+            <code>http://localhost:3001/cms-3001/</code>. Логин и пароль задаются в файле
+            <code>.env</code> и должны передаваться ответственным сотрудникам отдельно, не внутри этого документа.
+          </p>
+        </div>
+
+        <div class="steps">
+          <div class="step">
+            <div>
+              <h3>Запуск локально</h3>
+              <p>В терминале из папки проекта запустить редактор:</p>
+              <pre>npm run editor</pre>
+              <p>После запуска открыть <code>http://localhost:3001/cms-3001/</code>.</p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div>
+              <h3>Вкладка “Проекты”</h3>
+              <p>Здесь создаются, дублируются, импортируются и сортируются кейсы. Категории можно переименовывать, но лучше не менять их ID без разработчика.</p>
+              <ul>
+                <li><strong>На сайте</strong> — проект опубликован.</li>
+                <li><strong>Черновик</strong> — проект хранится в редакторе, но не попадает в публичный JSON.</li>
+                <li><strong>JSON</strong> — экспорт конкретного кейса для передачи или архива.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="step">
+            <div>
+              <h3>Редактирование кейса</h3>
+              <p>Внутри кейса можно менять название, категорию, логотип, внешний URL, SEO-поля и набор блоков.</p>
+              <ul>
+                <li>Для простого кейса использовать блоки “Заголовок”, “Текст”, “Изображение”, “Галерея”.</li>
+                <li>Для ссылок на Behance, Telegram, сайт проекта использовать блок “Ссылки”.</li>
+                <li>Для числовых результатов использовать блок “Метрики”.</li>
+                <li>После правки смотреть live-preview в desktop/mobile режимах.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="step">
+            <div>
+              <h3>Настройки сайта</h3>
+              <p>В этой вкладке настраиваются звуки букв логотипа, Figma token для импорта, внешний вид карточек и параметры интерфейса.</p>
+              <p>Figma token нужен только если команда реально импортирует изображения из приватных Figma-файлов. Его нельзя хранить в публичных документах.</p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div>
+              <h3>Статистика</h3>
+              <p>Вкладка показывает first-party аналитику: просмотры, визиты, источники, устройства, секции, внешние клики и базовый SEO-чеклист.</p>
+              <p>Страны появятся на хостинге, который передает geo-заголовки. VPN без внешней IP-базы определяется честно как <code>unknown</code>.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="note warning">
+          Перед массовыми правками контента сделать бэкап: <code>editor/cms.db</code>,
+          <code>public/data/cases.json</code>, <code>public/images</code> и <code>public/data/settings.json</code>.
+        </div>
+      </section>
+
+      <section class="section" id="online">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">04 / сеть</div>
+            <h2>как запустить редактор в сети</h2>
+          </div>
+          <p class="section-summary">
+            Сейчас редактор работает локально на компьютере разработчика. Чтобы сотрудники заходили по адресу вроде
+            <code>https://cms.alabspace.com</code>, нужен постоянный backend с диском или базой данных.
+            Обычный статический деплой сайта на Vercel для этого недостаточен.
+          </p>
+        </div>
+
+        <div class="grid-3">
+          <div class="panel yellow">
+            <h3>Временно бесплатно</h3>
+            <p>Cloudflare Tunnel может открыть локальный редактор наружу. Это удобно для демонстрации, но компьютер должен быть включен.</p>
+            <p><strong>Подходит:</strong> показать заказчику, быстро согласовать правки.</p>
+          </div>
+          <div class="panel green">
+            <h3>Рабочий вариант</h3>
+            <p>VPS, Render, Railway или Fly.io с постоянным диском. Текущий Express + SQLite можно развернуть с минимальными изменениями.</p>
+            <p><strong>Подходит:</strong> сотрудники работают регулярно.</p>
+          </div>
+          <div class="panel blue">
+            <h3>Serverless-вариант</h3>
+            <p>Переделать хранение на Supabase, Cloudflare D1/KV/R2 или другую managed-базу.</p>
+            <p><strong>Подходит:</strong> если нужен полностью облачный стек без сервера.</p>
+          </div>
+        </div>
+
+        <h3 style="margin-top: 28px;">Минимальные требования для сетевого редактора</h3>
+        <div class="checklist">
+          <div class="check">Домен или поддомен, например <code>cms.alabspace.com</code>.</div>
+          <div class="check">HTTPS-сертификат. На VPS это обычно Caddy/Nginx + Let's Encrypt.</div>
+          <div class="check">Постоянный диск или база для <code>editor/cms.db</code> и загруженных файлов.</div>
+          <div class="check">Переменные окружения: <code>CMS_LOGIN</code>, <code>CMS_PASSWORD</code>, <code>CMS_BASE_PATH</code>, <code>ANALYTICS_SALT</code>.</div>
+          <div class="check">Автобэкапы базы и папки <code>public/images</code>.</div>
+          <div class="check">Ограничение доступа: сложный пароль, IP allowlist, VPN или Cloudflare Access.</div>
+        </div>
+
+        <div class="note">
+          Рекомендация: для надежной работы команды выбрать маленький VPS/Render/Railway и вынести редактор
+          на <code>cms.alabspace.com</code>. Публичный сайт при этом может продолжать деплоиться отдельно как статическая сборка.
+        </div>
+      </section>
+
+      <section class="section" id="agents">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">05 / AI-агенты</div>
+            <h2>как менять сайт через Codex и Antigravity</h2>
+          </div>
+          <p class="section-summary">
+            AI-агенты полезны для правок верстки, анимаций, адаптива, текста, CMS и деплоя.
+            Главное — давать им конкретную задачу, просить сначала изучить код, не перетирать чужие изменения
+            и обязательно проверять сборку.
+          </p>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <h3>Когда использовать редактор</h3>
+            <ul>
+              <li>Добавить или скрыть кейс.</li>
+              <li>Заменить логотип, картинку, видео.</li>
+              <li>Поменять текст блока кейса.</li>
+              <li>Заполнить SEO-поля проекта.</li>
+              <li>Поменять карточные настройки, если они доступны в CMS.</li>
+            </ul>
+          </div>
+          <div class="panel">
+            <h3>Когда использовать агента</h3>
+            <ul>
+              <li>Изменить общий дизайн сайта или адаптив.</li>
+              <li>Добавить новый тип блока в CMS.</li>
+              <li>Починить баг, который повторяется.</li>
+              <li>Добавить интеграцию, аналитику или деплой.</li>
+              <li>Проверить производительность, SEO, консольные ошибки.</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 style="margin-top: 28px;">Безопасный сценарий работы с агентом</h3>
+        <div class="steps">
+          <div class="step">
+            <div>
+              <h3>Подготовить задачу</h3>
+              <p>Приложить скриншот, описать что именно изменить и где находится проблема. Хорошая формулировка: “в секции контактов на мобильной версии форма должна быть напротив заголовка, проверь 390 и 1440 px”.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div>
+              <h3>Попросить агента изучить код</h3>
+              <p>Агент должен найти существующие файлы и стиль проекта, а не писать новую архитектуру поверх старой.</p>
+              <pre>Сначала найди файлы секции, посмотри текущие стили и только потом внеси минимальные правки.</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div>
+              <h3>Проверить локально</h3>
+              <p>После правок агент должен запустить сборку и, если менялся интерфейс, открыть локальный сайт.</p>
+              <pre>npm run build
+npm run dev
+npm run editor</pre>
+            </div>
+          </div>
+          <div class="step">
+            <div>
+              <h3>Принять или откатить</h3>
+              <p>Если правка не подходит, просить агента исправить конкретный результат, а не “сделать красиво”. Чем точнее обратная связь, тем быстрее будет хороший итог.</p>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="margin-top: 28px;">Примеры задач для Codex или Antigravity</h3>
+        <pre>Нужно поправить мобильную версию секции contacts.
+Проверь текущие CSS/JS, внеси минимальные изменения, не трогай портфолио.
+После правки запусти npm run build и проверь локально 390px и desktop.</pre>
+        <pre>Добавь в редактор новый тип блока "timeline".
+Он должен сохраняться в SQLite/JSON, редактироваться в CMS и рендериться в кейсе.
+Сначала изучи существующие блоки, затем реализуй по их паттерну.</pre>
+        <pre>Подготовь production deploy.
+Проверь npm run build, проверь dist, затем сделай preview deploy.
+Не выкладывай секреты и не коммить .env.</pre>
+      </section>
+
+      <section class="section" id="deploy">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">06 / публикация</div>
+            <h2>деплой и публикация</h2>
+          </div>
+          <p class="section-summary">
+            Публичный сайт можно деплоить отдельно от редактора. Перед деплоем важно синхронизировать контент,
+            проверить сборку, мобильные экраны, SEO и базовые клики. Редактор, если он нужен онлайн, деплоится
+            как отдельный backend.
+          </p>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel green">
+            <h3>Публичный сайт</h3>
+            <p>Команды для проверки и сборки:</p>
+            <pre>npm install
+npm run build
+npm run dev</pre>
+            <p>Если используется Vercel CLI:</p>
+            <pre>npx vercel
+npx vercel --prod</pre>
+          </div>
+          <div class="panel blue">
+            <h3>Редактор</h3>
+            <p>Локально:</p>
+            <pre>npm run editor</pre>
+            <p>В сети: поднять Node/Express-сервер, подключить постоянный диск или managed-базу, настроить домен и HTTPS.</p>
+          </div>
+        </div>
+
+        <h3 style="margin-top: 28px;">Чек-лист перед production</h3>
+        <div class="checklist">
+          <div class="check">Открыть главную страницу и проверить первый экран, логотип, кнопку “Бриф”.</div>
+          <div class="check">Проверить меню в контактном blob: “о нас”, “эмоциональная инженерия”, “принципы”, “кейсы”.</div>
+          <div class="check">Проверить портфолио: категории, карточки, логотипы, внешние ссылки.</div>
+          <div class="check">Проверить мобильные размеры 390-430 px и планшет 768 px.</div>
+          <div class="check">Проверить консоль браузера: не должно быть критичных ошибок.</div>
+          <div class="check">Проверить SEO: title, description, canonical, og:image, sitemap.xml, robots.txt.</div>
+          <div class="check">Проверить, что <code>.env</code> и токены не попали в публичный репозиторий или сборку.</div>
+        </div>
+
+        <div class="note warning">
+          Если контент менялся через локальный редактор, убедиться, что после сохранения обновился
+          <code>public/data/cases.json</code>. Именно этот файл читает публичный статический сайт.
+        </div>
+      </section>
+
+      <section class="section" id="maintenance">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">07 / эксплуатация</div>
+            <h2>поддержка и безопасность</h2>
+          </div>
+          <p class="section-summary">
+            У сайта есть две зоны ответственности: публичная витрина и внутренний редактор.
+            Витрина должна быть быстрой и стабильной, редактор — защищенным и регулярно бэкапиться.
+          </p>
+        </div>
+
+        <div class="grid-3">
+          <div class="panel">
+            <h3>Еженедельно</h3>
+            <ul>
+              <li>Проверить сайт с телефона.</li>
+              <li>Посмотреть статистику посещений.</li>
+              <li>Проверить формы и ссылки.</li>
+            </ul>
+          </div>
+          <div class="panel">
+            <h3>Перед правками</h3>
+            <ul>
+              <li>Сделать бэкап базы и изображений.</li>
+              <li>Создать отдельную ветку или копию.</li>
+              <li>Записать, что именно меняется.</li>
+            </ul>
+          </div>
+          <div class="panel">
+            <h3>После правок</h3>
+            <ul>
+              <li>Запустить <code>npm run build</code>.</li>
+              <li>Проверить локально и на preview.</li>
+              <li>Сделать production deploy.</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 style="margin-top: 28px;">Файлы, которые важно беречь</h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Файл или папка</th>
+              <th>Что хранит</th>
+              <th>Как обращаться</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>.env</code></td>
+              <td>Логин, пароль, секреты.</td>
+              <td>Не публиковать, не отправлять в общий чат, хранить в менеджере паролей.</td>
+            </tr>
+            <tr>
+              <td><code>editor/cms.db</code></td>
+              <td>База редактора: проекты, категории, статистика.</td>
+              <td>Бэкапить перед крупными изменениями.</td>
+            </tr>
+            <tr>
+              <td><code>public/images</code></td>
+              <td>Загруженные изображения и логотипы.</td>
+              <td>Не чистить вручную без проверки, что файлы не используются.</td>
+            </tr>
+            <tr>
+              <td><code>public/data/cases.json</code></td>
+              <td>Публичные опубликованные кейсы.</td>
+              <td>Редактировать через CMS, руками только в исключительных случаях.</td>
+            </tr>
+            <tr>
+              <td><code>public/data/settings.json</code></td>
+              <td>Настройки сайта: аудио, карточки и другие параметры.</td>
+              <td>После изменения проверять публичный сайт.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section" id="pdf">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">08 / pdf</div>
+            <h2>как сделать PDF из этого HTML</h2>
+          </div>
+          <p class="section-summary">
+            Документ сверстан как печатный HTML. Его можно открыть в браузере и сохранить в PDF без дополнительных программ.
+            Для лучшего результата включить печать фона.
+          </p>
+        </div>
+
+        <div class="steps">
+          <div class="step">
+            <div>
+              <h3>Открыть файл</h3>
+              <p>Открыть <code>docs/customer-guide.html</code> в Chrome, Safari или Edge.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div>
+              <h3>Печать</h3>
+              <p>Нажать <code>Cmd + P</code> на macOS или <code>Ctrl + P</code> на Windows.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div>
+              <h3>Настройки PDF</h3>
+              <p>Формат A4, масштаб 100%, включить “Background graphics” / “Печатать фон”, поля стандартные или минимальные.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div>
+              <h3>Сохранить</h3>
+              <p>Выбрать “Save as PDF” / “Сохранить как PDF”. Перед отправкой заказчику пролистать файл и проверить переносы.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div>A.LAB — агентство эмоциональной инженерии</div>
+        <div>Документ для передачи проекта и дальнейшей поддержки сайта</div>
+      </footer>
+    </article>
+  </main>
+</body>
+</html>

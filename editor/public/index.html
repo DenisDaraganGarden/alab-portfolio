@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>A.LAB — Редактор</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -62,7 +65,21 @@
         /* Blocks */
         .block-item{background:#111;border:1px solid #222;border-radius:8px;padding:1rem;margin-bottom:0.75rem}
         .block-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem}
-        .block-type{font-size:0.7rem;font-weight:700;text-transform:uppercase;color:#5dade2}
+        .block-type{
+            display:inline-flex;
+            align-items:center;
+            gap:0.32rem;
+            padding:0.28rem 0.62rem;
+            border:1px solid var(--block-accent-line,rgba(29,29,31,0.12));
+            border-radius:999px;
+            background:var(--block-accent-bg,rgba(255,255,255,0.52));
+            color:var(--block-accent-text,var(--cms-text,#1d1d1f));
+            font-size:0.68rem;
+            font-weight:800;
+            text-transform:uppercase;
+            letter-spacing:0.045em;
+            box-shadow:inset 0 1px 0 rgba(255,255,255,0.46);
+        }
         .block-actions{display:flex;gap:0.3rem}
         .block-actions button{background:none;border:none;color:#666;cursor:pointer;font-size:0.85rem;padding:2px 6px;border-radius:4px}
         .block-actions button:hover{background:#222;color:#eee}
@@ -105,6 +122,67 @@
         .rich-editor:empty:before{content:attr(data-placeholder);color:#555}
         .rich-editor b,.rich-editor strong{font-weight:700}
         .rich-editor i,.rich-editor em{font-style:italic}
+        .rich-editor a{
+            color:var(--cms-text,#fff);
+            text-decoration:underline;
+            text-decoration-thickness:1px;
+            text-underline-offset:0.18em;
+        }
+        .link-block-editor{display:flex;flex-direction:column;gap:0.7rem}
+        .link-editor-head{display:grid;grid-template-columns:minmax(160px,1fr) auto;gap:0.6rem;align-items:center}
+        .link-editor-row{
+            display:grid;
+            grid-template-columns:minmax(108px,0.78fr) minmax(0,1fr) minmax(0,1.3fr) minmax(74px,max-content);
+            gap:0.45rem;
+            align-items:center;
+            padding:0.55rem;
+            background:var(--cms-surface-soft,#1a1a1a);
+            border:1px solid var(--cms-line,#222);
+            border-radius:14px;
+            max-width:100%;
+            overflow:hidden;
+        }
+        .link-editor-row > *{min-width:0}
+        .link-editor-row .btn{justify-self:stretch;white-space:nowrap;padding-left:0.65rem;padding-right:0.65rem}
+        .link-editor-note{font-size:0.73rem;color:var(--cms-muted,#777);line-height:1.45}
+        .columns-editor-toolbar{display:flex;gap:0.45rem;align-items:center;margin-bottom:0.8rem}
+        .columns-editor-grid{display:grid;gap:0.75rem}
+        .column-editor-card{
+            display:flex;
+            flex-direction:column;
+            gap:0.55rem;
+            min-width:0;
+            padding:0.65rem;
+            border:1px solid var(--cms-line,#222);
+            border-radius:20px;
+            background:linear-gradient(145deg,rgba(255,255,255,0.92),rgba(240,240,242,0.72));
+            box-shadow:0 16px 38px rgba(29,29,31,0.05);
+        }
+        .column-editor-media-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0.4rem;align-items:center}
+        .column-editor-preview{
+            width:100%;
+            height:112px;
+            object-fit:cover;
+            border-radius:15px;
+            border:1px solid var(--cms-line,#222);
+            background:#fff;
+        }
+        .column-editor-placeholder{
+            display:grid;
+            place-items:center;
+            height:112px;
+            border:1px dashed var(--cms-line-strong,#333);
+            border-radius:15px;
+            color:var(--cms-muted,#777);
+            font-size:0.78rem;
+            background:rgba(255,255,255,0.54);
+        }
+        .column-editor-card textarea.input{min-height:112px;border-radius:16px;line-height:1.45}
+        @media(max-width:760px){
+            .link-editor-head,.link-editor-row{grid-template-columns:1fr}
+            .link-editor-row .btn{width:100%}
+            .columns-editor-grid{grid-template-columns:1fr!important}
+        }
 
 
         .proj-card{display:flex;align-items:center;gap:0.75rem;background:#141414;border:1px solid #222;border-radius:8px;padding:1rem;cursor:pointer;transition:background 0.3s}
@@ -123,6 +201,19 @@
         .status-badge{font-size:0.65rem;padding:0.15rem 0.5rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em}
         .status-published{background:#27ae60;color:#fff}
         .status-draft{background:#555;color:#ccc}
+        .status-demo{background:#8e44ad;color:#fff}
+
+        /* Publish health */
+        .publish-panel{background:linear-gradient(135deg,#101820,#0d0d0d);border:1px solid #203040;border-radius:10px;padding:1rem;margin-bottom:1.25rem}
+        .publish-panel-head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;margin-bottom:0.8rem}
+        .publish-title{font-size:0.95rem;font-weight:700;color:#fff}
+        .publish-note{font-size:0.75rem;color:#7c8794;line-height:1.5;margin-top:0.2rem}
+        .publish-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0.6rem}
+        .publish-stat{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:0.75rem}
+        .publish-stat-value{font-size:1.25rem;font-weight:800;color:#fff}
+        .publish-stat-label{font-size:0.68rem;color:#66717d;text-transform:uppercase;letter-spacing:0.06em;margin-top:0.2rem}
+        .publish-warnings{margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid rgba(255,255,255,0.06)}
+        .publish-warning{font-size:0.78rem;color:#f1c40f;margin-top:0.25rem}
 
         /* Autosave indicator */
         .save-indicator{font-size:0.72rem;display:flex;align-items:center;gap:0.3rem}
@@ -167,6 +258,37 @@
         /* Settings */
         .settings-section{margin-bottom:2rem;padding:1.5rem;background:#111;border:1px solid #222;border-radius:8px}
         .settings-title{font-size:1rem;font-weight:700;margin-bottom:1rem}
+        .analytics-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1rem;align-items:center;margin-bottom:1rem;padding:1rem;border-radius:18px;background:linear-gradient(145deg,rgba(239,239,242,0.9),rgba(226,226,230,0.76));box-shadow:0 12px 36px rgba(29,29,31,0.05)}
+        .analytics-title{font-family:'Unbounded',sans-serif;font-size:1rem;font-weight:700;letter-spacing:-0.05em;color:var(--cms-text)}
+        .analytics-note{font-size:0.75rem;color:var(--cms-muted);line-height:1.45;margin-top:0.25rem;max-width:760px}
+        .analytics-range{display:flex;gap:0.35rem;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+        .analytics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0.75rem;margin-bottom:1rem}
+        .analytics-card{padding:1rem;border-radius:18px;background:linear-gradient(145deg,rgba(255,255,255,0.9),rgba(237,237,240,0.78));box-shadow:0 12px 36px rgba(29,29,31,0.045)}
+        .analytics-card-value{font-family:'Unbounded',sans-serif;font-size:1.55rem;font-weight:700;letter-spacing:-0.06em;color:var(--cms-text)}
+        .analytics-card-label{font-size:0.68rem;color:var(--cms-muted);text-transform:uppercase;letter-spacing:0.07em;margin-top:0.35rem}
+        .analytics-layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(300px,0.75fr);gap:1rem;align-items:start}
+        .analytics-panel{padding:1rem;border-radius:22px;background:linear-gradient(145deg,rgba(234,234,237,0.96),rgba(218,219,223,0.86));box-shadow:var(--cms-shadow);min-width:0}
+        .analytics-panel-title{font-size:0.86rem;font-weight:800;margin-bottom:0.75rem;color:var(--cms-text)}
+        .chart-bars{height:180px;display:flex;align-items:flex-end;gap:0.32rem;padding:0.75rem 0.25rem 0;border-bottom:1px solid var(--cms-line)}
+        .chart-bar{flex:1;min-width:5px;border-radius:999px 999px 0 0;background:linear-gradient(180deg,#1d1d1f,rgba(29,29,31,0.18));position:relative}
+        .chart-bar span{position:absolute;left:50%;bottom:calc(100% + 0.25rem);transform:translateX(-50%);font-size:0.62rem;color:var(--cms-muted);opacity:0}
+        .chart-bar:hover span{opacity:1}
+        .chart-caption{display:flex;justify-content:space-between;color:var(--cms-muted);font-size:0.68rem;margin-top:0.45rem}
+        .analytics-list{display:flex;flex-direction:column;gap:0.45rem}
+        .analytics-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0.75rem;align-items:center;padding:0.52rem 0;border-bottom:1px solid var(--cms-line)}
+        .analytics-row:last-child{border-bottom:0}
+        .analytics-row-label{font-size:0.8rem;color:var(--cms-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .analytics-row-value{font-size:0.78rem;font-weight:800;color:var(--cms-text)}
+        .analytics-mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin-top:1rem}
+        .seo-score{display:flex;align-items:center;gap:0.8rem;margin-bottom:0.8rem}
+        .seo-score-circle{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#1d1d1f calc(var(--score)*1%),rgba(29,29,31,0.08) 0);font-family:'Unbounded',sans-serif;font-size:0.95rem;font-weight:700;color:var(--cms-text)}
+        .seo-check{display:grid;grid-template-columns:auto minmax(0,1fr);gap:0.55rem;align-items:start;padding:0.45rem 0;border-bottom:1px solid var(--cms-line)}
+        .seo-check:last-child{border-bottom:0}
+        .seo-dot{width:10px;height:10px;border-radius:50%;margin-top:0.22rem;background:#a15c00}
+        .seo-dot.ok{background:#1d1d1f}
+        .seo-check-label{font-size:0.78rem;font-weight:800;color:var(--cms-text)}
+        .seo-check-detail{font-size:0.7rem;color:var(--cms-muted);margin-top:0.12rem;line-height:1.35}
+        .analytics-empty{padding:2rem;text-align:center;color:var(--cms-muted);font-size:0.86rem}
         .audio-letter{display:flex;align-items:center;gap:1rem;padding:0.75rem 0;border-bottom:1px solid #1a1a1a}
         .audio-letter:last-child{border:none}
         .audio-letter-char{font-size:1.8rem;font-weight:800;width:50px;text-align:center;color:#fff;font-family:'Unbounded',sans-serif}
@@ -175,6 +297,406 @@
         .audio-letter-file{font-size:0.82rem;color:#5dade2}
         .audio-letter-actions{display:flex;gap:0.5rem;align-items:center}
         .volume-slider{width:80px;accent-color:#5dade2}
+
+        /* A.LAB light theme */
+        :root{
+            --cms-bg:#ededee;
+            --cms-surface:#e1e1e4;
+            --cms-surface-soft:#d7d8dc;
+            --cms-field:#f1f1f2;
+            --cms-field-soft:#e8e8eb;
+            --cms-control:#f4f4f5;
+            --cms-text:#1d1d1f;
+            --cms-muted:#6e6e73;
+            --cms-faint:#9a9aa0;
+            --cms-line:rgba(29,29,31,0.08);
+            --cms-line-strong:rgba(29,29,31,0.16);
+            --cms-shadow:0 18px 48px rgba(29,29,31,0.07), inset 0 1px 0 rgba(255,255,255,0.62);
+            --cms-radius:18px;
+        }
+        body{
+            background:
+                radial-gradient(circle at 13% 8%, rgba(255,255,255,0.96) 0, rgba(255,255,255,0) 28rem),
+                linear-gradient(180deg,#fbfbfc 0%,var(--cms-bg) 100%);
+            color:var(--cms-text);
+            font-family:'Roboto',sans-serif;
+            -webkit-font-smoothing:antialiased;
+        }
+        .cms-wrap{max-width:1240px;padding:1.35rem 1.25rem 3rem}
+        .cms-header{border-bottom:1px solid var(--cms-line);margin-bottom:1.15rem;padding-bottom:1rem}
+        .cms-title,.login-logo{font-family:'Unbounded',sans-serif;font-weight:700;letter-spacing:-0.06em;color:var(--cms-text)}
+        .cms-title{font-size:1.2rem;text-transform:lowercase}
+        .cms-user,.login-sub,.field-label,.proj-card-id,.template-desc,.audio-letter-label{color:var(--cms-muted)}
+
+        .login-box,.settings-section,.block-item,.live-preview,.modal-box,.template-card,.seo-section{
+            background:linear-gradient(145deg, rgba(234,234,237,0.96), rgba(218,219,223,0.86));
+            border:0;
+            box-shadow:var(--cms-shadow);
+        }
+        .login-page{background:var(--cms-bg)}
+        .login-btn,.btn-white{background:#2f3033;color:#fff}
+        .btn,.input,.rich-editor,.preview-mode-btn,.style-bar button,.style-bar select,.style-bar input[type=number]{
+            border-radius:999px;
+            font-family:'Roboto',sans-serif;
+        }
+        .btn{border:1px solid transparent}
+        .btn-dark,.btn-blue{
+            background:var(--cms-field);
+            color:var(--cms-text);
+            border-color:transparent;
+            box-shadow:inset 0 0 0 1px rgba(29,29,31,0.06);
+        }
+        .btn-blue{background:#35363a;color:#fff;box-shadow:none}
+        .btn-dark:hover,.btn-blue:hover,.btn-white:hover{opacity:1;border-color:transparent;box-shadow:inset 0 0 0 1px rgba(29,29,31,0.14),0 8px 22px rgba(29,29,31,0.06)}
+        .btn-red{background:#f4e8e6;color:#9f1f16;border-color:transparent}
+        .btn-ghost{color:var(--cms-muted);border-radius:999px}
+        .btn-ghost:hover{background:var(--cms-field-soft);color:var(--cms-text)}
+        .input,.rich-editor{
+            background:var(--cms-field);
+            border:0;
+            color:var(--cms-text);
+            box-shadow:inset 0 0 0 1px rgba(29,29,31,0.055);
+        }
+        .input:hover,.rich-editor:hover{box-shadow:inset 0 0 0 1px rgba(29,29,31,0.1)}
+        .input:focus,.rich-editor:focus{border-color:transparent;box-shadow:inset 0 0 0 1px rgba(29,29,31,0.18),0 0 0 4px rgba(29,29,31,0.05)}
+        textarea.input{border-radius:14px}
+
+        .tabs{border-bottom:1px solid var(--cms-line);margin-bottom:1.2rem}
+        .tab{color:var(--cms-muted);padding:0.7rem 0;margin-right:1.5rem}
+        .tab:hover{color:var(--cms-text)}
+        .tab.active{color:var(--cms-text);border-bottom-color:var(--cms-text)}
+        .cat-section{margin-bottom:1.55rem}
+        .cat-label{color:var(--cms-muted);font-size:0.75rem;letter-spacing:0.12em;margin-bottom:0.65rem}
+        .proj-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:0.75rem}
+        .proj-card{
+            --category-accent: rgba(29,29,31,0.18);
+            --category-glow: rgba(29,29,31,0.04);
+            position:relative;
+            display:grid;
+            grid-template-columns:14px 56px minmax(0,1fr) auto;
+            align-items:center;
+            gap:0.75rem;
+            min-height:84px;
+            overflow:hidden;
+            isolation:isolate;
+            background:
+                radial-gradient(circle at 0% 0%, var(--category-glow), transparent 62%),
+                linear-gradient(145deg, rgba(255,255,255,0.96), rgba(247,247,248,0.82));
+            border:1px solid var(--cms-line);
+            border-radius:16px;
+            padding:0.85rem;
+            box-shadow:0 10px 34px rgba(29,29,31,0.04);
+            transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s;
+        }
+        .proj-card::before{
+            content:"";
+            position:absolute;
+            inset:0;
+            border-radius:inherit;
+            background:
+                linear-gradient(90deg, var(--category-accent), transparent 38%),
+                radial-gradient(circle at 15% 50%, rgba(255,255,255,0.58), transparent 36%);
+            opacity:0.2;
+            pointer-events:none;
+            z-index:-1;
+        }
+        .proj-card::after{
+            content:"";
+            position:absolute;
+            left:0;
+            top:18%;
+            bottom:18%;
+            width:4px;
+            border-radius:0 99px 99px 0;
+            background:var(--category-accent);
+            opacity:0.72;
+        }
+        .proj-card[data-category="development"]{
+            --category-accent: rgba(30,64,175,0.34);
+            --category-glow: rgba(30,64,175,0.13);
+            border-color:rgba(30,64,175,0.15);
+        }
+        .proj-card[data-category="services"]{
+            --category-accent: rgba(253,224,71,0.58);
+            --category-glow: rgba(253,224,71,0.22);
+            border-color:rgba(184,139,0,0.13);
+        }
+        .proj-card[data-category="production"]{
+            --category-accent: rgba(163,230,53,0.54);
+            --category-glow: rgba(163,230,53,0.2);
+            border-color:rgba(83,143,20,0.13);
+        }
+        .proj-card[data-category="development"] .proj-card-logo,
+        .proj-card[data-category="development"] .proj-card-nologo{background:rgba(30,64,175,0.045);border-color:rgba(30,64,175,0.14)}
+        .proj-card[data-category="services"] .proj-card-logo,
+        .proj-card[data-category="services"] .proj-card-nologo{background:rgba(253,224,71,0.12);border-color:rgba(184,139,0,0.14)}
+        .proj-card[data-category="production"] .proj-card-logo,
+        .proj-card[data-category="production"] .proj-card-nologo{background:rgba(163,230,53,0.12);border-color:rgba(83,143,20,0.14)}
+        .proj-card > *{position:relative;z-index:1}
+        .proj-card:hover{border-color:var(--cms-line-strong);box-shadow:0 16px 42px rgba(29,29,31,0.08);transform:translateY(-1px)}
+        .proj-card-logo,.proj-card-nologo{
+            width:56px;
+            height:56px;
+            border-radius:13px;
+            background:#fff;
+            border:1px solid var(--cms-line);
+            padding:0.55rem;
+            box-shadow:inset 0 0 0 1px rgba(255,255,255,0.7);
+        }
+        .proj-card-nologo{
+            background:var(--cms-text);
+            color:#fff;
+            padding:0;
+            font-family:'Unbounded',sans-serif;
+            font-size:1rem;
+        }
+        .proj-card-main{min-width:0;padding-right:0.35rem}
+        .proj-card-meta{display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;margin-bottom:0.3rem;color:var(--cms-muted);font-size:0.68rem}
+        .proj-card-title{font-size:0.95rem;font-weight:700;color:var(--cms-text);line-height:1.12;overflow:hidden;text-overflow:ellipsis}
+        .proj-card-actions{display:flex;align-items:center;gap:0.2rem;justify-self:end}
+        .proj-card-actions .btn-ghost{
+            min-width:30px;
+            height:30px;
+            padding:0 0.45rem;
+            border:1px solid transparent;
+            font-size:0.68rem;
+            line-height:1;
+        }
+        .proj-card-actions .btn-ghost:hover{border-color:var(--cms-line)}
+        .drag-handle{color:#b0b0b5}
+
+        .block-item{
+            border:1px solid rgba(255,255,255,0.42);
+            background:linear-gradient(145deg, rgba(229,229,233,0.98), rgba(211,212,217,0.88));
+        }
+        .block-item[data-block-type="heading"]{--block-accent-bg:rgba(207,216,255,0.68);--block-accent-line:rgba(90,111,190,0.26);--block-accent-text:#2f3a74}
+        .block-item[data-block-type="text"]{--block-accent-bg:rgba(240,232,214,0.76);--block-accent-line:rgba(161,118,42,0.24);--block-accent-text:#66512b}
+        .block-item[data-block-type="image"],
+        .block-item[data-block-type="gallery"],
+        .block-item[data-block-type="masked_image"]{--block-accent-bg:rgba(213,231,241,0.72);--block-accent-line:rgba(61,110,139,0.23);--block-accent-text:#2d5267}
+        .block-item[data-block-type="video"]{--block-accent-bg:rgba(226,218,241,0.74);--block-accent-line:rgba(105,75,143,0.22);--block-accent-text:#53406a}
+        .block-item[data-block-type="links"]{--block-accent-bg:rgba(225,235,214,0.78);--block-accent-line:rgba(93,132,55,0.23);--block-accent-text:#415b2c}
+        .block-item[data-block-type="spacer"]{--block-accent-bg:rgba(229,229,231,0.9);--block-accent-line:rgba(29,29,31,0.12);--block-accent-text:#66666b}
+        .block-item[data-block-type="columns"]{--block-accent-bg:rgba(232,223,214,0.78);--block-accent-line:rgba(140,97,56,0.2);--block-accent-text:#65482f}
+        .block-item[data-block-type="compare"],
+        .block-item[data-block-type="metrics"]{--block-accent-bg:rgba(218,235,232,0.76);--block-accent-line:rgba(48,126,113,0.21);--block-accent-text:#315f58}
+        .block-item[data-block-type="quote"]{--block-accent-bg:rgba(241,220,229,0.74);--block-accent-line:rgba(154,78,109,0.2);--block-accent-text:#6d3f52}
+        .block-item[data-block-type="raw_html"]{--block-accent-bg:rgba(226,226,226,0.9);--block-accent-line:rgba(29,29,31,0.16);--block-accent-text:#343437}
+
+        .cat-section[data-category="development"] .cat-label{color:rgba(30,64,175,0.72)}
+        .cat-section[data-category="services"] .cat-label{color:rgba(145,113,0,0.78)}
+        .cat-section[data-category="production"] .cat-label{color:rgba(73,124,18,0.78)}
+
+        .status-badge{
+            display:inline-flex;
+            align-items:center;
+            white-space:nowrap;
+            border:1px solid transparent;
+            font-size:0.58rem;
+            line-height:1;
+            padding:0.24rem 0.48rem;
+            letter-spacing:0.06em;
+        }
+        .status-published{background:var(--cms-text);color:#fff}
+        .status-draft{background:var(--cms-surface-soft);color:var(--cms-muted);border-color:var(--cms-line)}
+        .status-demo{background:#fff;color:var(--cms-text);border-color:var(--cms-line)}
+
+        .publish-panel{
+            display:flex;
+            flex-wrap:wrap;
+            align-items:center;
+            justify-content:space-between;
+            gap:0.8rem;
+            background:linear-gradient(145deg, rgba(239,239,242,0.88), rgba(226,226,230,0.76));
+            border:0;
+            border-radius:18px;
+            padding:0.7rem 0.8rem;
+            margin-bottom:1rem;
+            box-shadow:0 12px 36px rgba(29,29,31,0.05);
+            backdrop-filter:blur(14px);
+        }
+        .publish-panel-head{display:flex;align-items:center;gap:0.9rem;min-width:0;flex:1;margin:0}
+        .publish-copy{min-width:150px}
+        .publish-title{font-family:'Unbounded',sans-serif;font-size:0.78rem;letter-spacing:-0.05em;color:var(--cms-text);white-space:nowrap}
+        .publish-note{font-size:0.7rem;color:var(--cms-muted);line-height:1.35;margin-top:0.12rem}
+        .publish-stats{display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap}
+        .publish-stat{
+            display:inline-flex;
+            align-items:baseline;
+            gap:0.25rem;
+            background:var(--cms-field);
+            border:0;
+            border-radius:999px;
+            padding:0.3rem 0.55rem;
+        }
+        .publish-stat-value{font-size:0.78rem;font-weight:700;color:var(--cms-text)}
+        .publish-stat-label{font-size:0.65rem;color:var(--cms-muted);text-transform:none;letter-spacing:0;margin:0}
+        .publish-warnings{width:100%;margin:0.15rem 0 0;padding:0.55rem 0 0;border-top:1px solid var(--cms-line)}
+        .publish-warning{color:#8a5a00;font-size:0.72rem}
+
+        .block-type,.seo-label,.preview-label,.live-preview-header{color:var(--cms-text)}
+        .block-item{
+            border-radius:22px;
+            margin-bottom:0.9rem;
+        }
+        .block-head{margin-bottom:0.7rem}
+        .block-item.drag-over{box-shadow:0 0 0 3px rgba(29,29,31,0.08),var(--cms-shadow)}
+        .save-dot.saving{background:var(--cms-faint)}
+        .block-actions button,.style-bar button,.preview-mode-btn{background:transparent;border-color:transparent;color:var(--cms-muted);box-shadow:none}
+        .block-actions button:hover,.style-bar button:hover{background:var(--cms-control);color:var(--cms-text)}
+        .style-bar button.active,.preview-mode-btn.active{background:#35363a;color:#fff;border-color:transparent}
+        .style-bar{gap:0.35rem}
+        .style-bar .sb-group{
+            gap:0.16rem;
+            padding:0.18rem;
+            border-right:0;
+            border-radius:999px;
+            background:var(--cms-field-soft);
+        }
+        .style-bar .sb-label{color:var(--cms-muted)}
+        .style-bar select,
+        .style-bar input[type=number]{
+            height:32px;
+            border:0;
+            background:var(--cms-control);
+            color:var(--cms-text);
+            box-shadow:inset 0 0 0 1px rgba(29,29,31,0.055);
+        }
+        .style-bar input[type=color],
+        .seo-section input[type=color]{
+            border:0!important;
+            border-radius:999px!important;
+            background:var(--cms-control)!important;
+            box-shadow:inset 0 0 0 1px rgba(29,29,31,0.08);
+            padding:3px;
+        }
+        .style-bar input[type=color]::-webkit-color-swatch-wrapper,
+        .seo-section input[type=color]::-webkit-color-swatch-wrapper{padding:3px}
+        .style-bar input[type=color]::-webkit-color-swatch,
+        .seo-section input[type=color]::-webkit-color-swatch{border:0;border-radius:999px}
+        .add-bar{border-top-color:var(--cms-line)}
+        .preview-container{background:var(--cms-field);border-color:transparent}
+        .live-preview{background:var(--cms-surface);border:0}
+        .live-preview-header{border-bottom:0;background:rgba(247,247,248,0.72)}
+        .live-preview-frame{
+            border-radius:22px;
+            background:#f5f5f5;
+            box-shadow:inset 0 0 0 1px rgba(29,29,31,0.045);
+        }
+        .live-preview-frame iframe{pointer-events:auto;background:#f5f5f5}
+        .live-preview-hint{color:var(--cms-muted);font-size:0.68rem;margin-left:0.3rem}
+        .preview-fullscreen-overlay{
+            position:fixed;
+            inset:0;
+            z-index:10020;
+            display:grid;
+            grid-template-rows:auto minmax(0,1fr);
+            gap:0.85rem;
+            padding:clamp(0.75rem,2vw,1.5rem);
+            background:rgba(243,243,244,0.82);
+            backdrop-filter:blur(22px);
+            -webkit-backdrop-filter:blur(22px);
+        }
+        .preview-fullscreen-bar{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:1rem;
+            min-width:0;
+            padding:0.55rem 0.7rem;
+            border-radius:999px;
+            background:rgba(247,247,248,0.82);
+            box-shadow:0 18px 44px rgba(29,29,31,0.08), inset 0 0 0 1px rgba(255,255,255,0.72);
+        }
+        .preview-fullscreen-title{
+            min-width:0;
+            overflow:hidden;
+            color:var(--cms-text);
+            font-family:'Unbounded',sans-serif;
+            font-size:0.88rem;
+            font-weight:700;
+            letter-spacing:-0.05em;
+            text-overflow:ellipsis;
+            white-space:nowrap;
+        }
+        .preview-fullscreen-actions{display:flex;gap:0.4rem;align-items:center;flex-shrink:0}
+        .preview-fullscreen-body{
+            min-height:0;
+            border-radius:28px;
+            overflow:hidden;
+            background:#f5f5f5;
+            box-shadow:0 24px 80px rgba(29,29,31,0.12), inset 0 0 0 1px rgba(255,255,255,0.72);
+        }
+        body.preview-fullscreen-open{overflow:hidden}
+        .modal-overlay{background:rgba(245,245,247,0.82);backdrop-filter:blur(10px)}
+        .template-card:hover{border-color:var(--cms-text)}
+        .audio-letter{border-bottom-color:var(--cms-line)}
+        .audio-letter-char{color:var(--cms-text)}
+        .audio-letter-file{color:var(--cms-muted)}
+        .volume-slider{accent-color:var(--cms-text)}
+        .save-dot.saved,.toast-ok{background:var(--cms-text)}
+        .save-dot.unsaved{background:#a15c00}
+        .toast{box-shadow:var(--cms-shadow)}
+        .empty-state{color:var(--cms-muted)}
+
+        .seo-section{
+            border-radius:22px;
+            padding:1.05rem;
+        }
+        .settings-section{border-radius:22px}
+        .rich-editor{
+            min-height:96px;
+            border-radius:26px;
+            padding:0.95rem 1.1rem;
+            background:var(--cms-field);
+        }
+        .link-editor-row,
+        .column-editor-card{
+            background:var(--cms-surface-soft);
+            border:0;
+            box-shadow:inset 0 1px 0 rgba(255,255,255,0.5);
+        }
+        .column-editor-preview,
+        .column-editor-placeholder{
+            border:0;
+            background:var(--cms-field);
+            box-shadow:inset 0 0 0 1px rgba(29,29,31,0.04);
+        }
+        .field-row .input,
+        .seo-section .input,
+        .block-item .input{
+            background:var(--cms-field);
+        }
+
+        @media(max-width:760px){
+            .cms-wrap{padding:1rem 0.85rem 2.5rem}
+            .cms-header,.editor-top{align-items:flex-start;flex-direction:column}
+            .analytics-hero{grid-template-columns:1fr}
+            .analytics-range{justify-content:flex-start}
+            .analytics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+            .analytics-layout,.analytics-mini-grid{grid-template-columns:1fr}
+            .publish-panel{align-items:center;gap:0.45rem;padding:0.55rem 0.6rem}
+            .publish-panel-head{gap:0.45rem}
+            .publish-copy{min-width:auto}
+            .publish-note{display:none}
+            .publish-stat{padding:0.24rem 0.46rem}
+            .publish-stat-label{font-size:0.6rem}
+            .proj-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:0.65rem}
+            .proj-card{grid-template-columns:12px 48px minmax(0,1fr) auto;min-height:76px;padding:0.7rem;gap:0.6rem}
+            .proj-card-logo,.proj-card-nologo{width:48px;height:48px;border-radius:12px}
+            .proj-card-main{padding-right:0}
+            .proj-card-meta{font-size:0.64rem;gap:0.25rem}
+            .proj-card-actions{grid-column:auto;justify-self:end;margin-top:0}
+            .proj-card-actions .btn-ghost{min-width:26px;height:24px;font-size:0.62rem;padding:0 0.35rem}
+            .field-row{grid-template-columns:1fr}
+        }
+        @media(max-width:560px){
+            .proj-grid{grid-template-columns:1fr}
+        }
+        @media(max-width:460px){
+            .proj-card{grid-template-columns:14px 52px minmax(0,1fr);padding:0.8rem}
+            .proj-card-actions{grid-column:3;justify-self:start;margin-top:0.25rem}
+        }
 
     </style>
 </head>
@@ -212,8 +734,168 @@
             { name: 'Лендинг', desc: 'Hero-изображение → Заголовок → Текст → Отступ → Галерея → Текст',
               blocks: [{type:'image',content:''},{type:'heading',level:'h1',content:''},{type:'text',content:''},{type:'spacer',height:60},{type:'gallery',images:[]},{type:'text',content:''}] },
         ];
-        const API = 'http://localhost:3001/api';
+        const CMS_BASE_PATH = (() => {
+            const path = window.location.pathname.replace(/\/+$/, '');
+            const match = path.match(/^\/cms-\d+/);
+            return match ? match[0] : '';
+        })();
+        const API = `${CMS_BASE_PATH}/api`;
 
+        const LINK_PLATFORMS = [
+            { id: 'website', label: 'Сайт', mark: '↗' },
+            { id: 'behance', label: 'Behance', mark: 'Be' },
+            { id: 'telegram', label: 'Telegram', mark: 'Tg' },
+            { id: 'whatsapp', label: 'WhatsApp', mark: 'Wa' },
+            { id: 'instagram', label: 'Instagram', mark: 'Ig' },
+            { id: 'youtube', label: 'YouTube', mark: 'Yt' },
+            { id: 'pdf', label: 'PDF', mark: 'PDF' },
+            { id: 'drive', label: 'Drive', mark: 'Dr' },
+            { id: 'other', label: 'Другое', mark: '•' },
+        ];
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function escapeAttr(value) {
+            return escapeHtml(value).replace(/`/g, '&#96;');
+        }
+
+        function normalizeLinkUrl(value) {
+            const raw = String(value || '').trim();
+            if (!raw) return '';
+            if (/^(javascript|data|vbscript):/i.test(raw)) return '';
+            if (/^(https?:|mailto:|tel:)/i.test(raw)) return raw;
+            if (/^@[\w\d_]{3,}$/i.test(raw)) return `https://t.me/${raw.slice(1)}`;
+            if (/^(www\.|[\w-]+(\.[\w-]+)+)([/?#].*)?$/i.test(raw)) return `https://${raw}`;
+            if (/^(\/(?!\/)|#)/.test(raw)) return raw;
+            return '';
+        }
+
+        function displayLinkUrl(value) {
+            const normalized = normalizeLinkUrl(value);
+            return normalized
+                .replace(/^https?:\/\//i, '')
+                .replace(/^www\./i, '')
+                .replace(/\/$/, '');
+        }
+
+        function getLinkPlatform(id) {
+            return LINK_PLATFORMS.find(p => p.id === id) || LINK_PLATFORMS[LINK_PLATFORMS.length - 1];
+        }
+
+        function renderPreviewLinks(block) {
+            const items = (block.items || []).filter(item => normalizeLinkUrl(item.url));
+            if (!items.length) return '';
+            const title = block.title ? `<div style="font-family:'Unbounded',sans-serif;font-size:1rem;font-weight:700;margin-bottom:0.8rem">${escapeHtml(block.title)}</div>` : '';
+            const cards = items.map(item => {
+                const platform = getLinkPlatform(item.platform);
+                const href = normalizeLinkUrl(item.url);
+                const label = item.label || platform.label;
+                return `<a href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;gap:0.75rem;padding:0.85rem 1rem;border:1px solid #dedee3;border-radius:999px;background:#fff;color:#1d1d1f;text-decoration:none;min-width:210px"><span style="width:36px;height:36px;border-radius:50%;background:#1d1d1f;color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:700">${escapeHtml(platform.mark)}</span><span><strong style="display:block;font-size:0.92rem">${escapeHtml(label)}</strong><small style="display:block;color:#6e6e73;margin-top:0.12rem">${escapeHtml(displayLinkUrl(href))}</small></span></a>`;
+            }).join('');
+            return `<div style="margin:2rem 5%;font-family:'Roboto',sans-serif">${title}<div style="display:flex;flex-wrap:wrap;gap:0.7rem">${cards}</div></div>`;
+        }
+
+        function renderPreviewColumns(block) {
+            const cols = (block.cols || []).filter(col => String(col.image || '').trim() || String(col.text || '').trim());
+            if (!cols.length) return '';
+            const count = Math.min(Math.max(cols.length, 1), 3);
+            const cards = cols.map((col, i) => {
+                const lines = String(col.text || '').split(/\n+/).map(line => line.trim()).filter(Boolean);
+                const title = lines.length === 1 && lines[0].length > 64 ? '' : (lines[0] || '');
+                const body = title ? lines.slice(1).join('<br>') : lines.join('<br>');
+                return `<article style="position:relative;min-height:330px;padding:12px;border:1px solid rgba(29,29,31,.08);border-radius:28px;background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(232,232,235,.76));box-shadow:0 22px 58px rgba(29,29,31,.075);overflow:hidden">
+                    ${col.image ? `<div style="height:210px;overflow:hidden;border-radius:20px;background:#fff"><img src="${escapeAttr(col.image)}" style="width:100%;height:100%;object-fit:cover;display:block"/></div>` : ''}
+                    <div style="padding:16px 6px 2px">
+                        ${title ? `<h3 style="font-family:'Unbounded',sans-serif;font-size:1.1rem;letter-spacing:-.05em;line-height:1.12;margin:0 0 8px">${escapeHtml(title)}</h3>` : ''}
+                        ${body ? `<p style="font-family:'Roboto',sans-serif;font-size:.95rem;line-height:1.55;margin:0;color:#1d1d1f">${escapeHtml(body).replace(/&lt;br&gt;/g, '<br>')}</p>` : ''}
+                    </div>
+                </article>`;
+            }).join('');
+
+            return `<div style="display:grid;grid-template-columns:repeat(${count},1fr);gap:24px;margin:2.2rem 5%">${cards}</div>`;
+        }
+
+        function previewAnimation(block) {
+            return block?.style?.animation || 'none';
+        }
+
+        function stripPreviewHtml(value) {
+            return String(value || '')
+                .replace(/<br\s*\/?>/gi, '\n')
+                .replace(/<\/(p|div|h[1-6])>/gi, '\n')
+                .replace(/<[^>]+>/g, '')
+                .replace(/&nbsp;/g, ' ')
+                .trim();
+        }
+
+        function renderPreviewAnimatedText(value, animation) {
+            if (animation === 'split-lines') {
+                const lines = stripPreviewHtml(value).split(/\n+/).map(line => line.trim()).filter(Boolean);
+                return lines.map((line, index) => `<span class="anim-line" style="--item-i:${index}">${escapeHtml(line)}</span>`).join('');
+            }
+            if (animation === 'split-words') {
+                const words = stripPreviewHtml(value).split(/\s+/).filter(Boolean);
+                return words.map((word, index) => `<span class="anim-word" style="--item-i:${index}">${escapeHtml(word)}</span>`).join(' ');
+            }
+            return String(value || '').replace(/\n/g, '<br>');
+        }
+
+        function wrapPreviewBlock(block, html, index) {
+            if (!html) return '';
+            const animation = previewAnimation(block);
+            if (animation === 'none') return html;
+            return `<div class="preview-block" data-anim="${escapeAttr(animation)}" style="--block-i:${index}">${html}</div>`;
+        }
+
+        const PREVIEW_ANIMATION_CSS = `
+            html{scroll-behavior:smooth}
+            body{background:#f5f5f5;color:#1a1a1a;font-family:'Roboto',sans-serif;padding:clamp(24px,4vw,56px) 0;min-height:100vh}
+            img{max-width:100%;height:auto}
+            .preview-block[data-anim]{opacity:0;will-change:transform,opacity,filter;transition:opacity 1.05s cubic-bezier(.16,1,.3,1),transform 1.05s cubic-bezier(.16,1,.3,1),filter 1.05s ease}
+            .preview-block[data-anim="fade-up"]{transform:translateY(86px)}
+            .preview-block[data-anim="fade-in"]{transform:none}
+            .preview-block[data-anim="scale-up"]{transform:scale(.86);filter:blur(10px)}
+            .preview-block[data-anim="split-lines"],.preview-block[data-anim="split-words"]{opacity:1;transform:none}
+            .preview-block.is-visible[data-anim]{opacity:1;transform:none;filter:none}
+            .anim-line{display:block;opacity:0;transform:translateY(34px);transition:opacity .86s cubic-bezier(.16,1,.3,1),transform .86s cubic-bezier(.16,1,.3,1);transition-delay:calc(var(--item-i,0) * 110ms)}
+            .anim-word{display:inline-block;opacity:0;transform:translateY(1.2em) rotate(.8deg);transition:opacity .72s cubic-bezier(.16,1,.3,1),transform .72s cubic-bezier(.16,1,.3,1);transition-delay:calc(var(--item-i,0) * 58ms)}
+            .preview-block.is-visible .anim-line,.preview-block.is-visible .anim-word{opacity:1;transform:none}
+            @media (prefers-reduced-motion: reduce){.preview-block[data-anim],.anim-line,.anim-word{opacity:1!important;transform:none!important;filter:none!important;transition:none!important}}
+        `;
+
+        const PREVIEW_ANIMATION_SCRIPT = `
+            (() => {
+                const revealables = Array.from(document.querySelectorAll('.preview-block[data-anim]'));
+                const show = el => el.classList.add('is-visible');
+                if (!('IntersectionObserver' in window)) {
+                    revealables.forEach(show);
+                    return;
+                }
+                const observer = new IntersectionObserver(entries => {
+                    entries.forEach(entry => {
+                        if (!entry.isIntersecting) return;
+                        show(entry.target);
+                        observer.unobserve(entry.target);
+                    });
+                }, { threshold: 0.18, rootMargin: '0px 0px -10% 0px' });
+                revealables.forEach(el => observer.observe(el));
+                window.addEventListener('message', event => {
+                    if (event.data !== 'restart-preview-animations') return;
+                    revealables.forEach(el => {
+                        el.classList.remove('is-visible');
+                        observer.observe(el);
+                    });
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            })();
+        `;
 
         const FONT_OPTIONS = [
             { id: 'Unbounded', label: 'Unbounded' },
@@ -246,6 +928,7 @@
             { type: 'image', label: 'Изображение', icon: '🖼' },
             { type: 'video', label: 'Видео', icon: '▶' },
             { type: 'gallery', label: 'Галерея', icon: '⊞' },
+            { type: 'links', label: 'Ссылки', icon: '↗' },
             { type: 'spacer', label: 'Отступ', icon: '↕' },
             { type: 'raw_html', label: 'HTML', icon: '</>' },
             { type: 'columns', label: 'Колонки', icon: '▥' },
@@ -318,6 +1001,8 @@
             const [toast, setToast] = useState(null);
             const [tab, setTab] = useState('projects');
             const [settings, setSettings] = useState(null);
+            const [analytics, setAnalytics] = useState(null);
+            const [analyticsDays, setAnalyticsDays] = useState(30);
             const [search, setSearch] = useState('');
             const [catEdit, setCatEdit] = useState(false);
             const projDrag = useRef(null);
@@ -336,6 +1021,13 @@
                 apiFetch(`${API}/settings`).then(r => r.json()).then(s => setSettings(s)).catch(() => {});
             };
 
+            const loadAnalytics = (days = analyticsDays) => {
+                apiFetch(`${API}/analytics/summary?days=${days}`).then(r => {
+                    if (r.status === 401) { sessionStorage.removeItem('cms_token'); setAuthed(false); return null; }
+                    return r.json();
+                }).then(s => { if (s) setAnalytics(s); }).catch(() => {});
+            };
+
             const saveSettings = async (s) => {
                 try {
                     await apiFetch(`${API}/settings`, { method: 'POST', body: JSON.stringify(s) });
@@ -344,14 +1036,17 @@
                 } catch { showToast('Ошибка', false); }
             };
 
-            useEffect(() => { if (authed) { loadData(); loadSettings(); } }, [authed]);
+            useEffect(() => { if (authed) { loadData(); loadSettings(); loadAnalytics(); } }, [authed]);
+            useEffect(() => { if (authed && tab === 'analytics') loadAnalytics(analyticsDays); }, [authed, tab, analyticsDays]);
 
             const save = async (newData) => {
                 try {
                     const r = await apiFetch(`${API}/cases`, { method: 'POST', body: JSON.stringify(newData) });
                     if (r.status === 401) { sessionStorage.removeItem('cms_token'); setAuthed(false); return; }
+                    const result = await r.json().catch(() => ({}));
+                    if (!r.ok) throw new Error(result.error || 'Save error');
                     setData(newData);
-                    showToast('Сохранено');
+                    showToast(result.publicProjects !== undefined ? `Сохранено · в публикации ${result.publicProjects}` : 'Сохранено');
                 } catch { showToast('Ошибка', false); }
             };
 
@@ -407,24 +1102,55 @@
                 return <Editor project={proj} categories={data.categories} onSave={u => { save({ ...data, projects: data.projects.map(p => p.id === editing ? u : p) }); }} onDelete={() => deleteProject(editing)} onClose={() => setEditing(null)} />;
             }
 
+            const projects = data.projects || [];
+            const publishedProjects = projects.filter(p => p.status !== 'draft');
+            const draftProjects = projects.filter(p => p.status === 'draft');
+            const demoProjects = projects.filter(p => p.categoryId === 'demo' || /demo/i.test(p.id || ''));
+            const publicCategoryIds = new Set(publishedProjects.map(p => p.categoryId).filter(Boolean));
+            const publishWarnings = publishedProjects.flatMap(p => {
+                const warnings = [];
+                if (p.isExternal && !p.externalUrl) warnings.push(`${p.title}: нет внешней ссылки`);
+                if (!p.isExternal && !(p.blocks || []).some(b => b.enabled !== false)) warnings.push(`${p.title}: нет включённых блоков`);
+                return warnings;
+            });
+
             return (
                 <div className="cms-wrap">
                     <div className="cms-header">
                         <div className="cms-title">A.LAB CMS</div>
                         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                            {tab === 'projects' && <><label className="btn btn-dark btn-sm" style={{cursor:'pointer'}}><input type="file" accept=".json" style={{display:'none'}} onChange={importProject}/>📥 Импорт</label><button className="btn btn-white" onClick={()=>setShowTemplates(true)}>+ Новый кейс</button></>}
+                            {tab === 'projects' && <><label className="btn btn-dark btn-sm" style={{cursor:'pointer'}}><input type="file" accept=".json" style={{display:'none'}} onChange={importProject}/>Импорт</label><button className="btn btn-white" onClick={()=>setShowTemplates(true)}>+ Новый кейс</button></>}
+                            {tab === 'analytics' && <button className="btn btn-white btn-sm" onClick={()=>loadAnalytics(analyticsDays)}>Обновить</button>}
                             <button className="btn-ghost" onClick={logout}>Выйти</button>
                         </div>
                     </div>
                     <div className="tabs">
                         <div className={`tab ${tab==='projects'?'active':''}`} onClick={()=>setTab('projects')}>Проекты</div>
+                        <div className={`tab ${tab==='analytics'?'active':''}`} onClick={()=>setTab('analytics')}>Статистика</div>
                         <div className={`tab ${tab==='settings'?'active':''}`} onClick={()=>setTab('settings')}>Настройки сайта</div>
                     </div>
                     {tab === 'settings' && settings && <SettingsTab settings={settings} onSave={saveSettings} />}
+                    {tab === 'analytics' && <AnalyticsTab analytics={analytics} days={analyticsDays} onDaysChange={setAnalyticsDays} onRefresh={()=>loadAnalytics(analyticsDays)} />}
                     {tab === 'projects' && <>
+                        <div className="publish-panel">
+                            <div className="publish-panel-head">
+                                <div className="publish-copy">
+                                    <div className="publish-title">Публикация</div>
+                                    <div className="publish-note">На сайт попадают только опубликованные проекты.</div>
+                                </div>
+                                <div className="publish-stats">
+                                    <div className="publish-stat"><span className="publish-stat-value">{publishedProjects.length}</span><span className="publish-stat-label">на сайте</span></div>
+                                    <div className="publish-stat"><span className="publish-stat-value">{draftProjects.length}</span><span className="publish-stat-label">черновик</span></div>
+                                    <div className="publish-stat"><span className="publish-stat-value">{publicCategoryIds.size}</span><span className="publish-stat-label">категории</span></div>
+                                    <div className="publish-stat"><span className="publish-stat-value">{demoProjects.length}</span><span className="publish-stat-label">demo</span></div>
+                                </div>
+                            </div>
+                            <a href="http://localhost:5173/#portfolio" target="_blank" className="btn btn-dark btn-sm" style={{textDecoration:'none',whiteSpace:'nowrap'}}>Открыть сайт</a>
+                            {publishWarnings.length ? <div className="publish-warnings">{publishWarnings.slice(0,5).map((w,i)=><div className="publish-warning" key={i}>⚠ {w}</div>)}</div> : null}
+                        </div>
                         <div style={{display:'flex',gap:'0.75rem',marginBottom:'1.5rem',alignItems:'center'}}>
                             <input className="input" style={{maxWidth:300}} value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 Поиск по проектам..."/>
-                            <button className={`btn btn-sm ${catEdit?'btn-blue':'btn-dark'}`} onClick={()=>setCatEdit(!catEdit)}>{catEdit?'Готово':'⚙ Категории'}</button>
+                            <button className={`btn btn-sm ${catEdit?'btn-blue':'btn-dark'}`} onClick={()=>setCatEdit(!catEdit)}>{catEdit?'Готово':'Категории'}</button>
                         </div>
                         {catEdit && <div className="settings-section" style={{marginBottom:'1.5rem'}}>
                             <div className="settings-title">Управление категориями</div>
@@ -440,20 +1166,26 @@
                             const projs = data.projects.filter(p => p.categoryId === cid).filter(p => !search || p.title.toLowerCase().includes(search.toLowerCase()) || p.id.toLowerCase().includes(search.toLowerCase()));
                             if (!projs.length) return null;
                             return (
-                                <div key={cid} className="cat-section">
+                                <div key={cid} className="cat-section" data-category={cid}>
                                     <div className="cat-label">{data.categories[cid]}</div>
                                     <div className="proj-grid">
                                         {projs.map(p => (
-                                            <div key={p.id} className="proj-card" onClick={() => setEditing(p.id)}
+                                            <div key={p.id} className="proj-card" data-category={p.categoryId} onClick={() => setEditing(p.id)}
                                                 draggable onDragStart={()=>onProjDragStart(data.projects.indexOf(p))} onDragEnter={()=>onProjDragEnter(data.projects.indexOf(p))} onDragEnd={onProjDragEnd} onDragOver={e=>e.preventDefault()}>
                                                 <span className="drag-handle" title="Сортировать" style={{fontSize:'0.8rem'}}>⠿</span>
                                                 {p.logo ? <img src={p.logo} alt="" className="proj-card-logo"/> : <div className="proj-card-nologo">{p.title.charAt(0)}</div>}
-                                                <div style={{flex:1,minWidth:0}}>
-                                                    <div className="proj-card-id" style={{display:'flex',gap:'0.4rem',alignItems:'center'}}>{(p.blocks||[]).length} блоков <span className={`status-badge ${p.status==='draft'?'status-draft':'status-published'}`}>{p.status==='draft'?'Черновик':'Опубликован'}</span></div>
+                                                <div className="proj-card-main">
+                                                    <div className="proj-card-meta">
+                                                        <span>{(p.blocks||[]).length} блоков</span>
+                                                        <span className={`status-badge ${p.status==='draft'?'status-draft':'status-published'}`}>{p.status==='draft'?'Черновик':'На сайте'}</span>
+                                                        {(p.categoryId === 'demo' || /demo/i.test(p.id || '')) && <span className="status-badge status-demo">Demo</span>}
+                                                    </div>
                                                     <div className="proj-card-title">{p.title}</div>
                                                 </div>
-                                                <button className="btn-ghost" title="Экспорт JSON" onClick={e=>{e.stopPropagation();exportProject(p)}} style={{fontSize:'0.85rem'}}>📤</button>
-                                                <button className="btn-ghost" title="Дублировать" onClick={e=>{e.stopPropagation();duplicateProject(p)}} style={{fontSize:'1rem'}}>⧉</button>
+                                                <div className="proj-card-actions">
+                                                    <button className="btn-ghost" title="Экспорт JSON" onClick={e=>{e.stopPropagation();exportProject(p)}}>JSON</button>
+                                                    <button className="btn-ghost" title="Дублировать" onClick={e=>{e.stopPropagation();duplicateProject(p)}}>⧉</button>
+                                                </div>
                                             </div>
                                         ))}
                                     </div>
@@ -510,6 +1242,142 @@
             );
         }
 
+        // ─── Analytics Tab ───
+        function formatNumber(value) {
+            return new Intl.NumberFormat('ru-RU').format(value || 0);
+        }
+
+        function metricLabel(seconds) {
+            if (!seconds) return '0 сек';
+            if (seconds < 60) return `${seconds} сек`;
+            const minutes = Math.floor(seconds / 60);
+            const rest = seconds % 60;
+            return rest ? `${minutes} мин ${rest} сек` : `${minutes} мин`;
+        }
+
+        function MetricCard({ value, label }) {
+            return (
+                <div className="analytics-card">
+                    <div className="analytics-card-value">{value}</div>
+                    <div className="analytics-card-label">{label}</div>
+                </div>
+            );
+        }
+
+        function BarsChart({ data }) {
+            const rows = data || [];
+            const max = Math.max(1, ...rows.map(item => item.pageviews || 0));
+            if (!rows.length) return <div className="analytics-empty">Данных пока нет</div>;
+            return (
+                <>
+                    <div className="chart-bars">
+                        {rows.map(item => (
+                            <div key={item.date} className="chart-bar" style={{height:`${Math.max(4, Math.round((item.pageviews / max) * 100))}%`}} title={`${item.date}: ${item.pageviews}`}>
+                                <span>{item.pageviews}</span>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="chart-caption">
+                        <span>{rows[0]?.date}</span>
+                        <span>просмотры страниц</span>
+                        <span>{rows[rows.length - 1]?.date}</span>
+                    </div>
+                </>
+            );
+        }
+
+        function AnalyticsList({ title, items, empty = 'Нет данных' }) {
+            return (
+                <div className="analytics-panel">
+                    <div className="analytics-panel-title">{title}</div>
+                    <div className="analytics-list">
+                        {(items || []).length ? items.map(item => (
+                            <div className="analytics-row" key={item.label}>
+                                <div className="analytics-row-label" title={item.label}>{item.label}</div>
+                                <div className="analytics-row-value">{formatNumber(item.value)}</div>
+                            </div>
+                        )) : <div className="analytics-empty">{empty}</div>}
+                    </div>
+                </div>
+            );
+        }
+
+        function SeoAudit({ seo }) {
+            if (!seo) return null;
+            return (
+                <div className="analytics-panel">
+                    <div className="seo-score">
+                        <div className="seo-score-circle" style={{'--score': seo.score || 0}}>{seo.score || 0}%</div>
+                        <div>
+                            <div className="analytics-panel-title" style={{marginBottom:0}}>SEO базовая готовность</div>
+                            <div className="analytics-note" style={{marginTop:'0.2rem'}}>Технический чек-лист главной страницы. Это не заменяет Search Console, но ловит базовые проблемы.</div>
+                        </div>
+                    </div>
+                    {(seo.checks || []).map(check => (
+                        <div className="seo-check" key={check.label}>
+                            <div className={`seo-dot ${check.ok ? 'ok' : ''}`}></div>
+                            <div>
+                                <div className="seo-check-label">{check.label}</div>
+                                <div className="seo-check-detail">{check.detail}</div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        function AnalyticsTab({ analytics, days, onDaysChange, onRefresh }) {
+            const totals = analytics?.totals || {};
+            return (
+                <div>
+                    <div className="analytics-hero">
+                        <div>
+                            <div className="analytics-title">Статистика сайта</div>
+                            <div className="analytics-note">
+                                First-party аналитика: pageviews, визиты, источники, страны, устройства, секции и SEO. IP не хранится в открытом виде, только hash. VPN определяется как unknown без внешней IP-базы.
+                            </div>
+                        </div>
+                        <div className="analytics-range">
+                            {[7, 30, 90].map(value => (
+                                <button key={value} className={`btn btn-sm ${days === value ? 'btn-blue' : 'btn-dark'}`} onClick={() => onDaysChange(value)}>{value} дней</button>
+                            ))}
+                            <button className="btn btn-white btn-sm" onClick={onRefresh}>Обновить</button>
+                        </div>
+                    </div>
+
+                    {!analytics ? <div className="analytics-empty">Загрузка статистики...</div> : <>
+                        <div className="analytics-grid">
+                            <MetricCard value={formatNumber(totals.pageviews)} label="просмотры" />
+                            <MetricCard value={formatNumber(totals.sessions)} label="визиты" />
+                            <MetricCard value={formatNumber(totals.visitors)} label="посетители" />
+                            <MetricCard value={`${totals.bounceRate || 0}%`} label="отказы" />
+                            <MetricCard value={metricLabel(totals.avgEngagementSeconds)} label="среднее время" />
+                            <MetricCard value={formatNumber(totals.sectionViews)} label="секции" />
+                            <MetricCard value={formatNumber(totals.outboundClicks)} label="внешние клики" />
+                            <MetricCard value={(analytics.vpn || [])[0]?.label || 'unknown'} label="VPN статус" />
+                        </div>
+
+                        <div className="analytics-layout">
+                            <div className="analytics-panel">
+                                <div className="analytics-panel-title">Динамика посещений</div>
+                                <BarsChart data={analytics.timeSeries} />
+                            </div>
+                            <SeoAudit seo={analytics.seo} />
+                        </div>
+
+                        <div className="analytics-mini-grid">
+                            <AnalyticsList title="Популярные страницы" items={analytics.topPages} />
+                            <AnalyticsList title="Источники" items={analytics.referrers} />
+                            <AnalyticsList title="Страны" items={analytics.countries} empty="Страны появятся на хостинге с geo-заголовками" />
+                            <AnalyticsList title="Устройства" items={analytics.devices} />
+                            <AnalyticsList title="Браузеры" items={analytics.browsers} />
+                            <AnalyticsList title="Просмотры секций" items={analytics.sections} />
+                        </div>
+                    </>}
+                </div>
+            );
+        }
+
         // ─── Settings Tab ───
         function SettingsTab({ settings, onSave }) {
             const [s, setS] = useState(JSON.parse(JSON.stringify(settings)));
@@ -526,6 +1394,7 @@
             const ensure = () => {
                 if (!s.audio) s.audio = {};
                 if (!s.audio.letters) s.audio.letters = LETTERS.map((l,i) => ({ id: l.id, label: l.char, index: i, audioFile: null, fallback: l.fallback }));
+                if (s.audio.enabled === undefined) s.audio.enabled = false;
                 if (s.audio.masterVolume === undefined) s.audio.masterVolume = 0.35;
                 return s;
             };
@@ -541,6 +1410,11 @@
                 setS({ ...s, audio: { ...s.audio, letters } });
             };
 
+            const setAudioEnabled = (enabled) => {
+                ensure();
+                setS({ ...s, audio: { ...s.audio, enabled } });
+            };
+
             const handleUpload = async (e, letterId) => {
                 const file = e.target.files[0]; if (!file) return;
                 setUploading(letterId);
@@ -554,9 +1428,27 @@
                 setUploading(null);
             };
 
-            const playPreview = (audioFile) => {
-                // Stop any playing
+            const stopPreviews = () => {
                 Object.values(audioRefs.current).forEach(a => { a.pause(); a.currentTime = 0; });
+                audioRefs.current = {};
+            };
+
+            useEffect(() => {
+                const stopOnHidden = () => { if (document.hidden) stopPreviews(); };
+                document.addEventListener('visibilitychange', stopOnHidden);
+                window.addEventListener('pagehide', stopPreviews);
+                window.addEventListener('blur', stopPreviews);
+
+                return () => {
+                    document.removeEventListener('visibilitychange', stopOnHidden);
+                    window.removeEventListener('pagehide', stopPreviews);
+                    window.removeEventListener('blur', stopPreviews);
+                    stopPreviews();
+                };
+            }, []);
+
+            const playPreview = (audioFile) => {
+                stopPreviews();
                 if (audioFile) {
                     const audio = new Audio(audioFile);
                     audio.volume = s.audio?.masterVolume || 0.35;
@@ -569,7 +1461,11 @@
                 <div>
                     <div className="settings-section">
                         <div className="settings-title">🔊 Аудио для букв логотипа</div>
-                        <p style={{fontSize:'0.8rem',color:'#666',marginBottom:'1rem'}}>Назначьте аудиофайл для каждой буквы. Если файл не задан — используется процедурный синтез.</p>
+                        <p style={{fontSize:'0.8rem',color:'#666',marginBottom:'1rem'}}>Управляет звуками на публичном сайте. Можно выключить сейчас, а файлы подобрать и назначить позже.</p>
+                        <label style={{display:'flex',alignItems:'center',gap:'0.65rem',fontSize:'0.9rem',fontWeight:700,marginBottom:'1rem',cursor:'pointer'}}>
+                            <input type="checkbox" checked={s.audio?.enabled !== false} onChange={e => setAudioEnabled(e.target.checked)} style={{accentColor:'#1d1d1f',width:18,height:18}} />
+                            Звук на сайте включён
+                        </label>
                         <div style={{marginBottom:'1rem',display:'flex',alignItems:'center',gap:'1rem'}}>
                             <span style={{fontSize:'0.8rem',color:'#888'}}>Общая громкость:</span>
                             <input type="range" className="volume-slider" min="0" max="1" step="0.05" value={s.audio?.masterVolume||0.35} onChange={e => setS({...s, audio:{...s.audio, masterVolume: parseFloat(e.target.value)}})} style={{width:120}} />
@@ -635,7 +1531,7 @@
                                 <span style={{fontSize:'0.72rem',color:'#555',marginLeft:'0.5rem'}}>{(s.cards?.hoverScale ?? 103)/100}x</span>
                             </div>
                         </div>
-                        <div style={{fontSize:'0.75rem',color:'#e67e22',fontWeight:600,marginBottom:'0.5rem'}}>Предпросмотр</div>
+                        <div style={{fontSize:'0.75rem',color:'var(--cms-muted)',fontWeight:600,marginBottom:'0.5rem'}}>Предпросмотр</div>
                         <CardPreview cards={s.cards || {}}/>
                     </div>
 
@@ -651,6 +1547,8 @@
             const [dirty, setDirty] = useState(false);
             const [saving, setSaving] = useState(false);
             const [previewMode, setPreviewMode] = useState('desktop');
+            const [previewFullscreen, setPreviewFullscreen] = useState(false);
+            const [previewSeed, setPreviewSeed] = useState(0);
             const dragItem = useRef(null);
             const dragOver = useRef(null);
             const autoSaveTimer = useRef(null);
@@ -658,7 +1556,7 @@
             const update = (k, v) => { setProj(p => ({ ...p, [k]: v })); setDirty(true); };
             const updateBlock = (i, k, v) => { const b = [...proj.blocks]; b[i] = { ...b[i], [k]: v }; update('blocks', b); };
             const addBlock = (type) => {
-                const defs = { heading:{level:'h2',content:''}, text:{content:''}, image:{content:'',caption:''}, video:{content:''}, gallery:{images:[]}, spacer:{height:80}, raw_html:{content:''}, columns:{cols:[{text:'',image:''},{text:'',image:''}]}, compare:{before:'',after:''}, quote:{text:'',author:'',role:'',photo:''}, metrics:{items:[{value:'',label:''},{value:'',label:''},{value:'',label:''}]} };
+                const defs = { heading:{level:'h2',content:''}, text:{content:''}, image:{content:'',caption:''}, video:{content:''}, gallery:{images:[]}, links:{title:'Материалы проекта',layout:'cards',items:[{platform:'website',label:'Сайт проекта',url:''}]}, spacer:{height:80}, raw_html:{content:''}, columns:{cols:[{text:'',image:''},{text:'',image:''}]}, compare:{before:'',after:''}, quote:{text:'',author:'',role:'',photo:''}, metrics:{items:[{value:'',label:''},{value:'',label:''},{value:'',label:''}]} };
                 update('blocks', [...(proj.blocks||[]), { type, ...defs[type] }]);
             };
             const removeBlock = (i) => { const b = [...proj.blocks]; b.splice(i,1); update('blocks', b); };
@@ -694,13 +1592,21 @@
             // Hotkeys
             useEffect(() => {
                 const handler = (e) => {
+                    if (previewFullscreen && e.key === 'Escape') { e.preventDefault(); setPreviewFullscreen(false); return; }
                     if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); onSave(proj); setDirty(false); }
                     if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); history.undo(); }
                     if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); history.redo(); }
                 };
                 window.addEventListener('keydown', handler);
                 return () => window.removeEventListener('keydown', handler);
-            }, [proj, history]);
+            }, [proj, history, previewFullscreen]);
+
+            useEffect(() => {
+                document.body.classList.toggle('preview-fullscreen-open', previewFullscreen);
+                return () => document.body.classList.remove('preview-fullscreen-open');
+            }, [previewFullscreen]);
+
+            const restartPreview = () => setPreviewSeed(Date.now());
             const handleUpload = async (e, cb) => {
                 const file = e.target.files[0]; if (!file) return;
                 setUploading(true);
@@ -766,19 +1672,22 @@
                         <div className="editor-split">
                         <div className="editor-panel">
                             <h3 style={{fontSize:'1rem',fontWeight:700,marginBottom:'0.5rem',marginTop:'0.5rem'}}>Блоки ({(proj.blocks||[]).length})</h3>
-                            {(proj.blocks||[]).map((block,i)=>(
-                                <div key={i} className="block-item" style={block.enabled===false?{opacity:0.4}:{}}
+                            {(proj.blocks||[]).map((block,i)=>{
+                                const blockMeta = BLOCK_TYPES.find(b=>b.type===block.type) || { icon:'•', label:block.type };
+                                return (
+                                <div key={i} className="block-item" data-block-type={block.type} style={block.enabled===false?{opacity:0.4}:{}}
                                     draggable onDragStart={()=>onDragStart(i)} onDragEnter={()=>onDragEnter(i)} onDragEnd={onDragEnd} onDragOver={e=>e.preventDefault()}>
                                     <div className="block-head">
                                         <div style={{display:'flex',alignItems:'center',gap:'0.4rem'}}>
                                             <span className="drag-handle" title="Перетащить">⠿</span>
-                                            <label style={{display:'flex',alignItems:'center',gap:'0.4rem',cursor:'pointer'}}><input type="checkbox" checked={block.enabled!==false} onChange={e=>updateBlock(i,'enabled',e.target.checked)} style={{accentColor:'#5dade2'}}/><span className="block-type">{BLOCK_TYPES.find(b=>b.type===block.type)?.icon} {BLOCK_TYPES.find(b=>b.type===block.type)?.label || block.type}</span></label>
+                                            <label style={{display:'flex',alignItems:'center',gap:'0.4rem',cursor:'pointer'}}><input type="checkbox" checked={block.enabled!==false} onChange={e=>updateBlock(i,'enabled',e.target.checked)} style={{accentColor:'#1d1d1f'}}/><span className="block-type">{blockMeta.icon} {blockMeta.label}</span></label>
                                         </div>
                                         <div className="block-actions"><button onClick={()=>moveBlock(i,-1)}>↑</button><button onClick={()=>moveBlock(i,1)}>↓</button><button style={{color:'#c0392b'}} onClick={()=>removeBlock(i)}>✕</button></div>
                                     </div>
                                     <BlockEditor block={block} index={i} projId={proj.id} updateBlock={updateBlock} handleUpload={handleUpload}/>
                                 </div>
-                            ))}
+                                );
+                            })}
                             <div className="add-bar">{BLOCK_TYPES.map(bt=><button key={bt.type} className="btn btn-dark btn-sm" onClick={()=>addBlock(bt.type)}>{bt.icon} {bt.label}</button>)}
                                 <label className="btn btn-blue btn-sm" style={{cursor:'pointer'}}><input type="file" accept="image/*" multiple style={{display:'none'}} onChange={e=>{
                                     const files = Array.from(e.target.files); if(!files.length) return;
@@ -792,29 +1701,84 @@
                             </div>
                         </div>
                         <div className="live-preview">
-                            <div className="live-preview-header">
-                                <span>Предпросмотр</span>
-                                <div style={{display:'flex',gap:'0.3rem',alignItems:'center'}}>
-                                    <button className={`preview-mode-btn ${previewMode==='desktop'?'active':''}`} onClick={()=>setPreviewMode('desktop')}>🖥</button>
-                                    <button className={`preview-mode-btn ${previewMode==='mobile'?'active':''}`} onClick={()=>setPreviewMode('mobile')}>📱</button>
-                                    <span style={{color:'#555',fontSize:'0.7rem',marginLeft:'0.3rem'}}>{(proj.blocks||[]).filter(b=>b.enabled!==false).length} вкл.</span>
-                                </div>
-                            </div>
-                            <LivePreview blocks={proj.blocks||[]} title={proj.title} mode={previewMode}/>
-                        </div>
-                        </div>
-                    )}
-                    {uploading && <div className="toast toast-ok">Загрузка...</div>}
-                </div>
-            );
+	                            <div className="live-preview-header">
+	                                <span>Предпросмотр</span>
+	                                <div style={{display:'flex',gap:'0.3rem',alignItems:'center'}}>
+	                                    <button className={`preview-mode-btn ${previewMode==='desktop'?'active':''}`} onClick={()=>setPreviewMode('desktop')}>🖥</button>
+	                                    <button className={`preview-mode-btn ${previewMode==='mobile'?'active':''}`} onClick={()=>setPreviewMode('mobile')}>📱</button>
+	                                    <button className="preview-mode-btn" onClick={restartPreview} title="Перезапустить анимации">↻ Анимации</button>
+	                                    <button className="preview-mode-btn" onClick={()=>setPreviewFullscreen(true)} title="Открыть предпросмотр на весь экран">⛶ На весь экран</button>
+	                                    <span className="live-preview-hint">{(proj.blocks||[]).filter(b=>b.enabled!==false).length} вкл.</span>
+	                                </div>
+	                            </div>
+	                            <LivePreview blocks={proj.blocks||[]} title={proj.title} mode={previewMode} seed={previewSeed}/>
+	                        </div>
+	                        </div>
+	                    )}
+	                    {previewFullscreen && (
+	                        <div className="preview-fullscreen-overlay">
+	                            <div className="preview-fullscreen-bar">
+	                                <div className="preview-fullscreen-title">{proj.title || 'Предпросмотр кейса'}</div>
+	                                <div className="preview-fullscreen-actions">
+	                                    <button className={`preview-mode-btn ${previewMode==='desktop'?'active':''}`} onClick={()=>setPreviewMode('desktop')}>Desktop</button>
+	                                    <button className={`preview-mode-btn ${previewMode==='mobile'?'active':''}`} onClick={()=>setPreviewMode('mobile')}>Mobile</button>
+	                                    <button className="preview-mode-btn" onClick={restartPreview}>↻ Анимации</button>
+	                                    <button className="btn btn-white btn-sm" onClick={()=>setPreviewFullscreen(false)}>✓ Закрыть</button>
+	                                </div>
+	                            </div>
+	                            <div className="preview-fullscreen-body">
+	                                <LivePreview blocks={proj.blocks||[]} title={proj.title} mode={previewMode} seed={previewSeed} fullscreen />
+	                            </div>
+	                        </div>
+	                    )}
+	                    {uploading && <div className="toast toast-ok">Загрузка...</div>}
+	                </div>
+	            );
         }
 
 
         // ─── RichToolbar — works with selected text via execCommand ───
         function RichToolbar({ editorRef, block, index, updateBlock }) {
+            const syncContent = () => {
+                window.setTimeout(() => {
+                    if (editorRef.current) updateBlock(index, 'content', editorRef.current.innerHTML);
+                }, 0);
+            };
             const exec = (cmd, val) => {
                 if (editorRef.current) editorRef.current.focus();
                 document.execCommand(cmd, false, val || null);
+                syncContent();
+            };
+            const makeLink = () => {
+                if (!editorRef.current) return;
+                editorRef.current.focus();
+                const selection = window.getSelection();
+                const savedRange = selection && selection.rangeCount ? selection.getRangeAt(0).cloneRange() : null;
+                const selectedText = selection ? selection.toString().trim() : '';
+                const raw = window.prompt('Ссылка: Behance, Telegram, сайт, PDF...', selectedText && selectedText.includes('.') ? selectedText : '');
+                const href = normalizeLinkUrl(raw);
+                if (!href) return;
+                if (savedRange && selection) {
+                    selection.removeAllRanges();
+                    selection.addRange(savedRange);
+                }
+                if (selectedText) {
+                    document.execCommand('createLink', false, href);
+                    window.setTimeout(() => {
+                        if (!editorRef.current) return;
+                        editorRef.current.querySelectorAll('a').forEach(a => {
+                            a.setAttribute('target', '_blank');
+                            a.setAttribute('rel', 'noopener noreferrer');
+                        });
+                        syncContent();
+                    }, 0);
+                } else {
+                    document.execCommand('insertHTML', false, `<a href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(displayLinkUrl(href))}</a>`);
+                    syncContent();
+                }
+            };
+            const removeLink = () => {
+                exec('unlink');
             };
             const s = block.style || {};
             const upS = (k, v) => updateBlock(index, 'style', { ...s, [k]: v });
@@ -825,6 +1789,8 @@
                         <button onMouseDown={e=>{e.preventDefault();exec('bold')}} title="Жирный"><b>Ж</b></button>
                         <button onMouseDown={e=>{e.preventDefault();exec('italic')}} title="Курсив"><i>К</i></button>
                         <button onMouseDown={e=>{e.preventDefault();exec('underline')}} title="Подчёркнутый"><u>П</u></button>
+                        <button onMouseDown={e=>{e.preventDefault();makeLink()}} title="Сделать ссылкой">↗</button>
+                        <button onMouseDown={e=>{e.preventDefault();removeLink()}} title="Убрать ссылку">×</button>
                     </div>
                     <div className="sb-group">
                         <span className="sb-label">Цвет</span>
@@ -838,6 +1804,7 @@
                             setTimeout(()=>{
                                 const el = editorRef.current;
                                 if(el) el.querySelectorAll('font[size="7"]').forEach(n=>{n.removeAttribute('size');n.style.fontSize=e.target.value;});
+                                syncContent();
                             },0);
                         }}>
                             <option value="">—</option>
@@ -895,56 +1862,65 @@
         }
 
         // ─── LivePreview ───
-        function LivePreview({ blocks, title, mode = 'desktop' }) {
+        function LivePreview({ blocks, title, mode = 'desktop', seed = 0, fullscreen = false }) {
             const isMobile = mode === 'mobile';
             const ref = useRef(null);
             const iframeRef = useRef(null);
             const [scale, setScale] = useState(0.3);
-            const [iframeH, setIframeH] = useState(900);
+            const viewportW = isMobile ? 390 : 1440;
 
             useEffect(() => {
-                if (!ref.current) return;
-                const w = ref.current.parentElement.clientWidth;
-                setScale(w / 1440);
-            }, []);
-
-            // Auto-resize iframe to fit content
-            useEffect(() => {
-                const iframe = iframeRef.current;
-                if (!iframe) return;
-                const onLoad = () => {
-                    try {
-                        const h = iframe.contentDocument.body.scrollHeight;
-                        if (h > 100) setIframeH(h);
-                    } catch(e) {}
+                const updateScale = () => {
+                    if (!ref.current) return;
+                    const parent = ref.current.parentElement;
+                    const w = parent?.clientWidth || ref.current.clientWidth || viewportW;
+                    const next = Math.min(w / viewportW, fullscreen ? 1 : 0.48);
+                    setScale(next);
                 };
-                iframe.addEventListener('load', onLoad);
-                return () => iframe.removeEventListener('load', onLoad);
-            }, [blocks]);
+                updateScale();
+                window.addEventListener('resize', updateScale);
+                return () => window.removeEventListener('resize', updateScale);
+            }, [viewportW, fullscreen]);
 
-            const html = (blocks||[]).filter(b => b.enabled !== false).map(b => {
+            const viewportH = fullscreen
+                ? Math.max(560, Math.round(((window.innerHeight || 900) - 112) / Math.max(scale, 0.1)))
+                : (isMobile ? 812 : 900);
+            const animationKey = (blocks||[])
+                .map((block, index) => `${index}:${block?.type || ''}:${block?.style?.animation || 'none'}`)
+                .join('|');
+
+            const html = (blocks||[]).filter(b => b.enabled !== false).map((b, index) => {
+                const animation = previewAnimation(b);
                 switch(b.type) {
-                    case 'heading': return `<${b.level||'h2'} style="font-family:'Unbounded',sans-serif;font-weight:700;margin:1rem 5%">${b.content||''}</${b.level||'h2'}>`;
-                    case 'text': return `<p style="font-family:'Roboto',sans-serif;margin:1rem 5%;line-height:1.6;font-size:1.1rem">${(b.content||'').replace(/\n/g,'<br>')}</p>`;
-                    case 'image': return b.content ? `<div style="margin:1rem 5%"><img src="${b.content}" style="max-width:100%;border-radius:8px;${b.clipPath&&b.clipPath!=='none'?'clip-path:'+b.clipPath:''}" /></div>` : '';
-                    case 'video': return b.content ? `<div style="margin:1rem 5%"><video src="${b.content}" autoplay muted loop playsinline style="width:100%;border-radius:8px"></video></div>` : '';
-                    case 'gallery': return `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:0.5rem;margin:1rem 5%">${(b.images||[]).map(s=>`<img src="${s}" style="width:100%;border-radius:4px"/>`).join('')}</div>`;
+                    case 'heading':
+                        return wrapPreviewBlock(b, `<${b.level||'h2'} style="font-family:'Unbounded',sans-serif;font-weight:700;margin:1rem 5%;line-height:1.12;letter-spacing:-0.04em">${renderPreviewAnimatedText(b.content, animation)}</${b.level||'h2'}>`, index);
+                    case 'text':
+                        return wrapPreviewBlock(b, `<p style="font-family:'Roboto',sans-serif;margin:1rem 5%;line-height:1.6;font-size:1.1rem">${renderPreviewAnimatedText(b.content, animation)}</p>`, index);
+                    case 'image': return b.content ? wrapPreviewBlock(b, `<div style="margin:1rem 5%"><img src="${escapeAttr(b.content)}" style="max-width:100%;border-radius:18px;${b.clipPath&&b.clipPath!=='none'?'clip-path:'+b.clipPath:''}" /></div>`, index) : '';
+                    case 'video': return b.content ? wrapPreviewBlock(b, `<div style="margin:1rem 5%"><video src="${escapeAttr(b.content)}" autoplay muted loop playsinline style="width:100%;border-radius:18px"></video></div>`, index) : '';
+                    case 'gallery': return wrapPreviewBlock(b, `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:0.7rem;margin:1rem 5%">${(b.images||[]).map(s=>`<img src="${escapeAttr(s)}" style="width:100%;border-radius:12px"/>`).join('')}</div>`, index);
+                    case 'links': return wrapPreviewBlock(b, renderPreviewLinks(b), index);
                     case 'spacer': return `<div style="height:${b.height||80}px"></div>`;
                     case 'raw_html': return b.content || '';
-                    case 'masked_image': return b.content ? `<div style="margin:1rem 5%;text-align:center"><img src="${b.content}" style="max-width:100%;${b.clipPath&&b.clipPath!=='none'?'clip-path:'+b.clipPath:''}" /></div>` : '';
-                    case 'columns': {const cols=b.cols||[];return `<div style="display:grid;grid-template-columns:repeat(${cols.length},1fr);gap:1.5rem;margin:1.5rem 5%">${cols.map(col=>`<div>${col.image?`<img src="${col.image}" style="width:100%;border-radius:8px;margin-bottom:0.5rem"/>`:''}${col.text?`<p style="font-family:'Roboto',sans-serif;line-height:1.6;font-size:1rem">${col.text.replace(/\n/g,'<br>')}</p>`:''}</div>`).join('')}</div>`;}
-                    case 'compare': return (b.before&&b.after)?`<div style="position:relative;margin:1.5rem 5%;overflow:hidden;border-radius:8px"><img src="${b.after}" style="width:100%;display:block"/><div style="position:absolute;inset:0;width:50%;overflow:hidden"><img src="${b.before}" style="width:200%;max-width:none;display:block"/></div><div style="position:absolute;top:0;bottom:0;left:50%;width:3px;background:#fff"></div><span style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 8px;border-radius:4px;font-size:0.7rem">ДО</span><span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 8px;border-radius:4px;font-size:0.7rem">ПОСЛЕ</span></div>`:'';
-                    case 'quote': return `<blockquote style="margin:2rem 5%;padding:1.5rem 2rem;border-left:4px solid #6b6b6b;background:#f0f4f8;border-radius:0 8px 8px 0"><p style="font-family:'Roboto',sans-serif;font-size:1.1rem;font-style:italic;line-height:1.6;margin-bottom:0.75rem">${b.text||''}</p><div style="display:flex;align-items:center;gap:0.75rem">${b.photo?`<img src="${b.photo}" style="width:40px;height:40px;border-radius:50%;object-fit:cover"/>`:''}<div><strong>${b.author||''}</strong>${b.role?`<br><span style="font-size:0.85rem;color:#666">${b.role}</span>`:''}</div></div></blockquote>`;
-                    case 'metrics': return `<div style="display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;margin:2rem 5%;padding:2rem;background:#f8f9fa;border-radius:12px">${(b.items||[]).map(m=>`<div style="text-align:center;min-width:100px"><div style="font-family:'Unbounded',sans-serif;font-size:2rem;font-weight:700;color:#6b6b6b">${m.value||''}</div><div style="font-size:0.85rem;color:#666;margin-top:0.3rem">${m.label||''}</div></div>`).join('')}</div>`;
+                    case 'masked_image': return b.content ? wrapPreviewBlock(b, `<div style="margin:1rem 5%;text-align:center"><img src="${escapeAttr(b.content)}" style="max-width:100%;${b.clipPath&&b.clipPath!=='none'?'clip-path:'+b.clipPath:''}" /></div>`, index) : '';
+                    case 'columns': return wrapPreviewBlock(b, renderPreviewColumns(b), index);
+                    case 'compare': return (b.before&&b.after)?wrapPreviewBlock(b, `<div style="position:relative;margin:1.5rem 5%;overflow:hidden;border-radius:18px"><img src="${escapeAttr(b.after)}" style="width:100%;display:block"/><div style="position:absolute;inset:0;width:50%;overflow:hidden"><img src="${escapeAttr(b.before)}" style="width:200%;max-width:none;display:block"/></div><div style="position:absolute;top:0;bottom:0;left:50%;width:3px;background:#fff"></div><span style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 8px;border-radius:4px;font-size:0.7rem">ДО</span><span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 8px;border-radius:4px;font-size:0.7rem">ПОСЛЕ</span></div>`, index):'';
+                    case 'quote': return wrapPreviewBlock(b, `<blockquote style="margin:2rem 5%;padding:1.5rem 2rem;border-left:4px solid #6b6b6b;background:#f0f0f2;border-radius:0 18px 18px 0"><p style="font-family:'Roboto',sans-serif;font-size:1.1rem;font-style:italic;line-height:1.6;margin-bottom:0.75rem">${escapeHtml(b.text||'')}</p><div style="display:flex;align-items:center;gap:0.75rem">${b.photo?`<img src="${escapeAttr(b.photo)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover"/>`:''}<div><strong>${escapeHtml(b.author||'')}</strong>${b.role?`<br><span style="font-size:0.85rem;color:#666">${escapeHtml(b.role)}</span>`:''}</div></div></blockquote>`, index);
+                    case 'metrics': return wrapPreviewBlock(b, `<div style="display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;margin:2rem 5%;padding:2rem;background:#fff;border-radius:18px">${(b.items||[]).map(m=>`<div style="text-align:center;min-width:100px"><div style="font-family:'Unbounded',sans-serif;font-size:2rem;font-weight:700;color:#6b6b6b">${escapeHtml(m.value||'')}</div><div style="font-size:0.85rem;color:#666;margin-top:0.3rem">${escapeHtml(m.label||'')}</div></div>`).join('')}</div>`, index);
                     default: return '';
                 }
             }).join('\n');
 
-            const srcDoc = `<!DOCTYPE html><html><head><base href="${window.location.origin}/"/><link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}body{background:#f5f5f5;color:#1a1a1a;font-family:'Roboto',sans-serif;padding:2rem 0}img{max-width:100%;height:auto}</style></head><body>${html||`<div style="padding:8rem 5%;text-align:center;color:#999"><p>Добавьте блоки</p></div>`}</body></html>`;
+            const srcDoc = `<!DOCTYPE html><html><head><base href="${window.location.origin}/"/><link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}${PREVIEW_ANIMATION_CSS}</style></head><body>${html||`<div style="padding:8rem 5%;text-align:center;color:#999"><p>Добавьте блоки</p></div>`}<script>${PREVIEW_ANIMATION_SCRIPT}<\/script></body></html>`;
 
             return (
-                <div className="live-preview-frame" ref={ref} style={{height: iframeH * scale}}>
-                    <iframe ref={iframeRef} srcDoc={srcDoc} style={{transform:`scale(${scale})`, width: isMobile ? 375 : 1440, height:iframeH}} />
+                <div className="live-preview-frame" ref={ref} style={{height: viewportH * scale}}>
+                    <iframe
+                        key={`${mode}-${fullscreen ? 'full' : 'panel'}-${seed}-${animationKey}`}
+                        ref={iframeRef}
+                        srcDoc={srcDoc}
+                        style={{transform:`scale(${scale})`, width: viewportW, height: viewportH, transformOrigin:'top left'}}
+                    />
                 </div>
             );
         }
@@ -953,9 +1929,42 @@
         function BlockEditor({ block, index, projId, updateBlock, handleUpload }) {
             if (block.type === 'heading') return (<><div style={{display:'flex',gap:'0.5rem',marginBottom:'0.5rem'}}>{['h1','h2','h3','h4'].map(l=><button key={l} className={`btn btn-sm ${block.level===l?'btn-blue':'btn-dark'}`} onClick={()=>updateBlock(index,'level',l)}>{l.toUpperCase()}</button>)}</div><RichEditor block={block} index={index} updateBlock={updateBlock} placeholder="Введите заголовок"/></>);
             if (block.type === 'text') return <RichEditor block={block} index={index} updateBlock={updateBlock} placeholder="Введите текст..."/>;
-            if (block.type === 'image') return (<><div style={{display:'flex',gap:'0.5rem',flexWrap:'wrap'}}><input className="input" style={{flex:1,minWidth:200}} value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="Ссылка или Figma URL"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer',whiteSpace:'nowrap'}}><input type="file" style={{display:'none'}} onChange={e=>handleUpload(e,p=>updateBlock(index,'content',p))}/>Загрузить</label></div>{block.content && <img src={block.content} alt="" style={{maxWidth:'100%',maxHeight:200,marginTop:'0.5rem',borderRadius:6,objectFit:'contain',background:'#000'}}/>}</>);
+            if (block.type === 'image') return (<><div style={{display:'flex',gap:'0.5rem',flexWrap:'wrap'}}><input className="input" style={{flex:1,minWidth:200}} value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="Ссылка или Figma URL"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer',whiteSpace:'nowrap'}}><input type="file" style={{display:'none'}} onChange={e=>handleUpload(e,p=>updateBlock(index,'content',p))}/>Загрузить</label></div>{block.content && <img src={block.content} alt="" style={{maxWidth:'100%',maxHeight:200,marginTop:'0.5rem',borderRadius:6,objectFit:'contain',background:'#fff'}}/>}</>);
             if (block.type === 'video') return (<div style={{display:'flex',gap:'0.5rem'}}><input className="input" value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="Ссылка на видео"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer',whiteSpace:'nowrap'}}><input type="file" style={{display:'none'}} accept="video/*" onChange={e=>handleUpload(e,p=>updateBlock(index,'content',p))}/>Загрузить</label></div>);
             if (block.type === 'gallery') { const imgs=block.images||[]; return (<><div style={{display:'flex',flexWrap:'wrap',gap:'0.5rem',marginBottom:'0.5rem'}}>{imgs.map((img,gi)=><div key={gi} style={{position:'relative',width:80,height:80}}><img src={img} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:4}}/><button onClick={()=>{const n=[...imgs];n.splice(gi,1);updateBlock(index,'images',n);}} style={{position:'absolute',top:-4,right:-4,background:'#c0392b',color:'#fff',border:'none',borderRadius:'50%',width:18,height:18,fontSize:'0.6rem',cursor:'pointer',lineHeight:'18px'}}>✕</button></div>)}</div><label className="btn btn-dark btn-sm" style={{cursor:'pointer'}}><input type="file" style={{display:'none'}} multiple onChange={e=>{Array.from(e.target.files).forEach(file=>{const fd=new FormData();fd.append('caseId',projId);fd.append('media',file);fetch(`${API}/upload`,{method:'POST',body:fd,headers:{'X-CMS-Token':sessionStorage.getItem('cms_token')||''}}).then(r=>r.json()).then(j=>{if(j.path)updateBlock(index,'images',[...(block.images||[]),j.path]);});});}}/>+ Изображения</label></>); }
+            if (block.type === 'links') {
+                const items = block.items || [];
+                const updateItem = (itemIndex, key, value) => {
+                    const next = [...items];
+                    next[itemIndex] = { ...next[itemIndex], [key]: value };
+                    updateBlock(index, 'items', next);
+                };
+                const addLink = () => updateBlock(index, 'items', [...items, { platform:'website', label:'', url:'' }]);
+                const removeLink = (itemIndex) => updateBlock(index, 'items', items.filter((_, i) => i !== itemIndex));
+                return (
+                    <div className="link-block-editor">
+                        <div className="link-editor-head">
+                            <input className="input" value={block.title||''} onChange={e=>updateBlock(index,'title',e.target.value)} placeholder="Заголовок блока: Материалы проекта"/>
+                            <div style={{display:'flex',gap:'0.35rem'}}>
+                                <button className={`btn btn-sm ${block.layout!=='inline'?'btn-white':'btn-dark'}`} onClick={()=>updateBlock(index,'layout','cards')}>Плашки</button>
+                                <button className={`btn btn-sm ${block.layout==='inline'?'btn-white':'btn-dark'}`} onClick={()=>updateBlock(index,'layout','inline')}>Строка</button>
+                            </div>
+                        </div>
+                        <div className="link-editor-note">Можно добавлять Behance, Telegram, WhatsApp, сайт, PDF или любой внешний материал. Если вставить адрес без https, редактор сам добавит его при показе.</div>
+                        {items.map((item, li) => (
+                            <div className="link-editor-row" key={li}>
+                                <select className="input" value={item.platform||'website'} onChange={e=>updateItem(li,'platform',e.target.value)}>
+                                    {LINK_PLATFORMS.map(platform => <option key={platform.id} value={platform.id}>{platform.label}</option>)}
+                                </select>
+                                <input className="input" value={item.label||''} onChange={e=>updateItem(li,'label',e.target.value)} placeholder={getLinkPlatform(item.platform).label}/>
+                                <input className="input" value={item.url||''} onChange={e=>updateItem(li,'url',e.target.value)} placeholder="https://..."/>
+                                <button className="btn btn-dark btn-sm" onClick={()=>removeLink(li)}>Удалить</button>
+                            </div>
+                        ))}
+                        <button className="btn btn-dark btn-sm" onClick={addLink} style={{alignSelf:'flex-start'}}>+ Добавить ссылку</button>
+                    </div>
+                );
+            }
             if (block.type === 'spacer') return (<div style={{display:'flex',alignItems:'center',gap:'0.75rem'}}><span style={{fontSize:'0.8rem',color:'#666'}}>Высота:</span><input className="input" type="number" style={{width:100}} value={block.height||80} onChange={e=>updateBlock(index,'height',parseInt(e.target.value)||40)}/><span style={{fontSize:'0.75rem',color:'#555'}}>px</span></div>);
             if (block.type === 'raw_html') return <textarea className="input" style={{fontFamily:'monospace',fontSize:'0.78rem',minHeight:120}} value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="HTML-код..."/>;
             if (block.type === 'masked_image') {
@@ -974,7 +1983,7 @@
                                 <button key={m.id} className={'btn btn-sm ' + activeClass(m)} onClick={()=>updateBlock(index,'clipPath',m.clip)}>{m.label}</button>
                             ))}
                         </div>
-                        {block.content ? <div style={{background:'#1a1a1a',borderRadius:8,padding:'1rem',textAlign:'center'}}><img src={block.content} alt="" style={{maxWidth:'100%',maxHeight:300,objectFit:'contain',clipPath:cp,transition:'clip-path 0.3s'}}/></div> : null}
+                        {block.content ? <div style={{background:'var(--cms-surface-soft)',borderRadius:8,padding:'1rem',textAlign:'center'}}><img src={block.content} alt="" style={{maxWidth:'100%',maxHeight:300,objectFit:'contain',clipPath:cp,transition:'clip-path 0.3s'}}/></div> : null}
                     </div>
                 );
             }
@@ -982,11 +1991,11 @@
                 const cols = block.cols || [{text:'',image:''},{text:'',image:''}];
                 const colCount = cols.length;
                 return (<div>
-                    <div style={{display:'flex',gap:'0.5rem',marginBottom:'0.5rem'}}>{[2,3].map(n=><button key={n} className={`btn btn-sm ${colCount===n?'btn-blue':'btn-dark'}`} onClick={()=>{const nc=[...cols];while(nc.length<n)nc.push({text:'',image:''});updateBlock(index,'cols',nc.slice(0,n))}}>{n} колонки</button>)}</div>
-                    <div style={{display:'grid',gridTemplateColumns:`repeat(${colCount},1fr)`,gap:'0.5rem'}}>{cols.map((col,ci)=><div key={ci} style={{background:'#1a1a1a',borderRadius:6,padding:'0.5rem'}}>
-                        <div style={{display:'flex',gap:'0.3rem',marginBottom:'0.3rem'}}><input className="input" style={{flex:1}} value={col.image||''} onChange={e=>{const nc=[...cols];nc[ci]={...nc[ci],image:e.target.value};updateBlock(index,'cols',nc)}} placeholder="URL изображения"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer'}}><input type="file" style={{display:'none'}} onChange={e=>handleUpload(e,p=>{const nc=[...cols];nc[ci]={...nc[ci],image:p};updateBlock(index,'cols',nc)})}/>📷</label></div>
-                        {col.image && <img src={col.image} alt="" style={{width:'100%',height:60,objectFit:'cover',borderRadius:4,marginBottom:'0.3rem'}}/>}
-                        <textarea className="input" style={{minHeight:50,fontSize:'0.8rem'}} value={col.text||''} onChange={e=>{const nc=[...cols];nc[ci]={...nc[ci],text:e.target.value};updateBlock(index,'cols',nc)}} placeholder="Текст колонки"/>
+                    <div className="columns-editor-toolbar">{[2,3].map(n=><button key={n} className={`btn btn-sm ${colCount===n?'btn-blue':'btn-dark'}`} onClick={()=>{const nc=[...cols];while(nc.length<n)nc.push({text:'',image:''});updateBlock(index,'cols',nc.slice(0,n))}}>{n} колонки</button>)}</div>
+                    <div className="columns-editor-grid" style={{gridTemplateColumns:`repeat(${colCount},minmax(0,1fr))`}}>{cols.map((col,ci)=><div key={ci} className="column-editor-card">
+                        <div className="column-editor-media-row"><input className="input" value={col.image||''} onChange={e=>{const nc=[...cols];nc[ci]={...nc[ci],image:e.target.value};updateBlock(index,'cols',nc)}} placeholder="URL изображения"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer'}}><input type="file" style={{display:'none'}} onChange={e=>handleUpload(e,p=>{const nc=[...cols];nc[ci]={...nc[ci],image:p};updateBlock(index,'cols',nc)})}/>Файл</label></div>
+                        {col.image ? <img className="column-editor-preview" src={col.image} alt=""/> : <div className="column-editor-placeholder">изображение карточки</div>}
+                        <textarea className="input" value={col.text||''} onChange={e=>{const nc=[...cols];nc[ci]={...nc[ci],text:e.target.value};updateBlock(index,'cols',nc)}} placeholder={'Заголовок\\nОписание карточки'}/>
                     </div>)}</div>
                 </div>);
             }
@@ -1007,7 +2016,7 @@
             if (block.type === 'metrics') {
                 const items = block.items || [{value:'',label:''},{value:'',label:''},{value:'',label:''}];
                 return (<div>
-                    <div style={{display:'flex',flexWrap:'wrap',gap:'0.5rem'}}>{items.map((m,mi)=><div key={mi} style={{background:'#1a1a1a',borderRadius:6,padding:'0.5rem',minWidth:120,flex:1}}>
+                    <div style={{display:'flex',flexWrap:'wrap',gap:'0.5rem'}}>{items.map((m,mi)=><div key={mi} style={{background:'var(--cms-surface-soft)',borderRadius:6,padding:'0.5rem',minWidth:120,flex:1}}>
                         <input className="input" style={{fontWeight:700,fontSize:'1.1rem',textAlign:'center',marginBottom:'0.3rem'}} value={m.value||''} onChange={e=>{const ni=[...items];ni[mi]={...ni[mi],value:e.target.value};updateBlock(index,'items',ni)}} placeholder="240%"/>
                         <input className="input" style={{fontSize:'0.8rem',textAlign:'center'}} value={m.label||''} onChange={e=>{const ni=[...items];ni[mi]={...ni[mi],label:e.target.value};updateBlock(index,'items',ni)}} placeholder="конверсия"/>
                     </div>)}</div>

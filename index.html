@@ -43,8 +43,8 @@
     <meta name="application-name" content="A.LAB">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="apple-touch-icon" href="/favicon.svg">
+    <link rel="icon" type="image/svg+xml" sizes="any" href="/favicon.svg?v=2">
+    <link rel="apple-touch-icon" href="/favicon.svg?v=2">
     
     <!-- SEO: JSON-LD Structured Data (Schema.org) -->
     <script type="application/ld+json">
@@ -68,7 +68,7 @@
         "addressCountry": "RU"
       },
       "telephone": "+79818343286",
-      "email": "work@alab.ru",
+      "email": "work@alabspace.ru",
       "areaServed": "RU",
       "knowsLanguage": "ru",
       "serviceType": ["Брендинг", "Маркетинг", "Нейминг", "Реклама", "Стратегия", "Дизайн", "Аналитика", "Полиграфия", "Мероприятия"],
@@ -126,23 +126,29 @@
         <div class="contact-blob">
             <div class="blob-icon">привет!</div>
             <div class="blob-content">
-                <div class="blob-greeting">расскажите —<br>а мы загоримся.</div>
+                <div class="blob-greeting">связаться<br>с нами</div>
                 <div class="blob-contacts">
                     <div class="contact-item">
-                        <a href="mailto:work@alab.ru" class="blob-contact-link">work@alab.ru</a>
+                        <a href="mailto:work@alabspace.ru" class="blob-contact-link">work@alabspace.ru</a>
                     </div>
                     <div class="contact-item">
                         <a href="tel:+79818343286" class="blob-contact-link">+7 (981) 834-32-86</a>
                     </div>
                 </div>
+                <nav class="blob-menu" aria-label="Разделы сайта">
+                    <a href="#profile" class="blob-menu-link">о нас</a>
+                    <a href="#principles" class="blob-menu-link">эмоциональная инженерия</a>
+                    <a href="#emotional-engineering" class="blob-menu-link">принципы</a>
+                    <a href="#portfolio" class="blob-menu-link">кейсы</a>
+                </nav>
                 <div class="blob-socials">
                     <a href="https://t.me/ALEXANDRALARI" class="blob-social-link" target="_blank" rel="noreferrer" aria-label="Telegram">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.888-.666 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
                         <span class="social-label">Telegram</span>
                     </a>
-                    <a href="https://dzen.ru" class="blob-social-link" target="_blank" rel="noreferrer" aria-label="Dzen">
+                    <a href="https://dzen.ru" class="blob-social-link" target="_blank" rel="noreferrer" aria-label="Дзен">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M11.95 0C5.353 0 0 5.353 0 11.95s5.353 11.95 11.95 11.95 11.95-5.353 11.95-11.95S18.547 0 11.95 0zm6.306 17.51a14.773 14.773 0 0 1-2.946-.682c-.896-.289-3.79-1.378-5.753-3.097-2.607 3.26-4.75 3.518-5.59 3.55a.86.86 0 0 1-.89-.924c.06-1.503 1.055-4.484 2.825-6.726C3.96 7.625 4.316 6.01 4.35 5.513c.017-.26.236-.454.496-.454.265 0 .484.204.484.47 0 .193-.205 2.19 1.705 4.298 2.65-2.795 5.253-3.13 5.865-3.178.272-.02.51.18.533.45.023.266-.176.5-.442.523-1.127.098-3.418.84-5.46 3.524 1.77 1.832 2.637 4.314 2.695 5.856.402-.073 1.343-.342 2.91-1.342 1.313-1.076 2.373-2.583 2.924-3.523.633-1.077 1.265-1.517 1.954-1.517.585 0 1.08.307 1.375.852.482.89.522 2.536.035 4.093-.326 1.03-1.018 1.637-1.127 1.685z"/></svg>
-                        <span class="social-label">Dzen</span>
+                        <span class="social-label">Дзен</span>
                     </a>
                 </div>
             </div>
@@ -389,18 +395,19 @@
             <!-- Section 8: Contacts (Page 14) -->
             <section id="contacts" class="section contacts-section" data-section="contacts">
                 <div class="content contacts-container">
-                    <div class="contacts-brand-block">
-                        <span class="contacts-brand-mark">a.lab</span>
-                    </div>
-                    
-                    <p class="contacts-note">a.lab проектирует эмоциональную архитектуру брендов и продуктов. если вам нужен не просто дизайн, а отклик, давайте начнем разговор.</p>
-
                     <div class="contacts-heading-group">
-                        <span class="contacts-kicker">финальный контакт</span>
-                        <h2 class="contacts-title">обсудим бренд,<br>продукт и эмоцию,<br>которую он должен вызывать</h2>
+                        <div class="contacts-intro">
+                            <span class="contacts-dash" aria-hidden="true"></span>
+                            <div>
+                                <span class="contacts-kicker">финальный контакт</span>
+                                <p class="contacts-note">если вам нужен не просто дизайн, а отклик — давайте начнем разговор.</p>
+                            </div>
+                        </div>
+                        <h2 class="contacts-title">обсудим бренд,<br>продукт<br><span class="contacts-title-nowrap">и эмоцию</span></h2>
+                        <p class="contacts-title-subline">которую он должен вызывать.</p>
                     </div>
 
-                    <div class="contacts-form-wrapper" style="position: relative; align-self: end;">
+                    <div class="contacts-form-wrapper">
 
 
                         <div class="contacts-card reactive-form-container">
@@ -429,7 +436,7 @@
                                     <a class="contacts-link contacts-name" href="https://t.me/ALEXANDRALARI" target="_blank" rel="noreferrer">ALEXANDRA_LARI</a>
                                     <div class="contacts-sub-details">
                                         <a class="contacts-link contacts-detail" href="tel:+79818343286">+7 (981) 834-32-86</a>
-                                        <a class="contacts-link contacts-detail" href="mailto:work@alab.ru">work@alab.ru</a>
+                                        <a class="contacts-link contacts-detail" href="mailto:work@alabspace.ru">work@alabspace.ru</a>
                                     </div>
                                 </div>
 

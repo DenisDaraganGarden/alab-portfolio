@@ -22,11 +22,34 @@ import { initPortfolio } from './js/sections/portfolio.js';
 import { initContacts } from './js/sections/contacts.js';
 import { initViewportMetrics } from './js/utils/viewport.js';
 import { initIridescentTrail } from './js/effects/iridescent-trail.js';
+import { initAnalytics } from './js/utils/analytics.js';
 
 /**
  * [A.LAB] Main Initialization Script
  * Centralized registry-based initialization for all website sections.
  */
+
+const initHeaderAnchorNavigation = () => {
+    const links = document.querySelectorAll('.blob-menu-link[href^="#"]');
+
+    links.forEach((link) => {
+        link.addEventListener('click', (event) => {
+            const hash = link.getAttribute('href');
+            const target = hash ? document.querySelector(hash) : null;
+            if (!target) return;
+
+            event.preventDefault();
+
+            if (window.lenis?.scrollTo) {
+                window.lenis.scrollTo(target, { duration: 1.1 });
+            } else {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            window.history.pushState(null, '', hash);
+        });
+    });
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('[A.LAB] Инициализация модулей...');
@@ -49,6 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Основная логика и утилиты (Lenis и др. загружаются через CDN в index.html)
     initViewportMetrics();
     initIridescentTrail();
+    initHeaderAnchorNavigation();
+    initAnalytics();
 
     // 2. Реестр инициализации секций
     const sections = [

@@ -7,10 +7,13 @@ class WebAudioEngine {
     constructor() {
         this.ctx = null;
         this.isUnlocked = false;
+        this.enabled = true;
         
         // Effects configuration
         this.masterVolume = 0.4;
         this.activeNodes = new Map();
+        this.customAudio = new Map();
+        this.letters = [];
     }
 
     init() {
@@ -40,7 +43,27 @@ class WebAudioEngine {
         this.compressor.connect(this.ctx.destination);
     }
 
+    configure(settings = {}) {
+        const audioSettings = settings.audio || settings;
+        this.enabled = audioSettings.enabled !== false;
+        this.letters = Array.isArray(audioSettings.letters) ? audioSettings.letters : [];
+
+        const nextVolume = Number(audioSettings.masterVolume);
+        if (Number.isFinite(nextVolume)) {
+            this.masterVolume = Math.max(0, Math.min(1, nextVolume));
+        }
+
+        if (this.masterGain) {
+            this.masterGain.gain.value = this.masterVolume;
+        }
+
+        if (!this.enabled) {
+            this.stopAll();
+        }
+    }
+
     unlock() {
+        if (!this.enabled) return;
         if (this.isUnlocked) return;
         if (!this.ctx) this.init();
         
@@ -53,11 +76,97 @@ class WebAudioEngine {
         }
     }
 
+    getLetter(index) {
+        return this.letters.find(letter => String(letter.index) === String(index)) || null;
+    }
+
+    playLetter(index) {
+        if (!this.enabled) return { playing: false, oneShot: false };
+
+        const letter = this.getLetter(index);
+        const fallback = letter?.fallback || this.fallbackByIndex(index);
+
+        if (letter?.audioFile) {
+            return this.playAudioFile(index, letter.audioFile, fallback);
+        }
+
+        switch(String(index)) {
+            case '0': this.playVibration(); return { playing: true, oneShot: false };
+            case '1': this.playGlitch(); return { playing: true, oneShot: false };
+            case '2': this.playGlass(); return { playing: true, oneShot: true };
+            case '3': this.playSpotlight(); return { playing: true, oneShot: false };
+            default: return { playing: false, oneShot: false };
+        }
+    }
+
+    stopLetter(index) {
+        this.stopAudioFile(index);
+
+        switch(String(index)) {
+            case '0': this.stopVibration(); break;
+            case '1': this.stopGlitch(); break;
+            case '2': this.stopGlass(); break;
+            case '3': this.stopSpotlight(); break;
+        }
+    }
+
+    fallbackByIndex(index) {
+        switch(String(index)) {
+            case '0': return 'vibration';
+            case '1': return 'glitch';
+            case '2': return 'glass';
+            case '3': return 'spotlight';
+            default: return 'sound';
+        }
+    }
+
+    playAudioFile(index, src, fallback) {
+        this.stopLetter(index);
+
+        const audio = new Audio(src);
+        audio.volume = this.masterVolume;
+        audio.loop = fallback !== 'glass';
+        audio.preload = 'auto';
+        this.customAudio.set(String(index), audio);
+
+        audio.addEventListener('ended', () => {
+            this.customAudio.delete(String(index));
+        }, { once: true });
+
+        audio.play().catch(() => {
+            this.customAudio.delete(String(index));
+        });
+
+        return { playing: true, oneShot: !audio.loop };
+    }
+
+    stopAudioFile(index) {
+        const audio = this.customAudio.get(String(index));
+        if (!audio) return;
+        audio.pause();
+        audio.currentTime = 0;
+        this.customAudio.delete(String(index));
+    }
+
+    stopAll() {
+        ['0', '1', '2', '3'].forEach(index => this.stopLetter(index));
+
+        if (this.ctx && this.ctx.state === 'running') {
+            this.ctx.suspend().catch(() => {});
+            this.isUnlocked = false;
+        }
+    }
+
+    safeStop(node) {
+        try { node.stop(); } catch(e) {}
+        try { node.disconnect(); } catch(e) {}
+    }
+
     // --- Sound Profiles ---
 
     // 0: "a." -> Vibration (Deep Bass)
     playVibration() {
-        if (!this.isUnlocked || !this.ctx) return;
+        if (!this.enabled || !this.isUnlocked || !this.ctx) return;
         
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -107,7 +216,7 @@ class WebAudioEngine {
 
     // 1: "l" -> Glitch/Scramble (Noise + Random Filter)
     playGlitch() {
-        if (!this.isUnlocked || !this.ctx) return;
+        if (!this.enabled || !this.isUnlocked || !this.ctx) return;
         
         const bufferSize = this.ctx.sampleRate * 2; // 2 seconds of noise
         const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
@@ -163,7 +272,7 @@ class WebAudioEngine {
 
     // 2: "a" -> Glass (FM Synthesis Bell)
     playGlass() {
-        if (!this.isUnlocked || !this.ctx) return;
+        if (!this.enabled || !this.isUnlocked || !this.ctx) return;
         
         // We just play a one-shot chime on enter, no loop
         const now = this.ctx.currentTime;
@@ -197,15 +306,33 @@ class WebAudioEngine {
         carrier.start(now);
         modulator.stop(now + 2.1);
         carrier.stop(now + 2.1);
+        this.activeNodes.set('glass', { carrier, modulator, mainGain, modGain });
+
+        window.setTimeout(() => {
+            this.activeNodes.delete('glass');
+        }, 2200);
     }
     
     stopGlass() {
-        // One shot, no need to stop
+        if (!this.activeNodes.has('glass') || !this.ctx) return;
+        const { carrier, modulator, mainGain, modGain } = this.activeNodes.get('glass');
+        const now = this.ctx.currentTime;
+        mainGain.gain.cancelScheduledValues(now);
+        mainGain.gain.setValueAtTime(mainGain.gain.value, now);
+        mainGain.gain.linearRampToValueAtTime(0, now + 0.05);
+
+        setTimeout(() => {
+            this.safeStop(carrier);
+            this.safeStop(modulator);
+            try { mainGain.disconnect(); } catch(e) {}
+            try { modGain.disconnect(); } catch(e) {}
+            this.activeNodes.delete('glass');
+        }, 80);
     }
 
     // 3: "b" -> Spotlight (Sweeping Pad)
     playSpotlight() {
-        if (!this.isUnlocked || !this.ctx) return;
+        if (!this.enabled || !this.isUnlocked || !this.ctx) return;
         
         const now = this.ctx.currentTime;
         

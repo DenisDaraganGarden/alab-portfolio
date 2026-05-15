@@ -1,5 +1,6 @@
 {
   "audio": {
+    "enabled": false,
     "letters": [
       {
         "id": "a-dot",
