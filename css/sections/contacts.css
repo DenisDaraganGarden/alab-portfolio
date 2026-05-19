@@ -1757,12 +1757,24 @@
    HIDDEN DEVELOPER FOOTER
 ========================================================================= */
 .site-footer {
+  --footer-content-opacity: 0.18;
+  --footer-content-y: 34px;
+  --footer-content-blur: 5.5px;
+  --footer-tab-y: -4px;
+  --footer-tab-scale-x: 1;
+  --footer-tab-scale-y: 1;
+  --footer-handle-scale: 1;
+  --footer-neck-height: 24px;
+  --footer-neck-opacity: 0.16;
+  --footer-glow-opacity: 0.22;
+  --footer-bg-y: 22px;
+  --footer-bg-scale-y: 0.9;
   position: relative;
-  min-height: clamp(220px, 34svh, 360px);
+  min-height: clamp(250px, 38svh, 390px);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(3rem, 8svh, 5.5rem) var(--page-gutter) clamp(2rem, 5svh, 3.5rem);
+  padding: clamp(3.7rem, 9svh, 6rem) var(--page-gutter) clamp(2rem, 5svh, 3.3rem);
   overflow: visible;
   isolation: isolate;
 }
@@ -1776,6 +1788,10 @@
     radial-gradient(58% 72% at 50% 0%, rgba(232, 187, 255, 0.42) 0%, rgba(232, 187, 255, 0.18) 34%, transparent 70%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0.1) 100%);
   filter: blur(0.2px);
+  opacity: var(--footer-glow-opacity);
+  transform: translateY(var(--footer-bg-y)) scaleY(var(--footer-bg-scale-y));
+  transform-origin: top center;
+  transition: opacity 0.28s ease, transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
   mask-image: linear-gradient(180deg, transparent 0%, #000 16%, #000 100%);
   -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 16%, #000 100%);
 }
@@ -1796,7 +1812,10 @@
   left: 50%;
   width: clamp(104px, 14vw, 156px);
   height: clamp(54px, 7vw, 72px);
-  transform: translateX(-50%);
+  cursor: grab;
+  touch-action: none;
+  transform: translateX(-50%) translateY(var(--footer-tab-y)) scaleX(var(--footer-tab-scale-x)) scaleY(var(--footer-tab-scale-y));
+  transform-origin: 50% 84%;
   border-radius: 52% 48% 62% 38% / 42% 44% 56% 58%;
   background:
     radial-gradient(62% 72% at 46% 28%, rgba(255, 255, 255, 0.84) 0%, rgba(255, 255, 255, 0.32) 38%, rgba(232, 187, 255, 0.18) 72%, transparent 100%),
@@ -1809,6 +1828,46 @@
     0 0 50px rgba(232, 187, 255, 0.32),
     inset 0 1px 0 rgba(255, 255, 255, 0.74);
   animation: footerLiquidTab 8s ease-in-out infinite alternate;
+  transition:
+    transform 0.26s cubic-bezier(0.16, 1, 0.3, 1),
+    border-radius 0.26s ease,
+    box-shadow 0.3s ease;
+}
+
+.footer-liquid-tab::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: calc(50% - 2px);
+  z-index: -1;
+  width: 68%;
+  height: var(--footer-neck-height);
+  border-radius: 999px 999px 48% 48% / 78% 78% 24% 24%;
+  transform: translateX(-50%);
+  transform-origin: 50% 0;
+  background:
+    radial-gradient(70% 46% at 50% 0%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.14) 54%, transparent 100%),
+    linear-gradient(180deg, rgba(232, 187, 255, 0.34) 0%, rgba(232, 187, 255, 0.1) 62%, transparent 100%);
+  filter: blur(8px);
+  opacity: var(--footer-neck-opacity);
+  pointer-events: none;
+  transition: height 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
+}
+
+.footer-liquid-tab::after {
+  content: "";
+  position: absolute;
+  inset: -34%;
+  z-index: -2;
+  border-radius: inherit;
+  background: radial-gradient(circle at 50% 50%, rgba(232, 187, 255, 0.34), transparent 68%);
+  opacity: var(--footer-glow-opacity);
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+.site-footer[data-footer-dragging="true"] .footer-liquid-tab {
+  cursor: grabbing;
 }
 
 .footer-liquid-tab span {
@@ -1818,19 +1877,18 @@
   width: 32%;
   height: 2px;
   border-radius: 999px;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) scaleX(var(--footer-handle-scale));
   background: rgba(29, 29, 31, 0.28);
   box-shadow: 0 8px 20px rgba(232, 187, 255, 0.28);
+  transition: transform 0.26s ease, background 0.26s ease;
 }
 
 @keyframes footerLiquidTab {
   0% {
     border-radius: 52% 48% 62% 38% / 42% 44% 56% 58%;
-    transform: translateX(-50%) translateY(0) scale(1);
   }
   100% {
     border-radius: 45% 55% 44% 56% / 55% 38% 62% 45%;
-    transform: translateX(-50%) translateY(-4px) scale(1.025);
   }
 }
 
@@ -1841,6 +1899,14 @@
   align-items: center;
   gap: clamp(0.7rem, 1.5vw, 1rem);
   text-align: center;
+  opacity: var(--footer-content-opacity);
+  filter: blur(var(--footer-content-blur));
+  transform: translateY(var(--footer-content-y));
+  transition:
+    opacity 0.32s ease,
+    filter 0.42s ease,
+    transform 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, filter, transform;
 }
 
 .footer-kicker {
@@ -1853,15 +1919,15 @@
 }
 
 .footer-credit {
-  max-width: 21ch;
+  max-width: 28ch;
   margin: 0;
   font-family: var(--font-title);
-  font-size: clamp(1.25rem, 3.1vw, 2.25rem);
+  font-size: clamp(1.14rem, 2.35vw, 1.78rem);
   font-weight: 700;
-  line-height: 1.03;
+  line-height: 1.12;
   letter-spacing: 0;
   text-transform: lowercase;
-  color: rgba(29, 29, 31, 0.9);
+  color: rgba(29, 29, 31, 0.82);
 }
 
 .footer-credit a,
@@ -1881,9 +1947,9 @@
   left: 0;
   right: 0;
   bottom: -0.08em;
-  height: 0.08em;
+  height: 0.06em;
   border-radius: 999px;
-  background: rgba(29, 29, 31, 0.24);
+  background: rgba(29, 29, 31, 0.18);
 }
 
 .footer-links {
@@ -1916,8 +1982,8 @@
 
 @media (max-width: 640px) {
   .site-footer {
-    min-height: 34svh;
-    padding: clamp(2.6rem, 7svh, 3.5rem) clamp(1rem, 5vw, 1.3rem) clamp(1.8rem, 5svh, 2.6rem);
+    min-height: 36svh;
+    padding: clamp(3.1rem, 7.5svh, 4rem) clamp(1rem, 5vw, 1.3rem) clamp(1.8rem, 5svh, 2.6rem);
   }
 
   .footer-liquid-tab {
@@ -1927,8 +1993,9 @@
   }
 
   .footer-credit {
-    max-width: 18ch;
-    font-size: clamp(1.1rem, 6vw, 1.55rem);
+    max-width: 21ch;
+    font-size: clamp(1rem, 5.1vw, 1.34rem);
+    line-height: 1.14;
   }
 
   .footer-links a {
