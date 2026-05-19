@@ -48,14 +48,50 @@
   font-weight: 650;
 }
 
+.profile-main-content {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.15rem, 2.4vw, 2rem);
+}
+
+.profile-work {
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2vw, 1.45rem);
+}
+
+.profile-work-kicker {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: clamp(0.78rem, 0.9vw, 0.95rem);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(29, 29, 31, 0.48);
+}
+
+.profile-work-title {
+  max-width: 24ch;
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: clamp(1.15rem, 2.05vw, 2.05rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: 0;
+  text-transform: lowercase;
+  color: rgba(29, 29, 31, 0.82);
+}
+
 .profile-services {
   list-style: none;
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem;
-  max-width: 550px;
-  margin-top: 2rem;
+  gap: 0.55rem;
+  max-width: 620px;
+  margin: 0;
 }
 
 .profile-services li {
@@ -91,14 +127,49 @@
 }
 
 /* Unique colors for each tag on hover */
-.profile-services li:nth-child(1):hover { color: #00d2ff; border-color: #00d2ff; box-shadow: 0 4px 15px rgba(0, 210, 255, 0.2); } /* аналитика */
-.profile-services li:nth-child(2):hover { color: #8a2be2; border-color: #8a2be2; box-shadow: 0 4px 15px rgba(138, 43, 226, 0.2); } /* стратегия */
+.profile-services li:nth-child(1):hover { color: #00d2ff; border-color: #00d2ff; box-shadow: 0 4px 15px rgba(0, 210, 255, 0.2); } /* коммуникация */
+.profile-services li:nth-child(2):hover { color: #8a2be2; border-color: #8a2be2; box-shadow: 0 4px 15px rgba(138, 43, 226, 0.2); } /* смыслы */
 .profile-services li:nth-child(3):hover { color: #ff007f; border-color: #ff007f; box-shadow: 0 4px 15px rgba(255, 0, 127, 0.2); } /* нейминг */
 .profile-services li:nth-child(4):hover { color: #ff4500; border-color: #ff4500; box-shadow: 0 4px 15px rgba(255, 69, 0, 0.2); } /* брендинг */
-.profile-services li:nth-child(5):hover { color: #ffb703; border-color: #ffb703; box-shadow: 0 4px 15px rgba(255, 183, 3, 0.2); } /* маркетинг */
-.profile-services li:nth-child(6):hover { color: #00fa9a; border-color: #00fa9a; box-shadow: 0 4px 15px rgba(0, 250, 154, 0.2); } /* реклама */
-.profile-services li:nth-child(7):hover { color: #00ced1; border-color: #00ced1; box-shadow: 0 4px 15px rgba(0, 206, 209, 0.2); } /* полиграфия */
-.profile-services li:nth-child(8):hover { color: #9400d3; border-color: #9400d3; box-shadow: 0 4px 15px rgba(148, 0, 211, 0.2); } /* мероприятия */
+.profile-services li:nth-child(5):hover { color: #ffb703; border-color: #ffb703; box-shadow: 0 4px 15px rgba(255, 183, 3, 0.2); } /* айдентика */
+.profile-services li:nth-child(6):hover { color: #00fa9a; border-color: #00fa9a; box-shadow: 0 4px 15px rgba(0, 250, 154, 0.2); } /* TOV */
+
+.profile-offers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.85rem, 1.4vw, 1.2rem);
+  max-width: 680px;
+}
+
+.profile-offer {
+  min-height: 100%;
+  padding: clamp(1rem, 1.55vw, 1.35rem);
+  border: 1px solid rgba(29, 29, 31, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34);
+}
+
+.profile-offer h4 {
+  margin: 0 0 0.85rem;
+  font-family: var(--font-title);
+  font-size: clamp(0.98rem, 1.22vw, 1.2rem);
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: lowercase;
+}
+
+.profile-offer p {
+  margin: 0;
+  font-size: clamp(0.92rem, 1vw, 1rem);
+  line-height: 1.48;
+  color: rgba(29, 29, 31, 0.62);
+}
+
+.profile-offer p + p {
+  margin-top: 0.7rem;
+}
 
 .profile-right {
   grid-column: 2;
@@ -148,4 +219,51 @@
   line-height: 1.5;
   color: var(--text-color);
   opacity: 0.8;
+}
+
+.profile-section .author-name {
+  margin-bottom: 0.95rem;
+}
+
+.profile-section .author-title {
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .profile-work {
+    max-width: none;
+  }
+
+  .profile-work-title {
+    max-width: 22ch;
+  }
+
+  .profile-offers {
+    grid-template-columns: 1fr;
+    max-width: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .profile-work {
+    gap: 1rem;
+  }
+
+  .profile-work-kicker {
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+  }
+
+  .profile-work-title {
+    font-size: clamp(1.08rem, 5.2vw, 1.45rem);
+  }
+
+  .profile-services li {
+    font-size: 0.72rem;
+    padding: 0.52rem 0.82rem;
+  }
+
+  .profile-offer {
+    padding: 1rem;
+  }
 }

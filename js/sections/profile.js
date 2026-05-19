@@ -23,8 +23,7 @@ export const initProfile = (container) => {
     }
     
     const heading = container.querySelector('.profile-quote-heading');
-    const quote = container.querySelector('.profile-quote');
-    const services = container.querySelectorAll('.profile-services li');
+    const quote = container.querySelector('.profile-work');
     const author = container.querySelector('.author-info');
     const imageWrapper = container.querySelector('.profile-image-wrapper');
     const imageContainer = container.querySelector('.profile-image-container');
@@ -75,14 +74,7 @@ export const initProfile = (container) => {
         x: 14,
         duration: 2,
         ease: 'power2.out'
-    }, "<")
-    .from(services, {
-        opacity: 0,
-        y: 10,
-        stagger: 0.05,
-        duration: 0.6,
-        ease: 'power2.out'
-    }, "-=1.0");
+    }, "<");
 
     // Continuous Floating Animation (Subtle Breathing Effect)
     if (imageWrapper) {
