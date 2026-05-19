@@ -187,6 +187,32 @@
   flex-shrink: 0;
 }
 
+@media (min-width: 901px) and (max-width: 1320px) {
+  .ee-grid {
+    gap: clamp(0.7rem, 1.1vw, 1rem) !important;
+  }
+
+  .ee-column {
+    min-width: 0;
+    min-height: clamp(178px, 18vw, 210px);
+    padding: clamp(1.6rem, 2.2vw, 2rem) clamp(1rem, 1.45vw, 1.35rem) !important;
+    gap: clamp(0.85rem, 1.3vw, 1.15rem);
+  }
+
+  .ee-col-title {
+    max-width: 100%;
+    font-size: clamp(0.92rem, 1.32vw, 1.18rem) !important;
+    line-height: 1.05;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+
+  .ee-desc {
+    font-size: clamp(0.82rem, 0.9vw, 0.95rem) !important;
+    line-height: 1.38;
+  }
+}
+
 @media (max-width: 900px) {
   .ee-grid {
     flex-direction: column;
