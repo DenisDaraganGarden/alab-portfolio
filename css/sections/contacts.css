@@ -1870,6 +1870,17 @@
   cursor: grabbing;
 }
 
+.site-footer[data-footer-docked="true"] .footer-liquid-tab {
+  position: fixed;
+  top: auto;
+  bottom: clamp(1.1rem, 4.5svh, 2.8rem);
+  z-index: 8;
+  box-shadow:
+    0 24px 62px rgba(29, 29, 31, 0.12),
+    0 0 70px rgba(232, 187, 255, 0.44),
+    inset 0 1px 0 rgba(255, 255, 255, 0.78);
+}
+
 .footer-liquid-tab span {
   position: absolute;
   left: 50%;

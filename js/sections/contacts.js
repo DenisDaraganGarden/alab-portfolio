@@ -39,6 +39,10 @@ const initDeveloperFooter = () => {
     let dragStartY = 0;
     let dragPull = 0;
     let dragReleaseTimer = 0;
+    let pullProgress = 0;
+    let pullGateOpen = false;
+    let lastTouchY = 0;
+    let tickerId = 0;
 
     const computeOpen = () => {
         const rect = footer.getBoundingClientRect();
@@ -49,10 +53,15 @@ const initDeveloperFooter = () => {
 
     const render = () => {
         rafId = 0;
-        const open = computeOpen();
+        const rect = footer.getBoundingClientRect();
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 1;
+        const shouldDock = !pullGateOpen && rect.top < viewportHeight + 180 && rect.top > viewportHeight - 90;
+        const open = Math.max(computeOpen(), pullProgress * 0.98);
+
+        footer.dataset.footerDocked = shouldDock ? 'true' : 'false';
         tension += (targetTension - tension) * 0.28;
-        setFooterState(open, clamp(tension + dragPull, 0, 1));
-        footer.dataset.footerAwake = open > 0.02 || tension > 0.04 || dragPull > 0.03 ? 'true' : 'false';
+        setFooterState(open, clamp(tension + dragPull + (pullProgress * 0.7), 0, 1));
+        footer.dataset.footerAwake = open > 0.02 || tension > 0.04 || dragPull > 0.03 || pullProgress > 0.03 ? 'true' : 'false';
     };
 
     const scheduleRender = () => {
@@ -62,14 +71,20 @@ const initDeveloperFooter = () => {
     const relax = () => {
         targetTension *= 0.78;
         dragPull *= isDragging ? 1 : 0.82;
+
+        if (!pullGateOpen) {
+            pullProgress *= 0.9;
+        }
+
         scheduleRender();
 
-        if (Math.abs(targetTension) > 0.015 || Math.abs(tension) > 0.015 || dragPull > 0.015) {
+        if (Math.abs(targetTension) > 0.015 || Math.abs(tension) > 0.015 || dragPull > 0.015 || pullProgress > 0.015) {
             idleRafId = window.requestAnimationFrame(relax);
         } else {
             targetTension = 0;
             tension = 0;
             dragPull = 0;
+            pullProgress = 0;
             idleRafId = 0;
             scheduleRender();
         }
@@ -84,22 +99,102 @@ const initDeveloperFooter = () => {
         const delta = currentY - lastY;
         const open = computeOpen();
         const speed = clamp(Math.abs(delta) / 72, 0, 1);
+        const rect = footer.getBoundingClientRect();
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 1;
 
         lastY = currentY;
+
+        if (delta < -2 || rect.top > viewportHeight * 0.82) {
+            pullGateOpen = false;
+            pullProgress = Math.min(pullProgress, 0.16);
+        }
+
         targetTension = Math.max(targetTension, speed * clamp(open + 0.24, 0, 1));
         scheduleRender();
         wakeRelax();
     };
 
-    const completePull = () => {
-        if (dragPull < 0.22) return;
+    const tickFooterState = () => {
+        const currentY = window.scrollY || window.pageYOffset || 0;
+        const rect = footer.getBoundingClientRect();
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 1;
+        const footerIsNear = rect.top < viewportHeight + 220 && rect.bottom > -80;
+        const scrollChanged = Math.abs(currentY - lastY) > 0.5;
+        const isActive = Math.abs(targetTension) > 0.015 || pullProgress > 0.015 || dragPull > 0.015;
 
+        if (scrollChanged || footerIsNear || isActive) {
+            handleScroll();
+        }
+
+        tickerId = window.requestAnimationFrame(tickFooterState);
+    };
+
+    const openFooter = () => {
+        pullGateOpen = true;
+        pullProgress = 1;
+        targetTension = Math.max(targetTension, 0.9);
+        scheduleRender();
         const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+
         if (window.lenis?.scrollTo) {
             window.lenis.scrollTo(maxScroll, { duration: 0.9 });
         } else {
             window.scrollTo({ top: maxScroll, behavior: 'smooth' });
         }
+    };
+
+    const completePull = () => {
+        if (dragPull < 0.22) return;
+        openFooter();
+    };
+
+    const shouldIgnorePullTarget = (target) => {
+        if (!(target instanceof Element)) return false;
+        return Boolean(target.closest('input, textarea, select, button, a, .modal-scroll-area'));
+    };
+
+    const shouldCapturePull = (delta, target) => {
+        if (delta <= 2 || pullGateOpen || shouldIgnorePullTarget(target)) return false;
+
+        const rect = footer.getBoundingClientRect();
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 1;
+        const footerIsAtGate = rect.top < viewportHeight + 170 && rect.bottom > viewportHeight;
+
+        return footerIsAtGate && pullProgress < 1;
+    };
+
+    const absorbPull = (delta, event) => {
+        if (!shouldCapturePull(delta, event.target)) return false;
+
+        event.preventDefault();
+        const increment = clamp(delta / 540, 0.018, 0.24);
+
+        pullProgress = clamp(pullProgress + increment, 0, 1);
+        targetTension = Math.max(targetTension, 0.34 + (pullProgress * 0.66));
+        scheduleRender();
+
+        if (pullProgress >= 0.98) {
+            openFooter();
+        } else {
+            wakeRelax();
+        }
+
+        return true;
+    };
+
+    const handleWheel = (event) => {
+        absorbPull(event.deltaY || 0, event);
+    };
+
+    const handleTouchStart = (event) => {
+        lastTouchY = event.touches?.[0]?.clientY ?? 0;
+    };
+
+    const handleTouchMove = (event) => {
+        const currentTouchY = event.touches?.[0]?.clientY ?? lastTouchY;
+        const delta = lastTouchY - currentTouchY;
+        lastTouchY = currentTouchY;
+        absorbPull(delta, event);
     };
 
     const handlePointerDown = (event) => {
@@ -143,9 +238,13 @@ const initDeveloperFooter = () => {
 
     setFooterState(0, 0);
     handleScroll();
+    tickerId = window.requestAnimationFrame(tickFooterState);
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', scheduleRender, { passive: true });
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
     tab.addEventListener('pointerdown', handlePointerDown);
     tab.addEventListener('pointermove', handlePointerMove);
     tab.addEventListener('pointerup', handlePointerUp);
