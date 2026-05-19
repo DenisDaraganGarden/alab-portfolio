@@ -1752,3 +1752,188 @@
     height: 56px;
   }
 }
+
+/* =========================================================================
+   HIDDEN DEVELOPER FOOTER
+========================================================================= */
+.site-footer {
+  position: relative;
+  min-height: clamp(220px, 34svh, 360px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(3rem, 8svh, 5.5rem) var(--page-gutter) clamp(2rem, 5svh, 3.5rem);
+  overflow: visible;
+  isolation: isolate;
+}
+
+.site-footer::before {
+  content: "";
+  position: absolute;
+  inset: -18% 0 0;
+  z-index: -1;
+  background:
+    radial-gradient(58% 72% at 50% 0%, rgba(232, 187, 255, 0.42) 0%, rgba(232, 187, 255, 0.18) 34%, transparent 70%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0.1) 100%);
+  filter: blur(0.2px);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 16%, #000 100%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 16%, #000 100%);
+}
+
+.site-footer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-top: 1px solid rgba(255, 255, 255, 0.42);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24);
+  pointer-events: none;
+}
+
+.footer-liquid-tab {
+  position: absolute;
+  top: -2.15rem;
+  left: 50%;
+  width: clamp(104px, 14vw, 156px);
+  height: clamp(54px, 7vw, 72px);
+  transform: translateX(-50%);
+  border-radius: 52% 48% 62% 38% / 42% 44% 56% 58%;
+  background:
+    radial-gradient(62% 72% at 46% 28%, rgba(255, 255, 255, 0.84) 0%, rgba(255, 255, 255, 0.32) 38%, rgba(232, 187, 255, 0.18) 72%, transparent 100%),
+    rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(18px) saturate(125%);
+  -webkit-backdrop-filter: blur(18px) saturate(125%);
+  border: 1px solid rgba(255, 255, 255, 0.48);
+  box-shadow:
+    0 18px 50px rgba(29, 29, 31, 0.1),
+    0 0 50px rgba(232, 187, 255, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.74);
+  animation: footerLiquidTab 8s ease-in-out infinite alternate;
+}
+
+.footer-liquid-tab span {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  width: 32%;
+  height: 2px;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  background: rgba(29, 29, 31, 0.28);
+  box-shadow: 0 8px 20px rgba(232, 187, 255, 0.28);
+}
+
+@keyframes footerLiquidTab {
+  0% {
+    border-radius: 52% 48% 62% 38% / 42% 44% 56% 58%;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  100% {
+    border-radius: 45% 55% 44% 56% / 55% 38% 62% 45%;
+    transform: translateX(-50%) translateY(-4px) scale(1.025);
+  }
+}
+
+.footer-content {
+  width: min(100%, 760px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.7rem, 1.5vw, 1rem);
+  text-align: center;
+}
+
+.footer-kicker {
+  font-family: var(--font-body);
+  font-size: clamp(0.66rem, 0.8vw, 0.78rem);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(29, 29, 31, 0.42);
+}
+
+.footer-credit {
+  max-width: 21ch;
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: clamp(1.25rem, 3.1vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.03;
+  letter-spacing: 0;
+  text-transform: lowercase;
+  color: rgba(29, 29, 31, 0.9);
+}
+
+.footer-credit a,
+.footer-links a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.footer-credit a {
+  position: relative;
+  white-space: nowrap;
+}
+
+.footer-credit a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.08em;
+  height: 0.08em;
+  border-radius: 999px;
+  background: rgba(29, 29, 31, 0.24);
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.footer-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid rgba(29, 29, 31, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: rgba(29, 29, 31, 0.62);
+  transition: transform 0.35s ease, background 0.35s ease, color 0.35s ease;
+}
+
+.footer-links a:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.34);
+  color: rgba(29, 29, 31, 0.86);
+}
+
+@media (max-width: 640px) {
+  .site-footer {
+    min-height: 34svh;
+    padding: clamp(2.6rem, 7svh, 3.5rem) clamp(1rem, 5vw, 1.3rem) clamp(1.8rem, 5svh, 2.6rem);
+  }
+
+  .footer-liquid-tab {
+    top: -1.8rem;
+    width: 112px;
+    height: 56px;
+  }
+
+  .footer-credit {
+    max-width: 18ch;
+    font-size: clamp(1.1rem, 6vw, 1.55rem);
+  }
+
+  .footer-links a {
+    min-height: 32px;
+    padding: 0.5rem 0.76rem;
+    font-size: 0.76rem;
+  }
+}
