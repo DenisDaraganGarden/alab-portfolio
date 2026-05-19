@@ -299,7 +299,7 @@ export const initHero = (container) => {
 
     let currentNamingWindow = null;
     let namingRevealTimer = null;
-    const namingMarqueeText = 'контекст -> аудитория -> смыслы -> морфемы -> звучание -> A.LAB / нейминг -> ';
+    const namingMarqueeText = 'контекст -> аудитория -> смыслы -> звучание -> A.LAB / нейминг -> ';
 
     const startNamingSequence = (el) => {
         currentTargetForWindow = el;

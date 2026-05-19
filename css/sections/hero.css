@@ -698,7 +698,7 @@ body.spotlight-global-active .hero-services-list li.is-highlighted {
 .naming-track span {
   flex: 0 0 auto;
   white-space: nowrap;
-  padding-right: 1.8rem;
+  padding-right: 0.65rem;
   font-size: clamp(0.82rem, 1.45vw, 1.16rem);
   font-weight: 600 !important;
   letter-spacing: 0.01em;
