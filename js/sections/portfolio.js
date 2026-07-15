@@ -6,12 +6,7 @@
 export async function initPortfolio(container) {
 
 
-    const mainGrid = container.querySelector('#main-portfolio-grid');
-    const submenuContainer = container.querySelector('#portfolio-submenu');
-    const submenuGrid = container.querySelector('#portfolio-submenu-grid');
-    const submenuTitle = container.querySelector('#portfolio-submenu-title');
-    const backBtn = container.querySelector('#portfolio-back-btn');
-    const categoryCards = container.querySelectorAll('.category-card');
+    const industryBlocks = container.querySelectorAll('.portfolio-industry');
 
     let portfolioData = null;
     
@@ -40,59 +35,57 @@ export async function initPortfolio(container) {
 
     }
 
-    if (categoryCards && mainGrid && submenuContainer && backBtn) {
-        categoryCards.forEach(card => {
-            card.addEventListener('click', () => {
-                const categoryId = card.getAttribute('data-category');
-                openCategory(categoryId);
-            });
-        });
+    // Все направления показываются сразу, плашки проектов ведут на Behance (или в модалку кейса)
+    industryBlocks.forEach(block => {
+        const categoryId = block.getAttribute('data-category');
+        const titleEl = block.querySelector('.industry-title');
+        const grid = block.querySelector('.industry-projects');
+        if (!grid) return;
 
-        backBtn.addEventListener('click', () => closeCategory());
-    }
+        if (titleEl && portfolioData.categories[categoryId]) {
+            titleEl.textContent = portfolioData.categories[categoryId];
+        }
 
-    function openCategory(categoryId) {
-        const title = portfolioData.categories[categoryId] || categoryId;
         const projects = portfolioData.projects.filter(p => p.categoryId === categoryId && p.status !== 'draft');
+        if (!projects.length) {
+            block.style.display = 'none';
+            return;
+        }
 
-        submenuGrid.innerHTML = '';
+        grid.innerHTML = '';
         projects.forEach(proj => {
             const card = document.createElement('div');
             card.className = 'portfolio-project-card';
             card.setAttribute('data-case', proj.id);
             card.setAttribute('aria-label', proj.title);
+            card.setAttribute('role', 'link');
+            card.setAttribute('tabindex', '0');
+            const badge = proj.isExternal && proj.externalUrl
+                ? '<span class="project-external-badge">Behance ↗</span>'
+                : '';
             card.innerHTML = `
                 ${proj.logo ? `<div class="project-logo-wrapper"><img src="${proj.logo}" class="project-logo" alt="${proj.title} logo"></div>` : `<div class="project-logo-fallback">${proj.title}</div>`}
+                ${badge}
             `;
-            
-            card.addEventListener('click', () => {
+
+            const openProject = () => {
                 if (proj.isExternal && proj.externalUrl) {
                     window.open(proj.externalUrl, '_blank');
                 } else {
                     openModal(proj);
                 }
+            };
+            card.addEventListener('click', openProject);
+            card.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openProject();
+                }
             });
 
-            submenuGrid.appendChild(card);
+            grid.appendChild(card);
         });
-
-        submenuTitle.textContent = title;
-
-        mainGrid.style.display = 'none';
-        submenuContainer.style.display = 'flex';
-        
-        if (window.gsap) {
-            gsap.fromTo(submenuContainer, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" });
-        }
-    }
-
-    function closeCategory() {
-        submenuContainer.style.display = 'none';
-        mainGrid.style.display = 'grid';
-        if (window.gsap) {
-            gsap.fromTo(mainGrid, { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" });
-        }
-    }
+    });
 
     // Modal logic
     const modal = document.getElementById('case-study-modal');

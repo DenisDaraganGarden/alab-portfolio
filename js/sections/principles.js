@@ -121,8 +121,11 @@ export const initPrinciples = (container) => {
             return items.map(item => (item.offsetTop || 0) - boxSize + overlap);
         };
 
-        // Ensure initial hidden state is applied correctly but remains ready for animation
-        gsap.set(box, getMobileHiddenState());
+        // Куб на мобильной сцене виден сразу: раньше он получал autoAlpha:0 и его
+        // никто не проявлял — зона под него выглядела как пустое место.
+        // ВАЖНО: не вешать на куб filter (даже blur(0px)) — filter принудительно
+        // делает transform-style: flat и ломает 3D-грани.
+        gsap.set(box, { autoAlpha: 1 });
 
         gsap.set(boxWrapper, {
             xPercent: -50,
@@ -161,8 +164,9 @@ export const initPrinciples = (container) => {
             const scale = 1 + (1 - normalizedDist) * 0.45;
             gsap.set(boxWrapper, { scale: scale });
             
-            // Dynamic Tilt based on scroll velocity and position
-            const tiltX = (normalizedDist * 15) * (boxCenterY < screenCenterY ? 1 : -1);
+            // Dynamic Tilt based on scroll velocity and position.
+            // Наклон только «сверху» (отрицательный rotationX): дно куба показывать нельзя
+            const tiltX = -(normalizedDist * 15);
             const tiltZ = self.getVelocity() / 200;
             
             gsap.set(box, { 
@@ -405,7 +409,9 @@ export const initPrinciples = (container) => {
 
     gsap.to(box, {
         rotationY: 360,
-        rotationX: 10,
+        // отрицательный rotationX = взгляд чуть сверху: видим верхнюю грань, а не дно
+        // (куб стоит «на земле», под ним тень — низ показывать нельзя)
+        rotationX: -12,
         duration: 10,
         repeat: -1,
         ease: 'none'

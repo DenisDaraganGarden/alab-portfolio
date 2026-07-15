@@ -266,3 +266,30 @@
     align-items: flex-start;
   }
 }
+
+/* Collapsed state: forced shut after a menu navigation, even while :hover is active
+   (on touch devices the emulated hover sticks after a tap) */
+.contact-blob.blob-collapsed,
+.contact-blob.blob-collapsed:hover {
+  width: 80px;
+  height: 80px;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+  animation: organicMorph 8s ease-in-out infinite alternate;
+}
+
+.contact-blob.blob-collapsed .blob-content,
+.contact-blob.blob-collapsed:hover .blob-content {
+  opacity: 0;
+  transform: translateY(15px);
+  pointer-events: none;
+}
+
+.contact-blob.blob-collapsed .blob-icon,
+.contact-blob.blob-collapsed:hover .blob-icon {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}

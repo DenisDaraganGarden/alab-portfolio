@@ -228,7 +228,7 @@ export const initHero = (container) => {
             if (cd.el === currentTargetForWindow && activeWindowToSync) {
                 const elRect = cd.el.getBoundingClientRect();
                 const containerRect = container.getBoundingClientRect();
-                const left = elRect.left - containerRect.left + (elRect.width / 2);
+                const left = clampWindowLeft(activeWindowToSync, elRect.left - containerRect.left + (elRect.width / 2), containerRect);
                 const top = elRect.top - containerRect.top + (elRect.height / 2);
                 activeWindowToSync.style.left = `${left}px`;
                 activeWindowToSync.style.top = `${top}px`;
@@ -242,6 +242,14 @@ export const initHero = (container) => {
 
     let currentTargetForWindow = null;
     let activeWindowToSync = null;
+
+    // Не даём плашке (центрируется на букве через translate(-50%)) вылезать за экран на узких вьюпортах
+    const clampWindowLeft = (win, desiredLeft, containerRect) => {
+        const half = (win.offsetWidth || 0) / 2 + 8;
+        const max = containerRect.width - half;
+        if (max <= half) return desiredLeft; // окно шире контейнера — не трогаем
+        return Math.min(Math.max(desiredLeft, half), max);
+    };
 
     // Start physics loop
     updatePhysics();
@@ -321,7 +329,8 @@ export const initHero = (container) => {
         // Initial positioning
         const elRect = el.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
-        currentNamingWindow.style.left = `${elRect.left - containerRect.left + (elRect.width / 2)}px`;
+        const initialLeft = clampWindowLeft(currentNamingWindow, elRect.left - containerRect.left + (elRect.width / 2), containerRect);
+        currentNamingWindow.style.left = `${initialLeft}px`;
         currentNamingWindow.style.top = `${elRect.top - containerRect.top + (elRect.height / 2)}px`;
 
         clearTimeout(namingRevealTimer);
@@ -539,7 +548,7 @@ export const initHero = (container) => {
     const ctaEl = document.getElementById('heroCta');
     if (ctaEl) {
         const phrases = [
-            'готов создать бренд, который вызывает эмоции?',
+            'готовы создать бренд, который вызывает эмоции?',
             'начни с брифа.'
         ];
         let pi = 0;

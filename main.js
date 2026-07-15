@@ -31,6 +31,10 @@ import { initAnalytics } from './js/utils/analytics.js';
 
 const initHeaderAnchorNavigation = () => {
     const links = document.querySelectorAll('.blob-menu-link[href^="#"]');
+    const blob = document.querySelector('.contact-blob');
+
+    const collapseBlob = () => blob?.classList.add('blob-collapsed');
+    const expandBlob = () => blob?.classList.remove('blob-collapsed');
 
     links.forEach((link) => {
         link.addEventListener('click', (event) => {
@@ -39,6 +43,8 @@ const initHeaderAnchorNavigation = () => {
             if (!target) return;
 
             event.preventDefault();
+
+            collapseBlob();
 
             if (window.lenis?.scrollTo) {
                 window.lenis.scrollTo(target, { duration: 1.1 });
@@ -49,6 +55,20 @@ const initHeaderAnchorNavigation = () => {
             window.history.pushState(null, '', hash);
         });
     });
+
+    if (blob) {
+        // Десктоп: после ухода курсора сброс — следующий ховер снова раскрывает
+        blob.addEventListener('mouseleave', expandBlob);
+        // Тач: эмулированный hover залипает, поэтому тап по свёрнутому блобу раскрывает его обратно.
+        // Клики по пунктам меню сюда всплывают — их пропускаем, иначе блоб раскроется сразу после сворачивания.
+        blob.addEventListener('click', (event) => {
+            if (event.target.closest('.blob-menu-link')) return;
+            if (blob.classList.contains('blob-collapsed')) {
+                event.preventDefault();
+                expandBlob();
+            }
+        });
+    }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
