@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import multer from 'multer';
 import crypto from 'crypto';
+import { execFile } from 'child_process';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { getCases, saveCases, recordAnalyticsEvent, getAnalyticsSummary } from './db.mjs';
@@ -24,7 +25,20 @@ const CMS_BASE_PATH = (process.env.CMS_BASE_PATH || '/cms-3001').replace(/\/+$/,
 if (!fs.existsSync(AUDIO_DIR)) fs.mkdirSync(AUDIO_DIR, { recursive: true });
 
 const app = express();
-app.use(cors());
+const ALLOWED_ORIGINS = [
+    'http://localhost:3001',
+    'http://127.0.0.1:3001',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173'
+];
+app.use(cors({
+    origin: (origin, callback) => {
+        // Requests without Origin (curl, same-origin navigation) are allowed;
+        // browsers with a foreign Origin get no CORS headers.
+        if (!origin || ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+        callback(null, false);
+    }
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.text({ type: 'text/plain', limit: '64kb' }));
 
@@ -48,33 +62,97 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/images', express.static(path.join(ROOT_DIR, 'public', 'images')));
 app.use('/audio', express.static(AUDIO_DIR));
-app.use('/site', express.static(ROOT_DIR));
+
+// ─── Auth (fail-closed, timing-safe, rate-limited) ───
+const authConfigured = () => Boolean(process.env.CMS_LOGIN && process.env.CMS_PASSWORD);
+
+function sha256Buf(value) {
+    return crypto.createHash('sha256').update(String(value ?? '')).digest();
+}
+
+function safeEqual(a, b) {
+    return crypto.timingSafeEqual(sha256Buf(a), sha256Buf(b));
+}
+
+function credentialsValid(login, password) {
+    const loginOk = safeEqual(login, process.env.CMS_LOGIN);
+    const passwordOk = safeEqual(password, process.env.CMS_PASSWORD);
+    return loginOk && passwordOk;
+}
+
+// In-memory rate limit: max 10 failed auth attempts per IP per 15 minutes
+const AUTH_FAIL_WINDOW_MS = 15 * 60 * 1000;
+const AUTH_FAIL_MAX = 10;
+const authFailures = new Map(); // ip -> [timestamps]
+
+function authIp(req) {
+    return req.socket?.remoteAddress || '';
+}
+
+function authRateLimited(ip) {
+    const now = Date.now();
+    const fresh = (authFailures.get(ip) || []).filter(ts => now - ts < AUTH_FAIL_WINDOW_MS);
+    if (fresh.length) authFailures.set(ip, fresh); else authFailures.delete(ip);
+    return fresh.length >= AUTH_FAIL_MAX;
+}
+
+const failedTokens = new Map(); // sha256(token) -> last failure ts (dedupe repeated stale tokens)
+
+function recordAuthFailure(ip, tokenKey = null) {
+    const now = Date.now();
+    if (tokenKey) {
+        for (const [key, ts] of failedTokens) {
+            if (now - ts >= AUTH_FAIL_WINDOW_MS) failedTokens.delete(key);
+        }
+        // The same stale token (e.g. a parallel bulk upload after a password change)
+        // counts as one failure, not one per request.
+        if (failedTokens.has(tokenKey)) return;
+        failedTokens.set(tokenKey, now);
+    }
+    const list = authFailures.get(ip) || [];
+    list.push(now);
+    authFailures.set(ip, list);
+}
 
 // Auth middleware — only for /api routes
 const apiAuth = (req, res, next) => {
+    if (!authConfigured()) return res.status(503).json({ error: 'CMS_LOGIN/CMS_PASSWORD не заданы в .env' });
+    const ip = authIp(req);
     const token = req.headers['x-cms-token'];
+    // Valid credentials are checked BEFORE the limiter: the real owner must
+    // always be able to get back in even after a burst of stale-token failures.
+    if (token) {
+        try {
+            const decoded = Buffer.from(String(token), 'base64').toString();
+            const separator = decoded.indexOf(':');
+            const login = separator === -1 ? decoded : decoded.slice(0, separator);
+            const password = separator === -1 ? '' : decoded.slice(separator + 1);
+            if (credentialsValid(login, password)) {
+                authFailures.delete(ip);
+                return next();
+            }
+        } catch(e) {}
+    }
+    if (authRateLimited(ip)) return res.status(429).json({ error: 'Слишком много неудачных попыток входа. Попробуйте через 15 минут.' });
     if (!token) return res.status(401).json({ error: 'No token' });
-    try {
-        const decoded = Buffer.from(token, 'base64').toString();
-        const [login, password] = decoded.split(':');
-        const envLogin = process.env.CMS_LOGIN || 'ALAB';
-        const envPassword = process.env.CMS_PASSWORD || 'ALAB';
-        if (login === envLogin && password === envPassword) return next();
-    } catch(e) {}
+    recordAuthFailure(ip, sha256Buf(token).toString('hex'));
     res.status(401).json({ error: 'Invalid credentials' });
 };
 
 // Auth check endpoint
 app.post('/api/login', (req, res) => {
-    const { login, password } = req.body;
-    const envLogin = process.env.CMS_LOGIN || 'ALAB';
-    const envPassword = process.env.CMS_PASSWORD || 'ALAB';
-    if (login === envLogin && password === envPassword) {
+    if (!authConfigured()) return res.status(503).json({ error: 'CMS_LOGIN/CMS_PASSWORD не заданы в .env' });
+    const ip = authIp(req);
+    const { login, password } = req.body || {};
+    // Correct credentials always win over the limiter — no 15-minute lockout for the owner.
+    if (credentialsValid(login, password)) {
+        authFailures.delete(ip);
         const token = Buffer.from(`${login}:${password}`).toString('base64');
-        res.json({ success: true, token });
-    } else {
-        res.status(401).json({ error: 'Неверный логин или пароль' });
+        return res.json({ success: true, token });
     }
+    if (authRateLimited(ip)) return res.status(429).json({ error: 'Слишком много неудачных попыток входа. Попробуйте через 15 минут.' });
+    recordAuthFailure(ip);
+    res.status(401).json({ error: 'Неверный логин или пароль' });
 });
 
 function buildPublicCases(data) {
@@ -93,10 +171,34 @@ function syncToJsonFile(data) {
         const publicData = buildPublicCases(data);
         const dir = path.dirname(CASES_JSON_PATH);
         if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-        fs.writeFileSync(CASES_JSON_PATH, JSON.stringify(publicData, null, 2), 'utf-8');
+        fs.writeFileSync(CASES_JSON_PATH, JSON.stringify(publicData, null, 2) + '\n', 'utf-8');
         console.log('[A.LAB] Synced DB -> cases.json');
         return publicData;
     } catch (e) { console.error('[A.LAB] Sync error:', e); }
+}
+
+// How many projects are currently published in public/data/cases.json
+function countJsonProjects() {
+    try {
+        if (!fs.existsSync(CASES_JSON_PATH)) return 0;
+        const data = JSON.parse(fs.readFileSync(CASES_JSON_PATH, 'utf-8'));
+        return Array.isArray(data.projects) ? data.projects.length : 0;
+    } catch { return 0; }
+}
+
+// Startup guard: empty DB + non-empty cases.json -> import JSON into the DB
+function importCasesIfDbEmpty() {
+    try {
+        const current = getCases();
+        if ((current.projects || []).length > 0) return;
+        if (!fs.existsSync(CASES_JSON_PATH)) return;
+        const fileData = JSON.parse(fs.readFileSync(CASES_JSON_PATH, 'utf-8'));
+        if (!Array.isArray(fileData.projects) || fileData.projects.length === 0) return;
+        saveCases(fileData);
+        console.log(`[A.LAB] \u0411\u0414 \u0431\u044b\u043b\u0430 \u043f\u0443\u0441\u0442\u0430 \u2014 \u0438\u043c\u043f\u043e\u0440\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u043e ${fileData.projects.length} \u043f\u0440\u043e\u0435\u043a\u0442\u043e\u0432 \u0438\u0437 cases.json`);
+    } catch (e) {
+        console.error('[A.LAB] Auto-import from cases.json failed:', e);
+    }
 }
 
 function safeSegment(value, fallback = 'uploads') {
@@ -107,7 +209,9 @@ function safeSegment(value, fallback = 'uploads') {
         .replace(/^-+|-+$/g, '')
         .slice(0, 80);
 
-    return cleaned || fallback;
+    // Dot-only segments ('.', '..', '...') are path tricks \u2014 treat as invalid
+    if (!cleaned || /^\.+$/.test(cleaned)) return fallback;
+    return cleaned;
 }
 
 function safeFilename(originalName, fallback = 'media') {
@@ -132,7 +236,8 @@ function validateCasesPayload(payload) {
 // Multer for images
 const imgStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const caseId = safeSegment(req.body.caseId);
+        const caseId = safeSegment(req.body.caseId, '');
+        if (!caseId) return cb(new Error('caseId обязателен'));
         const uploadPath = path.join(IMAGES_DIR, caseId);
         if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true });
         cb(null, uploadPath);
@@ -163,6 +268,11 @@ app.get('/api/cases', apiAuth, (req, res) => {
 app.post('/api/cases', apiAuth, (req, res) => {
     const validationError = validateCasesPayload(req.body);
     if (validationError) return res.status(400).json({ error: validationError });
+
+    // Guard: never silently wipe a non-empty portfolio with an empty payload
+    if (req.body.projects.length === 0 && countJsonProjects() > 0) {
+        return res.status(409).json({ error: 'Отказ: попытка сохранить пустое портфолио поверх непустого. Если это намеренно, удалите проекты по одному.' });
+    }
 
     try {
         saveCases(req.body);
@@ -206,11 +316,13 @@ app.delete('/api/projects/:id', apiAuth, (req, res) => {
 app.post('/api/upload', apiAuth, (req, res) => {
     uploadImage.single('media')(req, res, async (err) => {
         if (err) return res.status(400).json({ error: err.message });
+        const caseId = safeSegment(req.body.caseId, '');
+        if (!caseId) return res.status(400).json({ error: 'caseId обязателен' });
         if (!req.file) return res.status(400).json({ error: 'No file' });
 
         const originalPath = req.file.path;
         const ext = path.extname(req.file.filename).toLowerCase();
-        const basePath = `/images/${safeSegment(req.body.caseId)}/${req.file.filename}`;
+        const basePath = `/images/${caseId}/${req.file.filename}`;
 
         // Auto-optimize images (skip SVG and video)
         if (['.jpg','.jpeg','.png','.webp','.tiff','.bmp'].includes(ext)) {
@@ -223,11 +335,15 @@ app.post('/api/upload', apiAuth, (req, res) => {
                 const webpPath = path.join(dir, name + '.webp');
                 await sharp(originalPath).resize(1600, null, { withoutEnlargement: true }).webp({ quality: 82 }).toFile(webpPath);
 
-                // Resize original if too large (>2000px)
+                // Resize original if too large (>2000px), preserving the original format
                 const meta = await sharp(originalPath).metadata();
                 if (meta.width > 2000) {
                     const tmpPath = originalPath + '.tmp';
-                    await sharp(originalPath).resize(2000, null, { withoutEnlargement: true }).jpeg({ quality: 85 }).toFile(tmpPath);
+                    const resizer = sharp(originalPath).resize(2000, null, { withoutEnlargement: true });
+                    if (ext === '.png') resizer.png();
+                    else if (ext === '.webp') resizer.webp({ quality: 85 });
+                    else resizer.jpeg({ quality: 85 });
+                    await resizer.toFile(tmpPath);
                     fs.renameSync(tmpPath, originalPath);
                 }
 
@@ -265,7 +381,7 @@ function clientIp(req) {
 
 function hashIp(ip) {
     if (!ip) return null;
-    const salt = process.env.ANALYTICS_SALT || process.env.CMS_PASSWORD || 'alab-analytics';
+    const salt = process.env.ANALYTICS_SALT || 'alab-analytics';
     return crypto.createHash('sha256').update(`${salt}:${ip}`).digest('hex');
 }
 
@@ -389,6 +505,20 @@ app.get('/api/analytics/summary', apiAuth, (req, res) => {
 });
 
 // ─── Settings API ───
+// Only these top-level keys ever reach the deployed settings.json
+// (verified against public/data/settings.json and the editor UI).
+// Secrets like figmaToken are dropped silently — tokens live in .env only.
+const SETTINGS_ALLOWED_KEYS = ['audio', 'typography', 'cards'];
+
+function filterSettings(data) {
+    const incoming = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
+    const filtered = {};
+    for (const key of SETTINGS_ALLOWED_KEYS) {
+        if (key in incoming) filtered[key] = incoming[key];
+    }
+    return filtered;
+}
+
 function getSettings() {
     try {
         if (fs.existsSync(SETTINGS_JSON_PATH)) {
@@ -401,7 +531,10 @@ function getSettings() {
 function saveSettings(data) {
     const dir = path.dirname(SETTINGS_JSON_PATH);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(SETTINGS_JSON_PATH, JSON.stringify(data, null, 2), 'utf-8');
+    // Whitelist applied on EVERY write (including the /api/publish re-save):
+    // a legacy figmaToken left on disk by the old editor must never survive a re-save,
+    // let alone reach a public git commit.
+    fs.writeFileSync(SETTINGS_JSON_PATH, JSON.stringify(filterSettings(data), null, 2) + '\n', 'utf-8');
     console.log('[A.LAB] Settings saved');
 }
 
@@ -410,7 +543,10 @@ app.get('/api/settings', apiAuth, (req, res) => {
 });
 
 app.post('/api/settings', apiAuth, (req, res) => {
-    try { saveSettings(req.body); res.json({ success: true }); }
+    try {
+        saveSettings(req.body); // saveSettings drops all non-whitelisted keys
+        res.json({ success: true });
+    }
     catch (e) { res.status(500).json({ error: 'Save error' }); }
 });
 
@@ -430,12 +566,12 @@ app.post('/api/figma-import', apiAuth, async (req, res) => {
     const { figmaUrl } = req.body;
     if (!figmaUrl) return res.status(400).json({ error: 'URL не указан' });
 
-    // Load Figma token from settings
-    const settingsPath = SETTINGS_JSON_PATH;
-    let settings = {};
-    try { settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8')); } catch(e) {}
-    const figmaToken = settings.figmaToken;
-    if (!figmaToken) return res.status(400).json({ error: 'Figma токен не задан. Добавьте его в Настройках сайта.' });
+    const caseId = safeSegment(req.body.caseId, '');
+    if (!caseId) return res.status(400).json({ error: 'caseId обязателен' });
+
+    // Figma token comes from the environment only — never from settings.json
+    const figmaToken = process.env.FIGMA_TOKEN;
+    if (!figmaToken) return res.status(400).json({ error: 'Figma токен не задан. Добавьте FIGMA_TOKEN в .env и перезапустите редактор.' });
 
     // Parse Figma URL: https://www.figma.com/file/FILE_KEY/... or /design/FILE_KEY/...
     // node-id can be in URL params or query
@@ -479,18 +615,18 @@ app.post('/api/figma-import', apiAuth, async (req, res) => {
       return res.status(400).json({ error: 'Figma не вернула изображение. Убедитесь что node-id указан в URL.' });
     }
 
-    // Download the image and save locally
+    // Download the image and save locally into the case's own folder
     const imgRes = await fetch(imageUrl);
     const imgBuffer = Buffer.from(await imgRes.arrayBuffer());
-    
-    const uploadsDir = path.join(PUBLIC_DIR, 'images', 'uploads');
-    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-    
+
+    const targetDir = path.join(IMAGES_DIR, caseId);
+    if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
+
     const filename = 'figma-' + Date.now() + '.png';
-    const filePath = path.join(uploadsDir, filename);
+    const filePath = path.join(targetDir, filename);
     fs.writeFileSync(filePath, imgBuffer);
-    
-    const publicPath = '/images/uploads/' + filename;
+
+    const publicPath = `/images/${caseId}/${filename}`;
     res.json({ path: publicPath, source: 'figma', nodeId });
     
   } catch (err) {
@@ -499,8 +635,165 @@ app.post('/api/figma-import', apiAuth, async (req, res) => {
   }
 });
 
+// ─── Publish to GitHub (content -> git commit -> push) ───
+const GIT_PUBLISH_PATHS = ['public/data', 'public/images', 'public/audio'];
+
+function runGit(args) {
+    return new Promise((resolve, reject) => {
+        execFile('git', args, { cwd: ROOT_DIR, timeout: 30000, maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
+            if (err) {
+                err.stdout = stdout;
+                err.stderr = stderr;
+                return reject(err);
+            }
+            resolve({ stdout, stderr });
+        });
+    });
+}
+
+// Recursively collect strings that look like local media paths
+function collectMediaPaths(value, out = new Set()) {
+    if (typeof value === 'string') {
+        if (value.startsWith('/images/') || value.startsWith('/audio/')) out.add(value);
+        // Media embedded inside rich-text/raw HTML strings (src/href attributes)
+        for (const match of value.matchAll(/(?:src|href)=["'](\/(?:images|audio)\/[^"']+)["']/gi)) {
+            out.add(match[1]);
+        }
+    } else if (Array.isArray(value)) {
+        for (const item of value) collectMediaPaths(item, out);
+    } else if (value && typeof value === 'object') {
+        for (const item of Object.values(value)) collectMediaPaths(item, out);
+    }
+    return out;
+}
+
+app.post('/api/publish', apiAuth, async (req, res) => {
+    try {
+        const dryRun = Boolean(req.body?.dryRun);
+
+        // a. Never publish an empty DB over a non-empty cases.json
+        const dbData = getCases();
+        if ((dbData.projects || []).length === 0 && countJsonProjects() > 0) {
+            return res.status(409).json({ error: 'Отказ: база данных пуста, а cases.json содержит проекты. Публикация остановлена.' });
+        }
+
+        // b. Regenerate public/data/*.json from current state
+        const publicData = syncToJsonFile(dbData);
+        if (!publicData) return res.status(500).json({ error: 'Не удалось обновить cases.json' });
+        saveSettings(getSettings()); // re-save runs the SETTINGS_ALLOWED_KEYS scrub over the on-disk file
+
+        // c. Media integrity for published projects
+        const mediaPaths = new Set();
+        for (const project of publicData.projects) collectMediaPaths(project, mediaPaths);
+
+        const missing = [];
+        const untracked = [];
+        for (const mediaPath of mediaPaths) {
+            const clean = mediaPath.split('?')[0].split('#')[0];
+            if (clean.startsWith('/images/uploads/')) { untracked.push(clean); continue; }
+            let decoded = clean;
+            try { decoded = decodeURIComponent(clean); } catch {}
+            const resolved = path.resolve(PUBLIC_DIR, '.' + decoded);
+            if (!resolved.startsWith(PUBLIC_DIR + path.sep) || !fs.existsSync(resolved)) missing.push(clean);
+        }
+        if (missing.length || untracked.length) {
+            return res.status(422).json({
+                error: 'Публикация остановлена: найдены отсутствующие файлы или файлы из временной папки uploads.',
+                missing,
+                untracked
+            });
+        }
+
+        // d. Stage content and check whether anything changed — scoped to the publish
+        //    paths only, so files pre-staged by a developer are neither counted nor committed
+        await runGit(['add', ...GIT_PUBLISH_PATHS]);
+        const staged = (await runGit(['diff', '--cached', '--name-only', '--', ...GIT_PUBLISH_PATHS])).stdout
+            .split('\n').map(line => line.trim()).filter(Boolean);
+
+        const branch = (await runGit(['rev-parse', '--abbrev-ref', 'HEAD'])).stdout.trim();
+        if (branch === 'HEAD') {
+            return res.status(409).json({ error: 'Git в состоянии detached HEAD — переключитесь на ветку и повторите публикацию.' });
+        }
+
+        if (staged.length === 0) {
+            // Nothing new to commit — but a previous publish may have committed
+            // and then failed to push (network down, timeout). Recover it here.
+            await runGit(['fetch', 'origin']);
+            let unpushed = 0;
+            try {
+                await runGit(['rev-parse', '--verify', '--quiet', `origin/${branch}`]);
+                unpushed = parseInt((await runGit(['rev-list', '--count', `origin/${branch}..HEAD`])).stdout.trim(), 10) || 0;
+            } catch { unpushed = 0; }
+
+            if (unpushed > 0 && !dryRun) {
+                const originAhead = parseInt((await runGit(['rev-list', '--count', `HEAD..origin/${branch}`])).stdout.trim(), 10) || 0;
+                if (originAhead > 0) {
+                    return res.json({ published: false, unpushedCommits: unpushed, message: 'Есть неотправленные коммиты, но на GitHub более новые изменения — нужен pull' });
+                }
+                // Only auto-push if the unpushed commits touch nothing outside the content paths
+                const foreign = (await runGit(['diff', '--name-only', `origin/${branch}..HEAD`])).stdout
+                    .split('\n').map(line => line.trim()).filter(Boolean)
+                    .filter(p => !GIT_PUBLISH_PATHS.some(base => p === base || p.startsWith(`${base}/`)));
+                if (foreign.length > 0) {
+                    return res.json({ published: false, unpushedCommits: unpushed, message: 'Есть неотправленные коммиты с изменениями вне контента — отправьте их вручную (git push)' });
+                }
+                await runGit(['push', 'origin', 'HEAD']);
+                const sha = (await runGit(['rev-parse', 'HEAD'])).stdout.trim();
+                return res.json({ published: true, pushed: true, sha, message: 'Отправлен ранее неопубликованный коммит' });
+            }
+            return res.json({ published: false, message: 'Нет изменений для публикации', unpushedCommits: unpushed });
+        }
+
+        // e. Dry run: unstage and report
+        if (dryRun) {
+            await runGit(['reset', '--', ...GIT_PUBLISH_PATHS]);
+            return res.json({ published: false, dryRun: true, wouldCommit: staged });
+        }
+
+        // f. Check origin BEFORE committing (a failed fetch must not strand a local
+        //    commit), then commit only the publish paths and push
+        await runGit(['fetch', 'origin']);
+        let originAhead = 0;
+        try {
+            await runGit(['rev-parse', '--verify', '--quiet', `origin/${branch}`]);
+            originAhead = parseInt((await runGit(['rev-list', '--count', `HEAD..origin/${branch}`])).stdout.trim(), 10) || 0;
+        } catch {
+            originAhead = 0; // no remote branch yet — safe to push
+        }
+
+        await runGit(['commit', '-m', 'content: публикация из редактора', '-m', 'Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>', '--', ...GIT_PUBLISH_PATHS]);
+        const sha = (await runGit(['rev-parse', 'HEAD'])).stdout.trim();
+
+        if (originAhead > 0) {
+            return res.json({
+                published: true,
+                pushed: false,
+                sha,
+                warning: 'Закоммичено локально; на GitHub есть более новые изменения — нужен pull'
+            });
+        }
+
+        await runGit(['push', 'origin', 'HEAD']);
+        res.json({ published: true, pushed: true, sha });
+    } catch (e) {
+        console.error('[A.LAB] Publish error:', e);
+        const detail = String(e?.stderr || e?.message || e).trim().slice(0, 400);
+        res.status(500).json({ error: `Ошибка git при публикации: ${detail}` });
+    }
+});
+
+// ─── Startup ───
+if (!authConfigured()) {
+    console.warn('[A.LAB] ВНИМАНИЕ: CMS_LOGIN/CMS_PASSWORD не заданы в .env — все API-запросы будут отклоняться (503)');
+}
+if (!process.env.ANALYTICS_SALT) {
+    console.warn('[A.LAB] ВНИМАНИЕ: ANALYTICS_SALT не задан в .env — используется соль по умолчанию');
+}
+
+importCasesIfDbEmpty();
+
 if (!process.env.VERCEL) {
-    app.listen(PORT, () => {
+    app.listen(PORT, '127.0.0.1', () => {
         console.log(`[A.LAB] CMS at http://localhost:${PORT}`);
         console.log(`[A.LAB] CMS prefix at http://localhost:${PORT}${CMS_BASE_PATH}/`);
     });

@@ -34,6 +34,7 @@
         /* Buttons */
         .btn{padding:0.5rem 1rem;border-radius:6px;border:none;cursor:pointer;font-weight:600;font-size:0.85rem;transition:opacity 0.2s}
         .btn:hover{opacity:0.85}
+        .btn:disabled{opacity:0.45;cursor:default;pointer-events:none}
         .btn-white{background:#fff;color:#000}
         .btn-dark{background:#1a1a1a;color:#ccc;border:1px solid #333}
         .btn-red{background:#c0392b;color:#fff}
@@ -1005,10 +1006,11 @@
             const [analyticsDays, setAnalyticsDays] = useState(30);
             const [search, setSearch] = useState('');
             const [catEdit, setCatEdit] = useState(false);
+            const [publishing, setPublishing] = useState(false);
             const projDrag = useRef(null);
             const projDragOver = useRef(null);
 
-            const showToast = (msg, ok = true) => { setToast({ msg, ok }); setTimeout(() => setToast(null), 2000); };
+            const showToast = (msg, ok = true, duration = 2000) => { setToast({ msg, ok }); setTimeout(() => setToast(null), duration); };
 
             const loadData = () => {
                 apiFetch(`${API}/cases`).then(r => {
@@ -1034,6 +1036,29 @@
                     setSettings(s);
                     showToast('Настройки сохранены');
                 } catch { showToast('Ошибка', false); }
+            };
+
+            const publishSite = async () => {
+                if (!confirm('Опубликовать изменения на alabspace.com?')) return;
+                setPublishing(true);
+                try {
+                    const r = await apiFetch(`${API}/publish`, { method: 'POST', body: JSON.stringify({}) });
+                    if (r.status === 401) { sessionStorage.removeItem('cms_token'); setAuthed(false); return; }
+                    const j = await r.json().catch(() => ({}));
+                    if (!r.ok) showToast(j.error || j.message || `Ошибка публикации (${r.status})`, false, 6000);
+                    else if (j.published === false) {
+                        // «Нет изменений» — нормальный итог, не ошибка; красным только
+                        // если на сервере остались неотправленные коммиты
+                        const stranded = (j.unpushedCommits || 0) > 0;
+                        showToast(j.message || j.error || 'Публикация не выполнена', !stranded, 6000);
+                    }
+                    else if (j.pushed === false) showToast(j.warning || j.message || 'Опубликовано локально, но push на GitHub не прошёл', false, 6000);
+                    else {
+                        const sha = String(j.commit || j.sha || '').slice(0, 7);
+                        showToast(`Опубликовано${sha ? ` (коммит ${sha})` : ''}. Сайт обновится через 1–2 минуты.`, true, 6000);
+                    }
+                } catch { showToast('Сервер недоступен', false, 6000); }
+                finally { setPublishing(false); }
             };
 
             useEffect(() => { if (authed) { loadData(); loadSettings(); loadAnalytics(); } }, [authed]);
@@ -1145,7 +1170,11 @@
                                     <div className="publish-stat"><span className="publish-stat-value">{demoProjects.length}</span><span className="publish-stat-label">demo</span></div>
                                 </div>
                             </div>
-                            <a href="http://localhost:5173/#portfolio" target="_blank" className="btn btn-dark btn-sm" style={{textDecoration:'none',whiteSpace:'nowrap'}}>Открыть сайт</a>
+                            <div style={{display:'flex',gap:'0.5rem',alignItems:'center',flexWrap:'wrap'}}>
+                                <button className="btn btn-white btn-sm" style={{whiteSpace:'nowrap'}} disabled={publishing} onClick={publishSite}>{publishing ? 'Публикуем…' : 'Опубликовать'}</button>
+                                <a href="https://alabspace.com/#portfolio" target="_blank" className="btn btn-dark btn-sm" style={{textDecoration:'none',whiteSpace:'nowrap'}}>Сайт</a>
+                                <a href="http://localhost:5173/#portfolio" target="_blank" className="btn btn-dark btn-sm" style={{textDecoration:'none',whiteSpace:'nowrap'}}>Превью (dev)</a>
+                            </div>
                             {publishWarnings.length ? <div className="publish-warnings">{publishWarnings.slice(0,5).map((w,i)=><div className="publish-warning" key={i}>⚠ {w}</div>)}</div> : null}
                         </div>
                         <div style={{display:'flex',gap:'0.75rem',marginBottom:'1.5rem',alignItems:'center'}}>
@@ -1500,11 +1529,7 @@
                     <div className="settings-section">
                         <div className="settings-title">🎨 Figma интеграция</div>
                         <p style={{fontSize:'0.8rem',color:'#666',marginBottom:'0.7rem'}}>Вставляйте URL из Figma — изображения импортируются автоматически. Работает с приватными файлами.</p>
-                        <div style={{display:'flex',gap:'0.5rem',alignItems:'center'}}>
-                            <span style={{fontSize:'0.75rem',color:'#888',whiteSpace:'nowrap'}}>Personal Access Token:</span>
-                            <input className="input" type="password" style={{flex:1}} value={s.figmaToken||''} onChange={e=>setS({...s, figmaToken: e.target.value})} placeholder="figd_..."/>
-                        </div>
-                        <p style={{fontSize:'0.7rem',color:'#555',marginTop:'0.4rem'}}>Создайте токен: Figma → Settings → Personal Access Tokens. Нужен доступ к файлам, из которых импортируете.</p>
+                        <p style={{fontSize:'0.75rem',color:'var(--cms-muted)'}}>Токен Figma задаётся в файле .env (FIGMA_TOKEN)</p>
                     </div>
 
                     <div className="settings-section">
@@ -1544,6 +1569,7 @@
         function Editor({ project, categories, onSave, onDelete, onClose }) {
             const [proj, setProj, history] = useHistory({ ...project });
             const [uploading, setUploading] = useState(false);
+            const [toast, setToast] = useState(null);
             const [dirty, setDirty] = useState(false);
             const [saving, setSaving] = useState(false);
             const [previewMode, setPreviewMode] = useState('desktop');
@@ -1607,11 +1633,17 @@
             }, [previewFullscreen]);
 
             const restartPreview = () => setPreviewSeed(Date.now());
+            const showToast = (msg, ok = true, duration = 3000) => { setToast({ msg, ok }); setTimeout(() => setToast(null), duration); };
             const handleUpload = async (e, cb) => {
                 const file = e.target.files[0]; if (!file) return;
                 setUploading(true);
                 const fd = new FormData(); fd.append('caseId', proj.id); fd.append('media', file);
-                try { const r = await fetch(`${API}/upload`, { method:'POST', body:fd, headers:{'X-CMS-Token':sessionStorage.getItem('cms_token')||''} }); const j = await r.json(); if(j.path) cb(j.path); } catch(e) { console.error(e); }
+                try {
+                    const r = await fetch(`${API}/upload`, { method:'POST', body:fd, headers:{'X-CMS-Token':sessionStorage.getItem('cms_token')||''} });
+                    const j = await r.json().catch(() => ({}));
+                    if (r.ok && j.path) cb(j.path);
+                    else showToast(j.error || `Не загрузился файл: ${file.name}`, false);
+                } catch(e) { console.error(e); showToast(`Не загрузился файл: ${file.name}`, false); }
                 setUploading(false);
             };
 
@@ -1620,7 +1652,8 @@
                     <div className="editor-top">
                         <div style={{display:'flex',gap:'0.5rem',alignItems:'center'}}>
                             <button className="btn btn-dark btn-sm" onClick={onClose}>← Назад</button>
-                            <a href={`http://localhost:5173/#portfolio`} target="_blank" className="btn btn-dark btn-sm" style={{textDecoration:'none'}}>↗ Сайт</a>
+                            <a href="https://alabspace.com/#portfolio" target="_blank" className="btn btn-dark btn-sm" style={{textDecoration:'none'}}>↗ Сайт</a>
+                            <a href="http://localhost:5173/#portfolio" target="_blank" className="btn btn-dark btn-sm" style={{textDecoration:'none'}}>Превью (dev)</a>
                             <span style={{fontSize:'1.1rem',fontWeight:700}}>{proj.title||'—'}</span>
                             <span className={`status-badge ${proj.status==='draft'?'status-draft':'status-published'}`} style={{cursor:'pointer'}} onClick={()=>update('status',proj.status==='draft'?'published':'draft')}>{proj.status==='draft'?'Черновик':'Опубликован'}</span>
                             <div className="save-indicator"><span className={`save-dot ${saving?'saving':dirty?'unsaved':'saved'}`}/>{saving?'Сохраняю...':dirty?'Есть изменения':'Сохранено'}</div>
@@ -1684,19 +1717,25 @@
                                         </div>
                                         <div className="block-actions"><button onClick={()=>moveBlock(i,-1)}>↑</button><button onClick={()=>moveBlock(i,1)}>↓</button><button style={{color:'#c0392b'}} onClick={()=>removeBlock(i)}>✕</button></div>
                                     </div>
-                                    <BlockEditor block={block} index={i} projId={proj.id} updateBlock={updateBlock} handleUpload={handleUpload}/>
+                                    <BlockEditor block={block} index={i} projId={proj.id} updateBlock={updateBlock} handleUpload={handleUpload} showToast={showToast}/>
                                 </div>
                                 );
                             })}
                             <div className="add-bar">{BLOCK_TYPES.map(bt=><button key={bt.type} className="btn btn-dark btn-sm" onClick={()=>addBlock(bt.type)}>{bt.icon} {bt.label}</button>)}
                                 <label className="btn btn-blue btn-sm" style={{cursor:'pointer'}}><input type="file" accept="image/*" multiple style={{display:'none'}} onChange={e=>{
                                     const files = Array.from(e.target.files); if(!files.length) return;
-                                    const gallery = {type:'gallery',images:[]};
-                                    let loaded = 0;
-                                    files.forEach(file=>{const fd=new FormData();fd.append('caseId',proj.id);fd.append('media',file);
-                                    fetch(`${API}/upload`,{method:'POST',body:fd,headers:{'X-CMS-Token':sessionStorage.getItem('cms_token')||''}}).then(r=>r.json()).then(j=>{
-                                        if(j.path){gallery.images.push(j.path);loaded++;if(loaded===files.length)update('blocks',[...(proj.blocks||[]),gallery])}
-                                    })})
+                                    e.target.value = '';
+                                    const failed = [];
+                                    Promise.all(files.map(file=>{
+                                        const fd=new FormData();fd.append('caseId',proj.id);fd.append('media',file);
+                                        return fetch(`${API}/upload`,{method:'POST',body:fd,headers:{'X-CMS-Token':sessionStorage.getItem('cms_token')||''}})
+                                            .then(r=>r.json().catch(()=>({})).then(j=>(r.ok&&j.path)?j.path:Promise.reject(new Error(j.error||'upload'))))
+                                            .catch(()=>{failed.push(file.name);return null;});
+                                    })).then(paths=>{
+                                        const images = paths.filter(Boolean);
+                                        if(images.length) update('blocks',[...(proj.blocks||[]),{type:'gallery',images}]);
+                                        if(failed.length) showToast(`Не загрузились: ${failed.join(', ')}`, false, 5000);
+                                    });
                                 }}/>📁 Массовая загрузка → Галерея</label>
                             </div>
                         </div>
@@ -1732,6 +1771,7 @@
 	                        </div>
 	                    )}
 	                    {uploading && <div className="toast toast-ok">Загрузка...</div>}
+	                    {toast && <div className={`toast ${toast.ok ? 'toast-ok' : 'toast-err'}`}>{toast.msg}</div>}
 	                </div>
 	            );
         }
@@ -1926,12 +1966,12 @@
         }
 
         // ─── BlockEditor ───
-        function BlockEditor({ block, index, projId, updateBlock, handleUpload }) {
+        function BlockEditor({ block, index, projId, updateBlock, handleUpload, showToast }) {
             if (block.type === 'heading') return (<><div style={{display:'flex',gap:'0.5rem',marginBottom:'0.5rem'}}>{['h1','h2','h3','h4'].map(l=><button key={l} className={`btn btn-sm ${block.level===l?'btn-blue':'btn-dark'}`} onClick={()=>updateBlock(index,'level',l)}>{l.toUpperCase()}</button>)}</div><RichEditor block={block} index={index} updateBlock={updateBlock} placeholder="Введите заголовок"/></>);
             if (block.type === 'text') return <RichEditor block={block} index={index} updateBlock={updateBlock} placeholder="Введите текст..."/>;
             if (block.type === 'image') return (<><div style={{display:'flex',gap:'0.5rem',flexWrap:'wrap'}}><input className="input" style={{flex:1,minWidth:200}} value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="Ссылка или Figma URL"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer',whiteSpace:'nowrap'}}><input type="file" style={{display:'none'}} onChange={e=>handleUpload(e,p=>updateBlock(index,'content',p))}/>Загрузить</label></div>{block.content && <img src={block.content} alt="" style={{maxWidth:'100%',maxHeight:200,marginTop:'0.5rem',borderRadius:6,objectFit:'contain',background:'#fff'}}/>}</>);
             if (block.type === 'video') return (<div style={{display:'flex',gap:'0.5rem'}}><input className="input" value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="Ссылка на видео"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer',whiteSpace:'nowrap'}}><input type="file" style={{display:'none'}} accept="video/*" onChange={e=>handleUpload(e,p=>updateBlock(index,'content',p))}/>Загрузить</label></div>);
-            if (block.type === 'gallery') { const imgs=block.images||[]; return (<><div style={{display:'flex',flexWrap:'wrap',gap:'0.5rem',marginBottom:'0.5rem'}}>{imgs.map((img,gi)=><div key={gi} style={{position:'relative',width:80,height:80}}><img src={img} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:4}}/><button onClick={()=>{const n=[...imgs];n.splice(gi,1);updateBlock(index,'images',n);}} style={{position:'absolute',top:-4,right:-4,background:'#c0392b',color:'#fff',border:'none',borderRadius:'50%',width:18,height:18,fontSize:'0.6rem',cursor:'pointer',lineHeight:'18px'}}>✕</button></div>)}</div><label className="btn btn-dark btn-sm" style={{cursor:'pointer'}}><input type="file" style={{display:'none'}} multiple onChange={e=>{Array.from(e.target.files).forEach(file=>{const fd=new FormData();fd.append('caseId',projId);fd.append('media',file);fetch(`${API}/upload`,{method:'POST',body:fd,headers:{'X-CMS-Token':sessionStorage.getItem('cms_token')||''}}).then(r=>r.json()).then(j=>{if(j.path)updateBlock(index,'images',[...(block.images||[]),j.path]);});});}}/>+ Изображения</label></>); }
+            if (block.type === 'gallery') { const imgs=block.images||[]; return (<><div style={{display:'flex',flexWrap:'wrap',gap:'0.5rem',marginBottom:'0.5rem'}}>{imgs.map((img,gi)=><div key={gi} style={{position:'relative',width:80,height:80}}><img src={img} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:4}}/><button onClick={()=>{const n=[...imgs];n.splice(gi,1);updateBlock(index,'images',n);}} style={{position:'absolute',top:-4,right:-4,background:'#c0392b',color:'#fff',border:'none',borderRadius:'50%',width:18,height:18,fontSize:'0.6rem',cursor:'pointer',lineHeight:'18px'}}>✕</button></div>)}</div><label className="btn btn-dark btn-sm" style={{cursor:'pointer'}}><input type="file" style={{display:'none'}} multiple onChange={e=>{const files=Array.from(e.target.files);if(!files.length)return;e.target.value='';const failed=[];Promise.all(files.map(file=>{const fd=new FormData();fd.append('caseId',projId);fd.append('media',file);return fetch(`${API}/upload`,{method:'POST',body:fd,headers:{'X-CMS-Token':sessionStorage.getItem('cms_token')||''}}).then(r=>r.json().catch(()=>({})).then(j=>(r.ok&&j.path)?j.path:Promise.reject(new Error(j.error||'upload')))).catch(()=>{failed.push(file.name);return null;});})).then(paths=>{const ok=paths.filter(Boolean);if(ok.length)updateBlock(index,'images',[...(block.images||[]),...ok]);if(failed.length&&showToast)showToast(`Не загрузились: ${failed.join(', ')}`,false,5000);});}}/>+ Изображения</label></>); }
             if (block.type === 'links') {
                 const items = block.items || [];
                 const updateItem = (itemIndex, key, value) => {
