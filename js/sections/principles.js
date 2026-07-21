@@ -1,5 +1,7 @@
 /**
- * Principles Section: desktop horizontal scene + mobile vertical jump scene
+ * Principles Section: desktop horizontal scene with the genie cube.
+ * На мобильных куб скрыт (display: none в principles.css) — пункты процесса
+ * раскладываются статичным списком без ScrollTrigger.
  */
 
 const MOBILE_BREAKPOINT = 900;
@@ -22,7 +24,6 @@ export const initPrinciples = (container) => {
     const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
     const isMobileLayout = () => window.innerWidth <= MOBILE_BREAKPOINT;
     const isAnimatedCompactLayout = () => window.innerWidth <= 768;
-    const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     let jumpHeight = 120;
     let steps = [];
@@ -97,177 +98,6 @@ export const initPrinciples = (container) => {
         items.forEach((item) => {
             gsap.set(item, { clearProps: 'all' });
         });
-    };
-
-    const getMobileHiddenState = () => ({
-        autoAlpha: 0,
-        y: 28,
-        scaleY: 0.72,
-        scaleX: 0.94,
-        filter: 'blur(10px)',
-        transformOrigin: '50% 0%'
-    });
-
-    const createMobileScene = () => {
-        buildLayout();
-        main.dataset.mobileJump = 'true';
-
-        const getTargetYs = () => {
-            const boxSize = boxWrapper.getBoundingClientRect().height || 96;
-            const overlap = clamp(boxSize * 0.18, 16, 22);
-            
-            // ScrollTrigger.refresh() ensures layouts are up to date
-            // Using offsetTop for simplicity, assuming items are direct children or positioned relative to main
-            return items.map(item => (item.offsetTop || 0) - boxSize + overlap);
-        };
-
-        // Куб на мобильной сцене виден сразу: раньше он получал autoAlpha:0 и его
-        // никто не проявлял — зона под него выглядела как пустое место.
-        // ВАЖНО: не вешать на куб filter (даже blur(0px)) — filter принудительно
-        // делает transform-style: flat и ломает 3D-грани.
-        gsap.set(box, { autoAlpha: 1 });
-
-        gsap.set(boxWrapper, {
-            xPercent: -50,
-            x: 0,
-            y: 0
-        });
-        gsap.set(box, {
-            y: 0,
-            scale: 1,
-            scaleX: 1,
-            scaleY: 1
-        });
-        labels.forEach((label) => {
-            label.textContent = steps[0]?.label ?? '1/3';
-        });
-        items.forEach((item) => {
-            gsap.set(item, getMobileHiddenState());
-        });
-
-        let targetYs = getTargetYs();
-        const mobileJump = Math.max(42, jumpHeight * 0.58);
-
-        // Auto-scale and Tilt logic for mobile
-        const updateBoxDynamics = (self) => {
-            const progress = self.progress;
-            const viewportHeight = window.innerHeight;
-            const boxRect = boxWrapper.getBoundingClientRect();
-            const boxCenterY = boxRect.top + boxRect.height / 2;
-            const screenCenterY = viewportHeight / 2;
-            
-            // Distance from center (0 to 1)
-            const distFromCenter = Math.abs(boxCenterY - screenCenterY) / (viewportHeight / 2);
-            const normalizedDist = Math.min(1, distFromCenter);
-            
-            // Auto-scale: grow when near center
-            const scale = 1 + (1 - normalizedDist) * 0.45;
-            gsap.set(boxWrapper, { scale: scale });
-            
-            // Dynamic Tilt based on scroll velocity and position.
-            // Наклон только «сверху» (отрицательный rotationX): дно куба показывать нельзя
-            const tiltX = -(normalizedDist * 15);
-            const tiltZ = self.getVelocity() / 200;
-            
-            gsap.set(box, { 
-                rotationX: tiltX,
-                rotationZ: gsap.utils.clamp(-8, 8, tiltZ)
-            });
-        };
-
-        const scrollTl = gsap.timeline({
-            scrollTrigger: {
-                trigger: container,
-                start: 'top top',
-                end: () => `+=${Math.max(window.innerHeight * 1.02, items.length * 260)}`,
-                scrub: 0.9,
-                pin: true,
-                pinSpacing: true,
-                invalidateOnRefresh: true,
-                onRefreshInit: () => {
-                    buildLayout();
-                    main.dataset.mobileJump = 'true';
-                    labels.forEach((label) => {
-                        label.textContent = steps[0]?.label ?? '1/3';
-                    });
-                    gsap.set(boxWrapper, {
-                        xPercent: -50,
-                        x: 0,
-                        y: 0
-                    });
-                    gsap.set(box, {
-                        y: 0,
-                        scale: 1,
-                        scaleX: 1,
-                        scaleY: 1
-                    });
-                    items.forEach((item) => {
-                        gsap.set(item, getMobileHiddenState());
-                    });
-                },
-                onRefresh: () => {
-                    targetYs = getTargetYs();
-                },
-                onUpdate: (self) => {
-                    updateBoxDynamics(self);
-                }
-            }
-        });
-
-        const addMobileStepToTimeline = (timeline, stepIndex, label) => {
-            const step = steps[stepIndex];
-            const principleItem = items[step.principleIndex];
-
-            timeline.to(box, {
-                scaleY: 0.76,
-                scaleX: 1.22,
-                duration: 0.12
-            }, label);
-
-            timeline.to(box, {
-                y: -mobileJump,
-                scaleY: 1.12,
-                scaleX: 0.88,
-                duration: 0.22,
-                ease: 'back.out(1.4)'
-            }, `${label}+=0.08`);
-
-            timeline.to(boxWrapper, {
-                y: () => targetYs[stepIndex] ?? 0,
-                duration: 0.34,
-                ease: 'power1.inOut'
-            }, `${label}+=0.12`);
-
-            timeline.to(box, {
-                y: 0,
-                scaleY: 1,
-                scaleX: 1,
-                duration: 0.2,
-                ease: 'power2.in'
-            }, `${label}+=0.3`);
-
-            timeline.set(labels, { textContent: step.label }, `${label}+=0.14`);
-
-            timeline.to(principleItem, {
-                autoAlpha: 1,
-                y: 0,
-                scaleY: 1,
-                scaleX: 1,
-                filter: 'blur(0px)',
-                duration: 0.28,
-                ease: 'power2.out'
-            }, `${label}+=0.18`);
-        };
-
-        scrollTl.addLabel('mobileStart', '+=0.16');
-        addMobileStepToTimeline(scrollTl, 0, 'mobileStep1');
-        scrollTl.to({}, { duration: 0.16 });
-        addMobileStepToTimeline(scrollTl, 1, 'mobileStep2');
-        scrollTl.to({}, { duration: 0.16 });
-        addMobileStepToTimeline(scrollTl, 2, 'mobileStep3');
-        scrollTl.to({}, { duration: 0.3 });
-
-        return scrollTl;
     };
 
     const createDesktopScene = () => {
@@ -385,35 +215,29 @@ export const initPrinciples = (container) => {
     let mm = gsap.matchMedia();
 
     mm.add(`(max-width: ${MOBILE_BREAKPOINT}px)`, () => {
-        if (prefersReducedMotion()) {
-            applyMobileStaticState();
-            return () => {};
-        }
-
-        const scrollTl = createMobileScene();
-        return () => {
-            delete main.dataset.mobileJump;
-            scrollTl.kill();
-            gsap.set(boxWrapper, { clearProps: 'xPercent,x,y' });
-            gsap.set(box, { clearProps: 'scale,scaleX,scaleY,y' });
-            items.forEach((item) => {
-                gsap.set(item, { clearProps: 'transform,opacity,filter,visibility' });
-            });
-        };
+        // Куб на мобильных скрыт (display: none в principles.css), поэтому
+        // сцену с прыжками не строим: без пина, ScrollTrigger и анимаций
+        // куб не тратит кадры на телефоне, а пункты процесса
+        // раскладываются статично (см. portfolio.css).
+        applyMobileStaticState();
+        return () => {};
     });
 
     mm.add(`(min-width: ${MOBILE_BREAKPOINT + 1}px)`, () => {
         const scrollTl = createDesktopScene();
-        return () => scrollTl.kill();
-    });
+        const spinTween = gsap.to(box, {
+            rotationY: 360,
+            // отрицательный rotationX = взгляд чуть сверху: видим верхнюю грань, а не дно
+            // (куб стоит «на земле», под ним тень — низ показывать нельзя)
+            rotationX: -12,
+            duration: 10,
+            repeat: -1,
+            ease: 'none'
+        });
 
-    gsap.to(box, {
-        rotationY: 360,
-        // отрицательный rotationX = взгляд чуть сверху: видим верхнюю грань, а не дно
-        // (куб стоит «на земле», под ним тень — низ показывать нельзя)
-        rotationX: -12,
-        duration: 10,
-        repeat: -1,
-        ease: 'none'
+        return () => {
+            scrollTl.kill();
+            spinTween.kill();
+        };
     });
 };

@@ -35,57 +35,141 @@ export async function initPortfolio(container) {
 
     }
 
-    // Все направления показываются сразу, плашки проектов ведут на Behance (или в модалку кейса)
+    // Направления: на главной до трёх плашек на категорию (приоритет — метка «На главной» из редактора),
+    // клик по заголовку или плашке «ещё N» проваливается в категорию с полным списком
+    const MAX_ON_MAIN = 3;
+    const industriesWrap = container.querySelector('.portfolio-industries');
+    const subtitleEl = container.querySelector('.portfolio-subtitle');
+    let activeCategory = null;
+
+    const backBtn = document.createElement('button');
+    backBtn.type = 'button';
+    backBtn.className = 'portfolio-back';
+    backBtn.textContent = '← все индустрии';
+    backBtn.hidden = true;
+    industriesWrap?.prepend(backBtn);
+    backBtn.addEventListener('click', () => setCategory(null));
+
+    const publishedIn = (categoryId) => portfolioData.projects
+        .filter(p => p.categoryId === categoryId && p.status !== 'draft');
+
+    const mainSelection = (projects) => projects.filter(p => p.featured)
+        .concat(projects.filter(p => !p.featured))
+        .slice(0, MAX_ON_MAIN);
+
+    const escText = (v = '') => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+    const buildCard = (proj) => {
+        const card = document.createElement('div');
+        card.className = 'portfolio-project-card';
+        card.setAttribute('data-case', proj.id);
+        card.setAttribute('aria-label', proj.title);
+        card.setAttribute('role', 'link');
+        card.setAttribute('tabindex', '0');
+        const tagline = String(proj.tagline || '').trim();
+        if (tagline) card.classList.add('has-tagline');
+        const badge = proj.isExternal && proj.externalUrl
+            ? '<span class="project-external-badge">Behance ↗</span>'
+            : '';
+        card.innerHTML = `
+            ${proj.logo ? `<div class="project-logo-wrapper"><img src="${escText(proj.logo)}" class="project-logo" alt="${escText(proj.title)} logo"></div>` : `<div class="project-logo-fallback">${escText(proj.title)}</div>`}
+            ${tagline ? `<span class="project-tagline">${escText(tagline)}</span>` : ''}
+            ${badge}
+        `;
+
+        const openProject = () => {
+            if (proj.isExternal && proj.externalUrl) {
+                window.open(proj.externalUrl, '_blank');
+            } else {
+                openModal(proj);
+            }
+        };
+        card.addEventListener('click', openProject);
+        card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openProject();
+            }
+        });
+        return card;
+    };
+
+    const buildMoreCard = (categoryId, hiddenCount, catTitle) => {
+        const more = document.createElement('button');
+        more.type = 'button';
+        more.className = 'portfolio-project-card project-more-card';
+        more.setAttribute('aria-label', `Показать все проекты — ${catTitle}`);
+        more.innerHTML = `<span class="project-more-count">+${hiddenCount}</span><span class="project-more-label">смотреть ещё</span>`;
+        more.addEventListener('click', () => setCategory(categoryId));
+        return more;
+    };
+
+    function renderIndustries() {
+        industryBlocks.forEach(block => {
+            const categoryId = block.getAttribute('data-category');
+            const titleEl = block.querySelector('.industry-title');
+            const grid = block.querySelector('.industry-projects');
+            if (!grid) return;
+
+            const catTitle = portfolioData.categories[categoryId] || '';
+            const projects = publishedIn(categoryId);
+            const isActive = activeCategory === categoryId;
+
+            if (titleEl && catTitle) {
+                titleEl.textContent = catTitle + ' ';
+                const countEl = document.createElement('span');
+                countEl.className = 'industry-count';
+                countEl.textContent = String(projects.length);
+                titleEl.appendChild(countEl);
+            }
+
+            if (!projects.length || (activeCategory && !isActive)) {
+                block.style.display = 'none';
+                return;
+            }
+
+            block.style.display = '';
+            block.classList.toggle('portfolio-industry--active', isActive);
+
+            grid.innerHTML = '';
+            const shown = isActive ? projects : mainSelection(projects);
+            shown.forEach(proj => grid.appendChild(buildCard(proj)));
+            if (!isActive && projects.length > shown.length) {
+                grid.appendChild(buildMoreCard(categoryId, projects.length - shown.length, catTitle));
+            }
+        });
+
+        backBtn.hidden = !activeCategory;
+        if (subtitleEl) {
+            subtitleEl.textContent = activeCategory
+                ? (portfolioData.categories[activeCategory] || 'индустрии')
+                : 'индустрии';
+        }
+    }
+
+    function setCategory(categoryId) {
+        activeCategory = categoryId;
+        renderIndustries();
+    }
+
     industryBlocks.forEach(block => {
         const categoryId = block.getAttribute('data-category');
         const titleEl = block.querySelector('.industry-title');
-        const grid = block.querySelector('.industry-projects');
-        if (!grid) return;
-
-        if (titleEl && portfolioData.categories[categoryId]) {
-            titleEl.textContent = portfolioData.categories[categoryId];
-        }
-
-        const projects = portfolioData.projects.filter(p => p.categoryId === categoryId && p.status !== 'draft');
-        if (!projects.length) {
-            block.style.display = 'none';
-            return;
-        }
-
-        grid.innerHTML = '';
-        projects.forEach(proj => {
-            const card = document.createElement('div');
-            card.className = 'portfolio-project-card';
-            card.setAttribute('data-case', proj.id);
-            card.setAttribute('aria-label', proj.title);
-            card.setAttribute('role', 'link');
-            card.setAttribute('tabindex', '0');
-            const badge = proj.isExternal && proj.externalUrl
-                ? '<span class="project-external-badge">Behance ↗</span>'
-                : '';
-            card.innerHTML = `
-                ${proj.logo ? `<div class="project-logo-wrapper"><img src="${proj.logo}" class="project-logo" alt="${proj.title} logo"></div>` : `<div class="project-logo-fallback">${proj.title}</div>`}
-                ${badge}
-            `;
-
-            const openProject = () => {
-                if (proj.isExternal && proj.externalUrl) {
-                    window.open(proj.externalUrl, '_blank');
-                } else {
-                    openModal(proj);
-                }
-            };
-            card.addEventListener('click', openProject);
-            card.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    openProject();
-                }
-            });
-
-            grid.appendChild(card);
+        if (!titleEl) return;
+        titleEl.classList.add('industry-title--link');
+        titleEl.setAttribute('role', 'button');
+        titleEl.setAttribute('tabindex', '0');
+        const toggleCategory = () => setCategory(activeCategory === categoryId ? null : categoryId);
+        titleEl.addEventListener('click', toggleCategory);
+        titleEl.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                toggleCategory();
+            }
         });
     });
+
+    renderIndustries();
 
     // Modal logic
     const modal = document.getElementById('case-study-modal');

@@ -22,6 +22,7 @@ import { initPortfolio } from './js/sections/portfolio.js';
 import { initContacts } from './js/sections/contacts.js';
 import { initViewportMetrics } from './js/utils/viewport.js';
 import { initIridescentTrail } from './js/effects/iridescent-trail.js';
+import { initWaterRipple } from './js/effects/water-ripple.js';
 import { initAnalytics } from './js/utils/analytics.js';
 
 /**
@@ -81,17 +82,25 @@ document.addEventListener('DOMContentLoaded', () => {
             ignoreMobileResize: true
         });
 
-        if (isTouchScrollDevice && typeof ScrollTrigger.normalizeScroll === 'function') {
-            ScrollTrigger.normalizeScroll({
-                allowNestedScroll: true,
-                type: 'touch,wheel'
-            });
-        }
+        // Тач-скролл оставляем нативным: normalizeScroll перехватывает touch-события
+        // и ведёт скролл через JS, что на iPhone даёт микро-подёргивания при скролле.
     }
 
     // 1. Основная логика и утилиты (Lenis и др. загружаются через CDN в index.html)
     initViewportMetrics();
-    initIridescentTrail();
+    // Жидкостный след — только для десктопа: iOS Safari не поддерживает canvas
+    // ctx.filter blur (пиксельные розово-фиолетовые пятна), а покадровая симуляция
+    // нагружает главный поток во время скролла.
+    if (!isTouchScrollDevice && window.matchMedia?.('(min-width: 769px)').matches) {
+        initIridescentTrail();
+    }
+    // Водная гладь в финале (секция contacts): интерактивная лиловая рябь
+    // + плавное растворение масляного следа при входе в секцию.
+    try {
+        initWaterRipple();
+    } catch (error) {
+        console.error('[A.LAB] Ошибка инициализации water-ripple:', error);
+    }
     initHeaderAnchorNavigation();
     initAnalytics();
 

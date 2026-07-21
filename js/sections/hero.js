@@ -142,11 +142,18 @@ export const initHero = (container) => {
         }
     };
 
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('touchmove', onTouchMove, { passive: true });
-    window.addEventListener('mouseleave', clearPointer);
-    window.addEventListener('touchend', clearPointer);
-    window.addEventListener('touchcancel', clearPointer);
+    // На тач-устройствах физика отталкивания не запускается: палец при скролле
+    // разбрасывает буквы подзаголовка (inline transform/opacity), а цикл rAF
+    // с getBoundingClientRect на каждый кадр добавляет подёргивания на iPhone.
+    const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+
+    if (!coarsePointer) {
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('touchmove', onTouchMove, { passive: true });
+        window.addEventListener('mouseleave', clearPointer);
+        window.addEventListener('touchend', clearPointer);
+        window.addEventListener('touchcancel', clearPointer);
+    }
 
     let animationFrame;
 
@@ -252,7 +259,9 @@ export const initHero = (container) => {
     };
 
     // Start physics loop
-    updatePhysics();
+    if (!coarsePointer) {
+        updatePhysics();
+    }
 
     // -----------------------------------------
     // Tactile Typography Interactions

@@ -5,9 +5,24 @@
     /* Reduce backdrop-filter blur on mobile (major GPU hog) */
     .ee-section,
     .contact-section-inner,
-    .contact-card-frame {
+    .contact-card-frame,
+    .ee-column,
+    .reactive-form-container,
+    .portfolio-card,
+    .portfolio-project-card,
+    .portfolio-back-btn,
+    .hero-cta-circular,
+    .contact-blob {
         backdrop-filter: blur(6px) !important;
         -webkit-backdrop-filter: blur(6px) !important;
+    }
+
+    /* iOS Safari does not support canvas ctx.filter blur (added in iOS 18),
+       so the iridescent oil-trail canvas renders its coarse sim grid as
+       pixelated/banded pink-purple blobs, and its per-frame fluid simulation
+       janks scrolling. Removed on mobile (also guarded in main.js). */
+    .cursor-oil-layer {
+        display: none !important;
     }
 
     /* Slow down infinite animations (less repaints) */
@@ -25,8 +40,40 @@
     }
 
     .profile-oval-body,
-    .profile-image-wrapper {
+    .profile-image-wrapper,
+    .profile-image-container {
         will-change: auto !important;
+    }
+
+    /* Per-character will-change (set inline by split-text scripts) creates
+       hundreds of compositor layers on mobile */
+    .falling-char,
+    .manifesto-text .char,
+    .ee-title span,
+    .ee-subtitle span,
+    .case-block-reveal[data-animation],
+    .naming-track,
+    .portfolio-project-card {
+        will-change: auto !important;
+    }
+
+    /* Freeze infinite morph/pulse loops that re-filter backdrop-filter or
+       blend-mode layers every frame */
+    .hero-cta-circular,
+    .contact-blob,
+    .author-info {
+        animation: none !important;
+    }
+
+    .ee-column.glow-active::before,
+    .ee-column:hover::before {
+        animation: none !important;
+    }
+
+    /* Large blur(10px) flash during case reveal bands on iOS — reveal
+       with scale/fade only */
+    .case-block-reveal[data-animation="scale-up"] {
+        filter: none !important;
     }
 
     /* Simplify profile shadows */

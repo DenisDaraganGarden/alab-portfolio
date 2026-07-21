@@ -299,8 +299,14 @@
     /* масштаб от ширины экрана, чтобы «управление вниманием» помещалось целиком */
     font-size: clamp(0.72rem, 3.6vw, 1.1rem);
     font-weight: 500;
-    opacity: 1;
+    /* страховка: на мобильных список виден всегда, даже если входная
+       анимация не успела отработать (слабое устройство, свёрнутая вкладка) */
+    opacity: 1 !important;
+    transform: none !important;
     text-transform: uppercase;
+    /* выравниваем тире по базовой линии текста, а не по центру флекс-строки:
+       центр строки зависит от метрик шрифта и на iOS садит тире ниже надписи */
+    align-items: baseline;
   }
 
   .hero-services-list li:not(:last-child)::after {
@@ -314,6 +320,10 @@
     height: 2px;
     background-color: var(--text-color);
     opacity: 0.8;
+    /* нижний край тире стоит на базовой линии; поднимаем его к оптическому
+       центру заглавных букв (~0.35em над базовой линией) — не зависит от шрифта */
+    position: relative;
+    top: calc(1px - 0.35em);
   }
   
   .hero-bottom-right {
@@ -822,4 +832,103 @@ body.spotlight-global-active .dimmed-sibling {
 .hero-section.effect-spotlight-active .lamp-cord-container {
   top: 0;
   animation: sway 4s ease-in-out infinite;
+}
+
+/* -----------------------------------------
+   Тач-устройства: hover-эффекты букв рассчитаны на мышь.
+   iOS синтезирует mouseenter по тапу и не шлёт mouseleave,
+   поэтому классы затемнения/свечения «залипают»: розово-
+   фиолетовое свечение и blur накрывают контент hero при
+   скролле. Гасим все hover-состояния на coarse-указателях.
+----------------------------------------- */
+@media (pointer: coarse) {
+  .dimmed-sibling {
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  .hero-services-list li.is-highlighted {
+    text-shadow: none;
+    z-index: auto;
+  }
+
+  /* «a.» — пульсирующие кольца и розовое свечение */
+  .effect-communication {
+    color: var(--text-color);
+    text-shadow: none;
+    isolation: auto;
+  }
+
+  .effect-communication::before,
+  .effect-communication::after,
+  .effect-communication .dot-char::after {
+    display: none;
+  }
+
+  .effect-communication .falling-char:first-child,
+  .effect-communication .dot-char {
+    animation: none;
+    text-shadow: none;
+  }
+
+  /* «l» — ось нейминга и бегущая строка */
+  .effect-rotate-l {
+    animation: none !important;
+    color: var(--text-color) !important;
+  }
+
+  .effect-rotate-l::before,
+  .naming-window {
+    display: none;
+  }
+
+  /* «a» — цикл стилей бренда, «b» — прожектор, глитч */
+  .effect-glitch,
+  .effect-morph,
+  .effect-fonts,
+  .effect-chrome,
+  .effect-complex,
+  .effect-simple,
+  .effect-wow,
+  .effect-release,
+  .effect-blueprint,
+  .effect-spotlight {
+    color: var(--text-color) !important;
+    background: none !important;
+    -webkit-text-stroke: 0 !important;
+    text-shadow: none !important;
+    animation: none !important;
+    filter: none !important;
+    transform: none;
+    mix-blend-mode: normal;
+    font-family: inherit;
+    font-style: normal;
+    font-weight: inherit;
+  }
+
+  /* Фиксированная подложка прожектора и шнур лампы */
+  .hero-section::after,
+  .lamp-cord-container {
+    display: none;
+  }
+
+  body.spotlight-global-active .global-header,
+  body.spotlight-global-active .hero-bottom-right,
+  body.spotlight-global-active .dimmed-sibling {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  body.spotlight-global-active .hero-subtitle {
+    color: inherit;
+    opacity: 0.8 !important;
+    text-shadow: none;
+    filter: none;
+    animation: none;
+  }
+
+  body.spotlight-global-active .hero-services-list li.is-highlighted {
+    color: var(--text-color);
+    text-shadow: none;
+  }
 }
