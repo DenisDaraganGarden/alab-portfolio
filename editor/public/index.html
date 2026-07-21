@@ -202,6 +202,8 @@
         .status-badge{font-size:0.65rem;padding:0.15rem 0.5rem;border-radius:99px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em}
         .status-published{background:#27ae60;color:#fff}
         .status-draft{background:#555;color:#ccc}
+        .status-featured-on{background:#f1c40f;color:#141414}
+        .status-featured-off{background:transparent;color:#8a8a8a;border:1px solid #333}
         .status-demo{background:#8e44ad;color:#fff}
 
         /* Publish health */
@@ -1207,6 +1209,7 @@
                                                     <div className="proj-card-meta">
                                                         <span>{(p.blocks||[]).length} блоков</span>
                                                         <span className={`status-badge ${p.status==='draft'?'status-draft':'status-published'}`}>{p.status==='draft'?'Черновик':'На сайте'}</span>
+                                                        {p.featured ? <span className="status-badge status-featured-on">★ Главная</span> : null}
                                                         {(p.categoryId === 'demo' || /demo/i.test(p.id || '')) && <span className="status-badge status-demo">Demo</span>}
                                                     </div>
                                                     <div className="proj-card-title">{p.title}</div>
@@ -1656,6 +1659,7 @@
                             <a href="http://localhost:5173/#portfolio" target="_blank" className="btn btn-dark btn-sm" style={{textDecoration:'none'}}>Превью (dev)</a>
                             <span style={{fontSize:'1.1rem',fontWeight:700}}>{proj.title||'—'}</span>
                             <span className={`status-badge ${proj.status==='draft'?'status-draft':'status-published'}`} style={{cursor:'pointer'}} onClick={()=>update('status',proj.status==='draft'?'published':'draft')}>{proj.status==='draft'?'Черновик':'Опубликован'}</span>
+                            <span className={'status-badge ' + (proj.featured?'status-featured-on':'status-featured-off')} style={{cursor:'pointer'}} title="До трёх проектов с меткой показываются на главной первыми" onClick={()=>update('featured', !proj.featured)}>{proj.featured?'★ На главной':'☆ На главную'}</span>
                             <div className="save-indicator"><span className={`save-dot ${saving?'saving':dirty?'unsaved':'saved'}`}/>{saving?'Сохраняю...':dirty?'Есть изменения':'Сохранено'}</div>
                         </div>
                         <div style={{display:'flex',gap:'0.5rem',alignItems:'center'}}>
@@ -1683,6 +1687,7 @@
                         <div><label className="field-label">Название</label><input className="input" value={proj.title} onChange={e=>update('title',e.target.value)}/></div>
                         <div><label className="field-label">Логотип</label><div style={{display:'flex',gap:'0.5rem'}}><input className="input" value={proj.logo||''} onChange={e=>update('logo',e.target.value)} placeholder="Путь к логотипу"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer',whiteSpace:'nowrap'}}><input type="file" style={{display:'none'}} onChange={e=>handleUpload(e,p=>update('logo',p))}/>Файл</label></div></div>
                     </div>
+                    <div style={{marginBottom:'1rem'}}><label className="field-label">Подпись под логотипом — видна на карточке проекта</label><input className="input" value={proj.tagline||''} onChange={e=>update('tagline',e.target.value)} placeholder="например: бюро недвижимости и девелопмента" maxLength={80}/></div>
                     <div style={{marginBottom:'1rem'}}><label style={{display:'flex',alignItems:'center',gap:'0.5rem',fontSize:'0.85rem',color:'#999'}}><input type="checkbox" checked={proj.isExternal||false} onChange={e=>update('isExternal',e.target.checked)}/>Внешняя ссылка</label>
                     {proj.isExternal && <input className="input" style={{marginTop:'0.5rem'}} value={proj.externalUrl||''} onChange={e=>update('externalUrl',e.target.value)} placeholder="https://behance.net/..."/>}</div>
                     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem',marginTop:'1rem'}}>
