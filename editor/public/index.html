@@ -9,6 +9,14 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Боевой модуль рендера блоков кейса. Предпросмотр использует ровно
+         его, а не собственную копию: иначе редактор показывает одно,
+         а сайт рисует другое. -->
+    <script type="module">
+        import { renderCaseBlocks } from '/site-js/sections/case-blocks.js';
+        window.ALAB_renderCaseBlocks = renderCaseBlocks;
+        window.dispatchEvent(new Event('alab:renderer-ready'));
+    </script>
     <style>
         *{box-sizing:border-box;margin:0;padding:0}
         body{background:#0a0a0a;color:#e0e0e0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
@@ -792,113 +800,10 @@
             return LINK_PLATFORMS.find(p => p.id === id) || LINK_PLATFORMS[LINK_PLATFORMS.length - 1];
         }
 
-        function renderPreviewLinks(block) {
-            const items = (block.items || []).filter(item => normalizeLinkUrl(item.url));
-            if (!items.length) return '';
-            const title = block.title ? `<div style="font-family:'Unbounded',sans-serif;font-size:1rem;font-weight:700;margin-bottom:0.8rem">${escapeHtml(block.title)}</div>` : '';
-            const cards = items.map(item => {
-                const platform = getLinkPlatform(item.platform);
-                const href = normalizeLinkUrl(item.url);
-                const label = item.label || platform.label;
-                return `<a href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;gap:0.75rem;padding:0.85rem 1rem;border:1px solid #dedee3;border-radius:999px;background:#fff;color:#1d1d1f;text-decoration:none;min-width:210px"><span style="width:36px;height:36px;border-radius:50%;background:#1d1d1f;color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:700">${escapeHtml(platform.mark)}</span><span><strong style="display:block;font-size:0.92rem">${escapeHtml(label)}</strong><small style="display:block;color:#6e6e73;margin-top:0.12rem">${escapeHtml(displayLinkUrl(href))}</small></span></a>`;
-            }).join('');
-            return `<div style="margin:2rem 5%;font-family:'Roboto',sans-serif">${title}<div style="display:flex;flex-wrap:wrap;gap:0.7rem">${cards}</div></div>`;
-        }
+        // Собственные рендереры предпросмотра удалены: разметку теперь даёт
+        // боевой модуль js/sections/case-blocks.js, подключённый в <head>.
+        // Их дубликат показывал не то, что окажется на сайте.
 
-        function renderPreviewColumns(block) {
-            const cols = (block.cols || []).filter(col => String(col.image || '').trim() || String(col.text || '').trim());
-            if (!cols.length) return '';
-            const count = Math.min(Math.max(cols.length, 1), 3);
-            const cards = cols.map((col, i) => {
-                const lines = String(col.text || '').split(/\n+/).map(line => line.trim()).filter(Boolean);
-                const title = lines.length === 1 && lines[0].length > 64 ? '' : (lines[0] || '');
-                const body = title ? lines.slice(1).join('<br>') : lines.join('<br>');
-                return `<article style="position:relative;min-height:330px;padding:12px;border:1px solid rgba(29,29,31,.08);border-radius:28px;background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(232,232,235,.76));box-shadow:0 22px 58px rgba(29,29,31,.075);overflow:hidden">
-                    ${col.image ? `<div style="height:210px;overflow:hidden;border-radius:20px;background:#fff"><img src="${escapeAttr(col.image)}" style="width:100%;height:100%;object-fit:cover;display:block"/></div>` : ''}
-                    <div style="padding:16px 6px 2px">
-                        ${title ? `<h3 style="font-family:'Unbounded',sans-serif;font-size:1.1rem;letter-spacing:-.05em;line-height:1.12;margin:0 0 8px">${escapeHtml(title)}</h3>` : ''}
-                        ${body ? `<p style="font-family:'Roboto',sans-serif;font-size:.95rem;line-height:1.55;margin:0;color:#1d1d1f">${escapeHtml(body).replace(/&lt;br&gt;/g, '<br>')}</p>` : ''}
-                    </div>
-                </article>`;
-            }).join('');
-
-            return `<div style="display:grid;grid-template-columns:repeat(${count},1fr);gap:24px;margin:2.2rem 5%">${cards}</div>`;
-        }
-
-        function previewAnimation(block) {
-            return block?.style?.animation || 'none';
-        }
-
-        function stripPreviewHtml(value) {
-            return String(value || '')
-                .replace(/<br\s*\/?>/gi, '\n')
-                .replace(/<\/(p|div|h[1-6])>/gi, '\n')
-                .replace(/<[^>]+>/g, '')
-                .replace(/&nbsp;/g, ' ')
-                .trim();
-        }
-
-        function renderPreviewAnimatedText(value, animation) {
-            if (animation === 'split-lines') {
-                const lines = stripPreviewHtml(value).split(/\n+/).map(line => line.trim()).filter(Boolean);
-                return lines.map((line, index) => `<span class="anim-line" style="--item-i:${index}">${escapeHtml(line)}</span>`).join('');
-            }
-            if (animation === 'split-words') {
-                const words = stripPreviewHtml(value).split(/\s+/).filter(Boolean);
-                return words.map((word, index) => `<span class="anim-word" style="--item-i:${index}">${escapeHtml(word)}</span>`).join(' ');
-            }
-            return String(value || '').replace(/\n/g, '<br>');
-        }
-
-        function wrapPreviewBlock(block, html, index) {
-            if (!html) return '';
-            const animation = previewAnimation(block);
-            if (animation === 'none') return html;
-            return `<div class="preview-block" data-anim="${escapeAttr(animation)}" style="--block-i:${index}">${html}</div>`;
-        }
-
-        const PREVIEW_ANIMATION_CSS = `
-            html{scroll-behavior:smooth}
-            body{background:#f5f5f5;color:#1a1a1a;font-family:'Roboto',sans-serif;padding:clamp(24px,4vw,56px) 0;min-height:100vh}
-            img{max-width:100%;height:auto}
-            .preview-block[data-anim]{opacity:0;will-change:transform,opacity,filter;transition:opacity 1.05s cubic-bezier(.16,1,.3,1),transform 1.05s cubic-bezier(.16,1,.3,1),filter 1.05s ease}
-            .preview-block[data-anim="fade-up"]{transform:translateY(86px)}
-            .preview-block[data-anim="fade-in"]{transform:none}
-            .preview-block[data-anim="scale-up"]{transform:scale(.86);filter:blur(10px)}
-            .preview-block[data-anim="split-lines"],.preview-block[data-anim="split-words"]{opacity:1;transform:none}
-            .preview-block.is-visible[data-anim]{opacity:1;transform:none;filter:none}
-            .anim-line{display:block;opacity:0;transform:translateY(34px);transition:opacity .86s cubic-bezier(.16,1,.3,1),transform .86s cubic-bezier(.16,1,.3,1);transition-delay:calc(var(--item-i,0) * 110ms)}
-            .anim-word{display:inline-block;opacity:0;transform:translateY(1.2em) rotate(.8deg);transition:opacity .72s cubic-bezier(.16,1,.3,1),transform .72s cubic-bezier(.16,1,.3,1);transition-delay:calc(var(--item-i,0) * 58ms)}
-            .preview-block.is-visible .anim-line,.preview-block.is-visible .anim-word{opacity:1;transform:none}
-            @media (prefers-reduced-motion: reduce){.preview-block[data-anim],.anim-line,.anim-word{opacity:1!important;transform:none!important;filter:none!important;transition:none!important}}
-        `;
-
-        const PREVIEW_ANIMATION_SCRIPT = `
-            (() => {
-                const revealables = Array.from(document.querySelectorAll('.preview-block[data-anim]'));
-                const show = el => el.classList.add('is-visible');
-                if (!('IntersectionObserver' in window)) {
-                    revealables.forEach(show);
-                    return;
-                }
-                const observer = new IntersectionObserver(entries => {
-                    entries.forEach(entry => {
-                        if (!entry.isIntersecting) return;
-                        show(entry.target);
-                        observer.unobserve(entry.target);
-                    });
-                }, { threshold: 0.18, rootMargin: '0px 0px -10% 0px' });
-                revealables.forEach(el => observer.observe(el));
-                window.addEventListener('message', event => {
-                    if (event.data !== 'restart-preview-animations') return;
-                    revealables.forEach(el => {
-                        el.classList.remove('is-visible');
-                        observer.observe(el);
-                    });
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                });
-            })();
-        `;
 
         const FONT_OPTIONS = [
             { id: 'Unbounded', label: 'Unbounded' },
@@ -1912,6 +1817,15 @@
             const ref = useRef(null);
             const iframeRef = useRef(null);
             const [scale, setScale] = useState(0.3);
+            // Модуль рендера подключается как ES-модуль и появляется чуть позже
+            // первого рендера React — ждём его события готовности
+            const [rendererReady, setRendererReady] = useState(typeof window.ALAB_renderCaseBlocks === 'function');
+            useEffect(() => {
+                if (rendererReady) return;
+                const onReady = () => setRendererReady(true);
+                window.addEventListener('alab:renderer-ready', onReady);
+                return () => window.removeEventListener('alab:renderer-ready', onReady);
+            }, [rendererReady]);
             const viewportW = isMobile ? 390 : 1440;
 
             useEffect(() => {
@@ -1934,29 +1848,28 @@
                 .map((block, index) => `${index}:${block?.type || ''}:${block?.style?.animation || 'none'}`)
                 .join('|');
 
-            const html = (blocks||[]).filter(b => b.enabled !== false).map((b, index) => {
-                const animation = previewAnimation(b);
-                switch(b.type) {
-                    case 'heading':
-                        return wrapPreviewBlock(b, `<${b.level||'h2'} style="font-family:'Unbounded',sans-serif;font-weight:700;margin:1rem 5%;line-height:1.12;letter-spacing:-0.04em">${renderPreviewAnimatedText(b.content, animation)}</${b.level||'h2'}>`, index);
-                    case 'text':
-                        return wrapPreviewBlock(b, `<p style="font-family:'Roboto',sans-serif;margin:1rem 5%;line-height:1.6;font-size:1.1rem">${renderPreviewAnimatedText(b.content, animation)}</p>`, index);
-                    case 'image': return b.content ? wrapPreviewBlock(b, `<div style="margin:1rem 5%"><img src="${escapeAttr(b.content)}" style="max-width:100%;border-radius:18px;${b.clipPath&&b.clipPath!=='none'?'clip-path:'+b.clipPath:''}" /></div>`, index) : '';
-                    case 'video': return b.content ? wrapPreviewBlock(b, `<div style="margin:1rem 5%"><video src="${escapeAttr(b.content)}" autoplay muted loop playsinline style="width:100%;border-radius:18px"></video></div>`, index) : '';
-                    case 'gallery': return wrapPreviewBlock(b, `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:0.7rem;margin:1rem 5%">${(b.images||[]).map(s=>`<img src="${escapeAttr(s)}" style="width:100%;border-radius:12px"/>`).join('')}</div>`, index);
-                    case 'links': return wrapPreviewBlock(b, renderPreviewLinks(b), index);
-                    case 'spacer': return `<div style="height:${b.height||80}px"></div>`;
-                    case 'raw_html': return b.content || '';
-                    case 'masked_image': return b.content ? wrapPreviewBlock(b, `<div style="margin:1rem 5%;text-align:center"><img src="${escapeAttr(b.content)}" style="max-width:100%;${b.clipPath&&b.clipPath!=='none'?'clip-path:'+b.clipPath:''}" /></div>`, index) : '';
-                    case 'columns': return wrapPreviewBlock(b, renderPreviewColumns(b), index);
-                    case 'compare': return (b.before&&b.after)?wrapPreviewBlock(b, `<div style="position:relative;margin:1.5rem 5%;overflow:hidden;border-radius:18px"><img src="${escapeAttr(b.after)}" style="width:100%;display:block"/><div style="position:absolute;inset:0;width:50%;overflow:hidden"><img src="${escapeAttr(b.before)}" style="width:200%;max-width:none;display:block"/></div><div style="position:absolute;top:0;bottom:0;left:50%;width:3px;background:#fff"></div><span style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 8px;border-radius:4px;font-size:0.7rem">ДО</span><span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);color:#fff;padding:2px 8px;border-radius:4px;font-size:0.7rem">ПОСЛЕ</span></div>`, index):'';
-                    case 'quote': return wrapPreviewBlock(b, `<blockquote style="margin:2rem 5%;padding:1.5rem 2rem;border-left:4px solid #6b6b6b;background:#f0f0f2;border-radius:0 18px 18px 0"><p style="font-family:'Roboto',sans-serif;font-size:1.1rem;font-style:italic;line-height:1.6;margin-bottom:0.75rem">${escapeHtml(b.text||'')}</p><div style="display:flex;align-items:center;gap:0.75rem">${b.photo?`<img src="${escapeAttr(b.photo)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover"/>`:''}<div><strong>${escapeHtml(b.author||'')}</strong>${b.role?`<br><span style="font-size:0.85rem;color:#666">${escapeHtml(b.role)}</span>`:''}</div></div></blockquote>`, index);
-                    case 'metrics': return wrapPreviewBlock(b, `<div style="display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;margin:2rem 5%;padding:2rem;background:#fff;border-radius:18px">${(b.items||[]).map(m=>`<div style="text-align:center;min-width:100px"><div style="font-family:'Unbounded',sans-serif;font-size:2rem;font-weight:700;color:#6b6b6b">${escapeHtml(m.value||'')}</div><div style="font-size:0.85rem;color:#666;margin-top:0.3rem">${escapeHtml(m.label||'')}</div></div>`).join('')}</div>`, index);
-                    default: return '';
-                }
-            }).join('\n');
+            // Разметка собирается тем же модулем, что и на сайте
+            const html = rendererReady ? window.ALAB_renderCaseBlocks(blocks || []) : '';
 
-            const srcDoc = `<!DOCTYPE html><html><head><base href="${window.location.origin}/"/><link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}${PREVIEW_ANIMATION_CSS}</style></head><body>${html||`<div style="padding:8rem 5%;text-align:center;color:#999"><p>Добавьте блоки</p></div>`}<script>${PREVIEW_ANIMATION_SCRIPT}<\/script></body></html>`;
+
+            // Документ предпросмотра: боевые стили блоков (файл самодостаточен,
+            // объявляет собственные --case-* переменные) плюс наблюдатель,
+            // который проявляет reveal-блоки — на сайте это делает portfolio.js.
+            const REVEAL_SCRIPT = [
+                "var nodes=document.querySelectorAll('.case-block-reveal');",
+                "var show=function(el){el.classList.add('is-visible')};",
+                "if(window.IntersectionObserver){",
+                "var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)show(e.target)})},{threshold:0.15});",
+                "nodes.forEach(function(el){io.observe(el)});",
+                "setTimeout(function(){nodes.forEach(show)},1500);",
+                "}else{nodes.forEach(show)}"
+            ].join('');
+
+            const placeholder = rendererReady
+                ? '<div style="padding:8rem 5%;text-align:center;color:#999;font-family:sans-serif"><p>Добавьте блоки</p></div>'
+                : '<div style="padding:8rem 5%;text-align:center;color:#999;font-family:sans-serif"><p>Загружается модуль рендера…</p></div>';
+
+            const srcDoc = `<!DOCTYPE html><html><head><base href="${window.location.origin}/"/><link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"><link href="/site-css/sections/case-blocks.css" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}body{background:var(--case-bg,#f5f5f7);color:var(--case-text,#1d1d1f);font-family:'Roboto',sans-serif;padding:clamp(1.5rem,5vw,5rem) 0}</style></head><body>${html || placeholder}<script>${REVEAL_SCRIPT}<\/script></body></html>`;
 
             return (
                 <div className="live-preview-frame" ref={ref} style={{height: viewportH * scale}}>

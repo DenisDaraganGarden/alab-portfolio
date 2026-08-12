@@ -62,6 +62,11 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/images', express.static(path.join(ROOT_DIR, 'public', 'images')));
 app.use('/audio', express.static(AUDIO_DIR));
+// Боевой код сайта для предпросмотра: тот же модуль рендера блоков и те же
+// стили, что и на alabspace.com. Раньше предпросмотр рисовал собственную
+// вёрстку с инлайн-стилями и показывал не то, что окажется на сайте.
+app.use('/site-js', express.static(path.join(ROOT_DIR, 'js')));
+app.use('/site-css', express.static(path.join(ROOT_DIR, 'css')));
 
 // ─── Auth (fail-closed, timing-safe, rate-limited) ───
 const authConfigured = () => Boolean(process.env.CMS_LOGIN && process.env.CMS_PASSWORD);
