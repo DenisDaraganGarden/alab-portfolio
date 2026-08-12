@@ -3,25 +3,30 @@
  * Handles interactions for the portfolio section, including the case study full-screen modal.
  */
 
+import { fetchJson, loadSettings, refreshScrollScenes } from '../boot/preloader.js';
+
 export async function initPortfolio(container) {
 
 
     const industryBlocks = container.querySelectorAll('.portfolio-industry');
 
     let portfolioData = null;
-    
+
     let siteSettings = {};
     try {
-        const response = await fetch('/data/cases.json');
-        portfolioData = await response.json();
+        portfolioData = await fetchJson('/data/cases.json', 4000);
+        window.__ALAB_BOOT?.mark('data:cases');
     } catch (e) {
         console.error('[A.LAB] Ошибка загрузки cases.json', e);
+        // Сетка останется пустой — снимаем с прогресса всё, что от неё
+        // зависело, иначе процент никогда не дойдёт до ста.
+        window.__ALAB_BOOT?.retire('data:cases');
+        for (let i = 0; i < 6; i += 1) window.__ALAB_BOOT?.retire(`media:${i}`);
         return;
     }
 
     try {
-        const sr = await fetch('/data/settings.json');
-        siteSettings = await sr.json();
+        siteSettings = (await loadSettings()) || {};
         // Apply card styles from settings
         if (siteSettings.cards) {
             const cs = siteSettings.cards;
@@ -150,6 +155,12 @@ export async function initPortfolio(container) {
     function setCategory(categoryId) {
         activeCategory = categoryId;
         renderIndustries();
+        // Провал в категорию перерисовывает сетку и меняет высоту документа.
+        // Без пересчёта позиции секции контактов протухают сразу после
+        // первого клика, а её карточка появляется за экраном или не
+        // появляется вовсе — с pointer-events:none, то есть форма
+        // становится физически нерабочей.
+        refreshScrollScenes();
     }
 
     industryBlocks.forEach(block => {
