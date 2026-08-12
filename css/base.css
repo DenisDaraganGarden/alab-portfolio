@@ -55,17 +55,3 @@ body {
   isolation: isolate;
   overscroll-behavior-x: none;
 }
-
-
-
-/* Themes */
-body.theme-dark {
-  --bg-color: #f7f7f7;
-  --text-color: #1d1d1f;
-}
-
-.theme-light {
-  --bg-color: #ffffff;
-  --text-color: #1a1a1a;
-  --accent-color: #555555;
-}

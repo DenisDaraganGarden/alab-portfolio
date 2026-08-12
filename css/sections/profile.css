@@ -112,10 +112,6 @@
   overflow: hidden;
 }
 
-.dark-mode .profile-services li {
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
 /* Base hover state: lift up slightly, increase opacity, add subtle blur to siblings if we want? Simple is better */
 .profile-services:hover li {
   opacity: 0.3; /* dim others slightly */
@@ -241,8 +237,7 @@
   .profile-offers {
     grid-template-columns: 1fr;
     max-width: none;
-  }
-}
+  }}
 
 @media (max-width: 560px) {
   .profile-work {
@@ -265,5 +260,4 @@
 
   .profile-offer {
     padding: 1rem;
-  }
-}
+  }}
