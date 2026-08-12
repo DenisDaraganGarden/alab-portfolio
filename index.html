@@ -1056,21 +1056,11 @@
                         <h2 class="portfolio-title">Проекты</h2>
                         <span class="portfolio-subtitle">индустрии</span>
                     </div>
-                    <!-- Все направления с плашками проектов сразу, без перехода во вкладки -->
-                    <div class="portfolio-industries" id="main-portfolio-grid">
-                        <div class="portfolio-industry" data-category="development">
-                            <h3 class="industry-title">Девелопмент и Архитектура</h3>
-                            <div class="industry-projects"><!-- Плашки из cases.json (JS) --></div>
-                        </div>
-                        <div class="portfolio-industry" data-category="production">
-                            <h3 class="industry-title">Наука и Производство</h3>
-                            <div class="industry-projects"><!-- Плашки из cases.json (JS) --></div>
-                        </div>
-                        <div class="portfolio-industry" data-category="services">
-                            <h3 class="industry-title">Продукты и Сервисы</h3>
-                            <div class="industry-projects"><!-- Плашки из cases.json (JS) --></div>
-                        </div>
-                    </div>
+                    <!-- Все направления с плашками проектов сразу, без перехода во вкладки.
+                         Категории и карточки целиком строятся из public/data/cases.json
+                         в js/sections/portfolio.js: раньше плашки были захардкожены
+                         здесь, и новая категория из редактора на сайт не попадала. -->
+                    <div class="portfolio-industries" id="main-portfolio-grid"></div>
                 </div>
             </section>
 

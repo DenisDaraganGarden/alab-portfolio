@@ -8,7 +8,22 @@ import { fetchJson, loadSettings, refreshScrollScenes } from '../boot/preloader.
 export async function initPortfolio(container) {
 
 
-    const industryBlocks = container.querySelectorAll('.portfolio-industry');
+    // Плашки индустрий строятся из данных, а не берутся из разметки: раньше
+    // три категории были захардкожены в index.html, и любая новая категория,
+    // заведённая в редакторе, на сайт просто не попадала — публикация
+    // проходила без единого предупреждения.
+    const industriesRoot = container.querySelector('.portfolio-industries');
+
+    // Порядок показа исторически сложившихся категорий. Остальные идут следом
+    // в том порядке, в каком их отдаёт редактор.
+    const CATEGORY_ORDER = ['development', 'production', 'services'];
+
+    const orderedCategoryIds = () => {
+        const ids = Object.keys(portfolioData.categories || {});
+        const known = CATEGORY_ORDER.filter(id => ids.includes(id));
+        const rest = ids.filter(id => !CATEGORY_ORDER.includes(id));
+        return [...known, ...rest];
+    };
 
     let portfolioData = null;
 
@@ -109,9 +124,55 @@ export async function initPortfolio(container) {
         return more;
     };
 
+    // Создаёт плашку категории со всей обвязкой. Заголовок кликабелен —
+    // это вход в категорию.
+    function buildIndustryBlock(categoryId) {
+        const block = document.createElement('div');
+        block.className = 'portfolio-industry';
+        block.setAttribute('data-category', categoryId);
+
+        const titleEl = document.createElement('h3');
+        titleEl.className = 'industry-title industry-title--link';
+        titleEl.setAttribute('role', 'button');
+        titleEl.setAttribute('tabindex', '0');
+
+        const toggleCategory = () => setCategory(activeCategory === categoryId ? null : categoryId);
+        titleEl.addEventListener('click', toggleCategory);
+        titleEl.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                toggleCategory();
+            }
+        });
+
+        const grid = document.createElement('div');
+        grid.className = 'industry-projects';
+
+        block.appendChild(titleEl);
+        block.appendChild(grid);
+        return block;
+    }
+
     function renderIndustries() {
-        industryBlocks.forEach(block => {
-            const categoryId = block.getAttribute('data-category');
+        if (!industriesRoot) return;
+
+        const ids = orderedCategoryIds();
+
+        // Убираем плашки категорий, которых больше нет в данных
+        Array.from(industriesRoot.querySelectorAll('.portfolio-industry')).forEach(block => {
+            if (!ids.includes(block.getAttribute('data-category'))) block.remove();
+        });
+
+        ids.forEach(categoryId => {
+            let block = industriesRoot.querySelector(`.portfolio-industry[data-category="${CSS.escape(categoryId)}"]`);
+            if (!block) {
+                block = buildIndustryBlock(categoryId);
+                industriesRoot.appendChild(block);
+            } else {
+                // Порядок мог измениться — переставляем в конец по очереди
+                industriesRoot.appendChild(block);
+            }
+
             const titleEl = block.querySelector('.industry-title');
             const grid = block.querySelector('.industry-projects');
             if (!grid) return;
@@ -163,23 +224,7 @@ export async function initPortfolio(container) {
         refreshScrollScenes();
     }
 
-    industryBlocks.forEach(block => {
-        const categoryId = block.getAttribute('data-category');
-        const titleEl = block.querySelector('.industry-title');
-        if (!titleEl) return;
-        titleEl.classList.add('industry-title--link');
-        titleEl.setAttribute('role', 'button');
-        titleEl.setAttribute('tabindex', '0');
-        const toggleCategory = () => setCategory(activeCategory === categoryId ? null : categoryId);
-        titleEl.addEventListener('click', toggleCategory);
-        titleEl.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                toggleCategory();
-            }
-        });
-    });
-
+    // Обработчики вешаются при создании плашки в buildIndustryBlock
     renderIndustries();
 
     // Modal logic
@@ -196,6 +241,9 @@ export async function initPortfolio(container) {
     let touchStartY = null;
     let activeCardOverlay = null;
     let modalAnimationObserver = null;
+    // Отложенная очистка содержимого после анимации закрытия — id хранится,
+    // чтобы отменить её при быстром открытии следующего кейса
+    let closeTimer = 0;
 
     if (!modal || !modalScrollArea || !modalContent) return;
 
@@ -487,7 +535,8 @@ export async function initPortfolio(container) {
         modal.classList.remove('is-open');
         modal.setAttribute('aria-hidden', 'true');
 
-        window.setTimeout(() => {
+        closeTimer = window.setTimeout(() => {
+            closeTimer = 0;
             modalContent.innerHTML = '';
             modalScrollArea.scrollTop = 0;
             restorePagePosition();
@@ -516,59 +565,68 @@ export async function initPortfolio(container) {
     };
 
     const openModal = (proj) => {
+        // Отменяем отложенную очистку от предыдущего закрытия: если закрыть
+        // кейс и в течение анимации открыть другой, старый таймер вычистил бы
+        // содержимое уже открытой модалки.
+        if (closeTimer) { clearTimeout(closeTimer); closeTimer = 0; }
+
         modalContent.innerHTML = '';
-        
-        let hasBlocks = false;
+
+        // Блоки собираются в строку и вставляются ОДИН раз. Раньше был
+        // innerHTML += в цикле: каждый блок пересоздавал весь уже собранный
+        // DOM (квадратичная сборка и перезапуск всех video на каждой
+        // итерации), а незакрытый тег в raw_html съедал следующие блоки.
+        const buffer = { innerHTML: '' };
+
         if (proj.blocks && proj.blocks.length) {
             proj.blocks.forEach(block => {
                 if (block.enabled === false) return;
-                hasBlocks = true;
                 switch(block.type) {
                     case 'raw_html':
-                        modalContent.innerHTML += block.content;
+                        buffer.innerHTML +=block.content;
                         break;
                     case 'heading': {
                         const lvl = block.level || 'h2';
-                        modalContent.innerHTML += renderCaseBlock(block, `<${lvl} class="case-block-heading">${renderAnimatedText(block.content, blockAnimation(block))}</${lvl}>`);
+                        buffer.innerHTML +=renderCaseBlock(block, `<${lvl} class="case-block-heading">${renderAnimatedText(block.content, blockAnimation(block))}</${lvl}>`);
                         break;
                     }
                     case 'text':
-                        modalContent.innerHTML += renderCaseBlock(block, `<p class="case-block-text">${renderAnimatedText(block.content, blockAnimation(block))}</p>`);
+                        buffer.innerHTML +=renderCaseBlock(block, `<p class="case-block-text">${renderAnimatedText(block.content, blockAnimation(block))}</p>`);
                         break;
                     case 'image':
                         if (block.content) {
-                            const mask = block.mask ? `clip-path: url(#${block.mask});` : '';
-                            modalContent.innerHTML += renderCaseBlock(block, `<div class="case-block-image"><img src="${escapeAttr(block.content)}" alt="" style="${mask}"/></div>`);
+                            const mask = block.mask ? `clip-path: url(#${escapeAttr(block.mask)});` : '';
+                            buffer.innerHTML +=renderCaseBlock(block, `<div class="case-block-image"><img src="${escapeAttr(block.content)}" alt="" style="${mask}"/></div>`);
                         }
                         break;
                     case 'video':
-                        if (block.content) modalContent.innerHTML += renderCaseBlock(block, `<div class="case-block-video"><video src="${escapeAttr(block.content)}" autoplay muted loop playsinline></video></div>`);
+                        if (block.content) buffer.innerHTML +=renderCaseBlock(block, `<div class="case-block-video"><video src="${escapeAttr(block.content)}" autoplay muted loop playsinline></video></div>`);
                         break;
                     case 'gallery': {
                         const imgs = (block.images||[]).map(src => `<img src="${escapeAttr(src)}" alt=""/>`).join('');
-                        modalContent.innerHTML += renderCaseBlock(block, `<div class="case-block-gallery">${imgs}</div>`);
+                        buffer.innerHTML +=renderCaseBlock(block, `<div class="case-block-gallery">${imgs}</div>`);
                         break;
                     }
                     case 'links':
-                        modalContent.innerHTML += renderCaseBlock(block, renderLinksBlock(block));
+                        buffer.innerHTML +=renderCaseBlock(block, renderLinksBlock(block));
                         break;
                     case 'spacer':
-                        modalContent.innerHTML += `<div style="height:${block.height||80}px"></div>`;
+                        buffer.innerHTML +=`<div style="height:${block.height||80}px"></div>`;
                         break;
                     case 'masked_image':
                         if (block.content) {
-                            const cp = block.clipPath || 'circle(50% at 50% 50%)';
-                            modalContent.innerHTML += renderCaseBlock(block, `<div class="case-block-image"><img src="${escapeAttr(block.content)}" alt="" style="clip-path:${cp};"/></div>`);
+                            const cp = escapeAttr(block.clipPath || 'circle(50% at 50% 50%)');
+                            buffer.innerHTML +=renderCaseBlock(block, `<div class="case-block-image"><img src="${escapeAttr(block.content)}" alt="" style="clip-path:${cp};"/></div>`);
                         }
                         break;
                     case 'columns': {
-                        modalContent.innerHTML += renderCaseBlock(block, renderColumnsBlock(block));
+                        buffer.innerHTML +=renderCaseBlock(block, renderColumnsBlock(block));
                         break;
                     }
                     case 'compare': {
                         if (block.before && block.after) {
                             const uid = 'cmp-' + Math.random().toString(36).slice(2,8);
-                            modalContent.innerHTML += renderCaseBlock(block, `<div class="case-block-compare" id="${uid}"><img src="${escapeAttr(block.after)}" class="cmp-after" alt=""/><div class="cmp-before"><img src="${escapeAttr(block.before)}" class="cmp-before-img" alt=""/></div><div class="cmp-line"></div><span class="cmp-label cmp-label--before">ДО</span><span class="cmp-label cmp-label--after">ПОСЛЕ</span></div>`);
+                            buffer.innerHTML +=renderCaseBlock(block, `<div class="case-block-compare" id="${uid}"><img src="${escapeAttr(block.after)}" class="cmp-after" alt=""/><div class="cmp-before"><img src="${escapeAttr(block.before)}" class="cmp-before-img" alt=""/></div><div class="cmp-line"></div><span class="cmp-label cmp-label--before">ДО</span><span class="cmp-label cmp-label--after">ПОСЛЕ</span></div>`);
                             requestAnimationFrame(() => {
                                 const el = document.getElementById(uid);
                                 if (!el) return;
@@ -580,19 +638,25 @@ export async function initPortfolio(container) {
                         break;
                     }
                     case 'quote':
-                        modalContent.innerHTML += renderCaseBlock(block, `<blockquote class="case-block-quote"><p class="case-quote-text">${escapeHtml(block.text||'')}</p><div class="case-quote-author">${block.photo?`<img class="case-quote-photo" src="${escapeAttr(block.photo)}" alt=""/>`:''}<div><strong>${escapeHtml(block.author||'')}</strong>${block.role?`<br><span class="case-quote-role">${escapeHtml(block.role)}</span>`:''}</div></div></blockquote>`);
+                        buffer.innerHTML +=renderCaseBlock(block, `<blockquote class="case-block-quote"><p class="case-quote-text">${escapeHtml(block.text||'')}</p><div class="case-quote-author">${block.photo?`<img class="case-quote-photo" src="${escapeAttr(block.photo)}" alt=""/>`:''}<div><strong>${escapeHtml(block.author||'')}</strong>${block.role?`<br><span class="case-quote-role">${escapeHtml(block.role)}</span>`:''}</div></div></blockquote>`);
                         break;
                     case 'metrics':
-                        modalContent.innerHTML += renderCaseBlock(block, `<div class="case-block-metrics">${(block.items||[]).map(m => `<div class="case-metric"><div class="case-metric-value">${escapeHtml(m.value||'')}</div><div class="case-metric-label">${escapeHtml(m.label||'')}</div></div>`).join('')}</div>`);
+                        buffer.innerHTML +=renderCaseBlock(block, `<div class="case-block-metrics">${(block.items||[]).map(m => `<div class="case-metric"><div class="case-metric-value">${escapeHtml(m.value||'')}</div><div class="case-metric-label">${escapeHtml(m.label||'')}</div></div>`).join('')}</div>`);
                         break;
                 }
             });
         }
 
+        // Наличие контента определяем по факту собранной разметки, а не по
+        // длине массива: кейс из одного незаполненного блока раньше давал
+        // пустую простыню вместо заглушки.
+        const hasBlocks = buffer.innerHTML.trim().length > 0;
+        if (hasBlocks) modalContent.innerHTML = buffer.innerHTML;
+
         decorateModalLinks();
         initColumnCards();
         initCaseBlockAnimations();
-        
+
         if (!hasBlocks) {
             modalContent.innerHTML = `
                 <div class="case-study-detail case-placeholder" style="padding: 10rem 5%; color: white;">

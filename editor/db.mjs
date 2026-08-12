@@ -1,4 +1,5 @@
 import Database from 'better-sqlite3';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -10,6 +11,44 @@ const db = new Database(dbPath);
 
 // Enable WAL mode for better concurrent performance
 db.pragma('journal_mode = WAL');
+
+// ─── Резервные копии ──────────────────────────────────────────────────
+// База — единственный источник истины по контенту, и до сих пор весь запас
+// прочности состоял из одного снимка, снятого руками. Копия делается через
+// VACUUM INTO: в отличие от копирования файла, она корректно захватывает
+// несброшенный WAL и не может поймать базу в середине транзакции.
+const BACKUP_DIR = path.join(__dirname, 'backups');
+const BACKUP_KEEP = 12;
+const BACKUP_MIN_INTERVAL_MS = 15 * 60 * 1000;
+let lastBackupAt = 0;
+
+export function backupDb(label = 'auto', { throttle = false } = {}) {
+    try {
+        if (throttle && Date.now() - lastBackupAt < BACKUP_MIN_INTERVAL_MS) return null;
+        if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR, { recursive: true });
+
+        const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+        const target = path.join(BACKUP_DIR, `cms-${stamp}-${label}.db`);
+        if (fs.existsSync(target)) return null;
+
+        db.prepare('VACUUM INTO ?').run(target);
+        lastBackupAt = Date.now();
+
+        // Ротация: имена начинаются с отсортированной по возрастанию метки времени
+        const stale = fs.readdirSync(BACKUP_DIR)
+            .filter(name => name.startsWith('cms-') && name.endsWith('.db'))
+            .sort();
+        for (const name of stale.slice(0, Math.max(0, stale.length - BACKUP_KEEP))) {
+            try { fs.unlinkSync(path.join(BACKUP_DIR, name)); } catch {}
+        }
+        console.log(`[A.LAB] Бэкап базы: ${path.basename(target)}`);
+        return target;
+    } catch (e) {
+        // Бэкап не должен блокировать сохранение — но молчать о провале нельзя
+        console.error('[A.LAB] Не удалось создать бэкап базы:', e.message);
+        return null;
+    }
+}
 
 // Initialize schema
 db.exec(`
@@ -276,7 +315,10 @@ export function getAnalyticsSummary(days = 30) {
     const fromDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - safeDays + 1));
     const from = fromDate.toISOString();
 
-    const rows = db.prepare('SELECT * FROM analytics_events WHERE ts >= ? ORDER BY ts ASC').all(from);
+    // Боты в общую статистику не идут — иначе они разбавляют посещаемость
+    // и портят все производные метрики. Их число отдаём отдельным полем.
+    const rows = db.prepare('SELECT * FROM analytics_events WHERE ts >= ? AND is_bot = 0 ORDER BY ts ASC').all(from);
+    const botEvents = db.prepare('SELECT COUNT(*) AS c FROM analytics_events WHERE ts >= ? AND is_bot = 1').get(from).c;
     const byDay = new Map();
     for (let i = 0; i < safeDays; i++) {
         const d = new Date(fromDate.getTime() + i * 86400000).toISOString().slice(0, 10);
@@ -359,7 +401,8 @@ export function getAnalyticsSummary(days = 30) {
             sectionViews,
             outboundClicks,
             avgEngagementSeconds: Math.round(avgDuration / 1000),
-            bounceRate: sessions.size ? Math.round((bounced / sessions.size) * 100) : 0
+            bounceRate: sessions.size ? Math.round((bounced / sessions.size) * 100) : 0,
+            botEvents
         },
         timeSeries: Array.from(byDay.values()).map(day => ({
             date: day.date,
