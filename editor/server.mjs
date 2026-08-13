@@ -25,17 +25,21 @@ const CMS_BASE_PATH = (process.env.CMS_BASE_PATH || '/cms-3001').replace(/\/+$/,
 if (!fs.existsSync(AUDIO_DIR)) fs.mkdirSync(AUDIO_DIR, { recursive: true });
 
 const app = express();
-const ALLOWED_ORIGINS = [
-    'http://localhost:3001',
-    'http://127.0.0.1:3001',
-    'http://localhost:5173',
-    'http://127.0.0.1:5173'
-];
+// Любой локальный источник, независимо от порта. Раньше здесь был список из
+// четырёх адресов с намертво зашитым 5173, и стоило дев-серверу занять другой
+// порт — браузер отклонял запросы с сайта в CMS. Порт у Vite не постоянный:
+// он уступает его любому другому проекту, который запустился раньше.
+//
+// На безопасность это не влияет: сервер слушает только 127.0.0.1, а публичный
+// сайт не может выдать себя за источник localhost — такой Origin браузер
+// проставляет лишь страницам, которые сами открыты с локального адреса.
+const LOCAL_ORIGIN = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/;
+
 app.use(cors({
     origin: (origin, callback) => {
         // Requests without Origin (curl, same-origin navigation) are allowed;
         // browsers with a foreign Origin get no CORS headers.
-        if (!origin || ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+        if (!origin || LOCAL_ORIGIN.test(origin)) return callback(null, true);
         callback(null, false);
     }
 }));
