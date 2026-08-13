@@ -1,0 +1,55 @@
+/**
+ * [A.LAB] Правила, сопровождающие предзагрузку.
+ *
+ * Стили самого оверлея живут инлайном в <head> index.html — они обязаны
+ * примениться первым кадром. Здесь только то, что относится к САЙТУ и
+ * безопасно приезжает с бандлом.
+ */
+
+/* ── Fail-open при недоступном CDN ──────────────────────────────────────
+   Скрипт с defer, который не загрузился, не блокирует DOMContentLoaded,
+   не бросает исключение и не отклоняет промис — все секции просто тихо
+   выходят по своим гардам. При этом .principle-item скрыт по умолчанию,
+   и видимость ему возвращает только мобильный медиазапрос: без GSAP
+   десктопный посетитель получал пустой экран высотой 100vh при чистой
+   консоли. Класс no-gsap вешает привратник по дедлайну 3.5 с. */
+html.no-gsap .principle-item {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+}
+
+html.no-gsap .principles-list {
+    position: static;
+    height: auto;
+}
+
+html.no-gsap .ee-column,
+html.no-gsap .ee-title-wrapper,
+html.no-gsap .contacts-card,
+html.no-gsap .hero-services-list li,
+html.no-gsap .hero-bottom-right {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    pointer-events: auto !important;
+}
+
+/* ── Резерв места под QR ────────────────────────────────────────────────
+   У картинки нет width/height и стоит height:auto — до загрузки она
+   занимает 0px, после около сотни, то есть двигает высоту последней
+   секции уже после пересчёта позиций. */
+.contacts-qr {
+    aspect-ratio: 1;
+}
+
+/* ── Стабильность высоты hero после раскрытия ───────────────────────────
+   CTA-фраза меняется каждые 3 с, фразы разной длины, и на узких экранах
+   блок статичен в колоночном flex: разное число строк двигает высоту
+   hero, а с ней офсеты всех нижних триггеров. */
+@media (max-width: 900px) {
+    .hero-bottom-right {
+        min-height: 6.5rem;
+    }
+}

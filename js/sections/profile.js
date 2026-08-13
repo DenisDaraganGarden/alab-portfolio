@@ -12,7 +12,24 @@ export const initProfile = (container) => {
             profileVideo.muted = true;
             profileVideo.play().catch(() => {});
         };
-        forceVideoPlay();
+
+        // Источник подключается только после раскрытия: 1,77 МБ видео
+        // и постера во время загрузки отбирали бы канал у шрифтов,
+        // от которых зависит вся геометрия страницы.
+        const attachVideoSource = () => {
+            const source = profileVideo.querySelector('source[data-src]');
+            if (profileVideo.dataset.poster) {
+                profileVideo.poster = profileVideo.dataset.poster;
+            }
+            if (source) {
+                source.src = source.dataset.src;
+                source.removeAttribute('data-src');
+                profileVideo.preload = 'auto';
+                profileVideo.load();
+            }
+            forceVideoPlay();
+        };
+        document.addEventListener('alab:reveal', attachVideoSource, { once: true });
         document.addEventListener('touchstart', forceVideoPlay, { once: true });
         document.addEventListener('scroll', forceVideoPlay, { once: true, passive: true });
         // Re-trigger when entering viewport

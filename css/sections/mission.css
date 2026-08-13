@@ -58,10 +58,3 @@
   align-self: flex-start;
   position: static !important;
 }
-
-.brand-name {
-  font-family: var(--font-title);
-  font-size: 1.2rem;
-  font-weight: 400;
-  opacity: 0.6;
-}

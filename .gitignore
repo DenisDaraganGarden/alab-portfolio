@@ -26,6 +26,8 @@ assets/source-images
 
 # CMS database (local only)
 editor/cms.db
+# Резервные копии базы: содержат боевой контент, в репозиторий не идут
+editor/backups/
 
 # CMS runtime
 editor/cms.db-shm

@@ -93,25 +93,12 @@
   display: none;
 }
 
-@keyframes airySweep {
-  0% { left: -100%; opacity: 0; }
-  15% { left: 200%; opacity: 1; }
-  100% { left: 200%; opacity: 0; }
-}
-
 .contacts-note:hover {
   transform: none;
 }
 
 .contacts-note:hover::before {
   display: none;
-}
-
-.contacts-brand-block {
-  display: flex;
-  align-items: end;
-  align-self: end;
-  padding-bottom: 2rem;
 }
 
 .contacts-form-wrapper {
@@ -357,61 +344,6 @@
     transition: left 0.7s ease-in-out;
 }
 
-.contacts-card-footer {
-    display: flex;
-    flex-wrap: wrap;
-    gap: clamp(1rem, 2.2vw, 2rem);
-    padding-top: clamp(1rem, 2vw, 1.55rem);
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.contacts-link {
-    text-decoration: none;
-    color: var(--text-color);
-    transition: opacity 0.3s ease;
-}
-
-.contacts-link:hover {
-    opacity: 0.7;
-}
-
-.contacts-name {
-    font-weight: 700;
-    font-family: var(--font-title);
-    font-size: clamp(1.05rem, 1.55vw, 1.35rem);
-    letter-spacing: -0.02em;
-}
-
-.contacts-detail {
-    font-size: clamp(0.9rem, 1vw, 1rem);
-    opacity: 0.8;
-}
-
-.contacts-sub-details {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.contacts-primary {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
-}
-
-.contacts-channel-block {
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-}
-
-.contacts-channel-copy {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
 /* Reactive Border Path */
 .reactive-border-svg {
     display: none;
@@ -421,12 +353,7 @@
     .reactive-form-container {
         padding: clamp(1.2rem, 5vw, 2rem);
         border-radius: 24px;
-    }
-    .contacts-card-footer {
-        flex-direction: column;
-        gap: 1.2rem;
-    }
-}
+    }}
 
 @media (max-width: 640px) {
   .contacts-section {
@@ -457,14 +384,9 @@
     margin-top: clamp(5.5rem, 22vw, 7.25rem);
   }
 
-  .contacts-brand-block {
-    padding-bottom: 0;
-  }
-
   .contacts-intro {
     max-width: 18rem;
-  }
-}
+  }}
 
 @media (max-width: 720px) {
   .contacts-container {
@@ -488,20 +410,10 @@
     margin-left: 0;
   }
 
-  .contacts-channel-block {
-    flex-direction: row;
-    align-items: center;
-  }
-
   .contacts-qr {
     width: 76px;
     height: 76px;
-  }
-
-  .contacts-detail {
-    font-size: 0.95rem;
-  }
-}
+  }}
 
 /* =========================================================================
    PORTFOLIO SECTION & CASE STUDY MODAL
@@ -534,195 +446,6 @@
   color: var(--text-color);
   opacity: 0.6;
   text-transform: lowercase;
-}
-
-.portfolio-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-  width: 100%;
-}
-
-.portfolio-card {
-  position: relative;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 3.5rem 2.2rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 20rem;
-  cursor: pointer;
-  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-  overflow: hidden;
-  border-radius: 12px;
-}
-
-/* Category Specific Glass Palettes */
-.portfolio-card[data-category="production"] {
-  background: radial-gradient(circle at top left, rgba(163, 230, 53, 0.12), rgba(20, 20, 22, 0.05));
-  border-color: rgba(163, 230, 53, 0.2);
-}
-
-.portfolio-card[data-category="services"] {
-  background: radial-gradient(circle at top left, rgba(253, 224, 71, 0.12), rgba(255, 255, 255, 0.05));
-  border-color: rgba(253, 224, 71, 0.2);
-}
-
-.portfolio-card[data-category="development"] {
-  background: radial-gradient(circle at top left, rgba(30, 64, 175, 0.15), rgba(15, 23, 42, 0.05));
-  border-color: rgba(30, 64, 175, 0.25);
-}
-
-/* Shimmer / Grainy Overflow Effect */
-.portfolio-card::before {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
-  opacity: 0;
-  transition: opacity 0.6s ease;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.portfolio-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  border-color: rgba(255, 255, 255, 0.4);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-}
-
-.portfolio-card:hover::before {
-  opacity: 1;
-  animation: card-shimmer 3s infinite linear;
-}
-
-@keyframes card-shimmer {
-  0% { transform: translate(-30%, -30%); }
-  50% { transform: translate(10%, 10%); }
-  100% { transform: translate(-30%, -30%); }
-}
-
-.portfolio-card[data-category="production"]:hover {
-  border-color: rgba(163, 230, 53, 0.5);
-  box-shadow: 0 20px 40px rgba(163, 230, 53, 0.15);
-}
-
-.portfolio-card[data-category="services"]:hover {
-  border-color: rgba(253, 224, 71, 0.5);
-  box-shadow: 0 20px 40px rgba(253, 224, 71, 0.15);
-}
-
-.portfolio-card[data-category="development"]:hover {
-  border-color: rgba(30, 64, 175, 0.6);
-  box-shadow: 0 20px 40px rgba(30, 64, 175, 0.2);
-}
-
-.portfolio-card .card-title {
-  font-family: var(--font-title);
-  font-size: clamp(1.2rem, 1.8vw, 1.8rem);
-  font-weight: 600;
-  line-height: 1.2;
-  margin: 0;
-  position: relative;
-  z-index: 2;
-}
-
-.portfolio-card .card-arrow {
-  align-self: flex-end;
-  opacity: 0;
-  transform: translateX(-10px);
-  transition: all 0.3s ease;
-  position: relative;
-  z-index: 2;
-}
-
-.portfolio-card:hover .card-arrow {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-@media (max-width: 900px) {
-  .portfolio-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .portfolio-card {
-    min-height: 9rem;
-    padding: 1.8rem 1.4rem;
-  }
-
-  .portfolio-card .card-title {
-    font-size: clamp(1.15rem, 6vw, 1.45rem);
-  }
-
-  .portfolio-card .card-arrow {
-    opacity: 0.5;
-    transform: none;
-  }
-}
-
-/* Sub-Menu Overview */
-.portfolio-submenu-container {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  width: 100%;
-  animation: fadeIn 0.4s ease forwards;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.portfolio-back-btn {
-  background: rgba(255, 255, 255, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(16px) saturate(120%);
-  -webkit-backdrop-filter: blur(16px) saturate(120%);
-  color: var(--text-color);
-  font-family: var(--font-body);
-  font-size: 1.1rem;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  cursor: pointer;
-  opacity: 0.9;
-  transition: all 0.3s ease;
-  padding: 0.6rem 1.4rem;
-  border-radius: 100px;
-  align-self: flex-start;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-}
-
-.portfolio-back-btn:hover {
-  opacity: 1;
-  background: rgba(255, 255, 255, 0.6);
-  transform: translateX(-5px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
-}
-
-.portfolio-submenu-title {
-  font-family: var(--font-title);
-  font-size: clamp(2rem, 5vw, 4rem);
-  font-weight: 700;
-  text-transform: lowercase;
-  margin: 0 0 1rem;
-}
-
-.portfolio-submenu-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-  width: 100%;
 }
 
 .portfolio-project-card {
@@ -761,27 +484,12 @@
   transform: scale(var(--card-hover-scale, 1.03)) translateY(-5px);
 }
 
-.portfolio-project-card .project-title {
-  font-family: var(--font-title);
-  font-size: clamp(1.2rem, 1.6vw, 1.8rem);
-  font-weight: 600;
-  line-height: 1.2;
-  margin: 0;
-  position: relative;
-  z-index: 1;
-}
-
 @media (max-width: 900px) {
-  .portfolio-submenu-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
   
   .portfolio-project-card {
     min-height: 8rem;
     padding: 1.2rem;
-  }
-}
+  }}
 
 /* Modal Overlay */
 .case-study-modal {
@@ -821,37 +529,6 @@
   flex-direction: column;
 }
 
-.case-logo-wrapper {
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #fff; /* DOMM has a white bg for black logo */
-}
-
-.case-main-logo {
-  max-width: 50vw;
-  max-height: 30vh;
-}
-
-.case-visuals {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-.case-image-picture {
-  display: block;
-  width: 100%;
-}
-
-.case-image {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
 .case-placeholder {
   min-height: 100vh;
   display: flex;
@@ -877,8 +554,7 @@
 @media (max-width: 900px) {
   .cursor-oil-canvas {
     opacity: 0.98;
-  }
-}
+  }}
 
 @media (max-width: 560px) {
   .section {
@@ -907,30 +583,17 @@
     padding-bottom: 1rem;
   }
 
-  /* Hide mouse scroll icon on mobile/touch devices */
-  .mouse-scroll,
-  .scroll-icon,
   .ee-arrow,
-  .card-arrow,
-  [class*="scroll-indicator"],
-  [class*="mouse-"] {
+[class*="scroll-indicator"],
+[class*="mouse-"] {
     display: none !important;
     opacity: 0 !important;
     visibility: hidden !important;
     pointer-events: none !important;
   }
 
-  .principles-main[data-mobile-jump="true"] {
-    min-height: clamp(360px, 58vh, 500px);
-    padding-top: 0;
-  }
-
   .principles-row {
     gap: 1rem;
-  }
-
-  .principles-main[data-mobile-jump="true"] .principles-row {
-    padding-top: clamp(102px, 30vw, 126px);
   }
 
   .ee-grid {
@@ -941,12 +604,6 @@
     gap: 1rem;
   }
 
-  .ee-list,
-  .ee-list.bulleted {
-    gap: 0.85rem;
-  }
-
-  .ee-list li,
   .ee-desc {
     font-size: 0.95rem;
     line-height: 1.42;
@@ -961,83 +618,15 @@
     font-size: clamp(0.95rem, 4vw, 1.08rem);
   }
 
-  .contacts-channel-block {
-    flex-direction: column;
-    align-items: start;
-  }
-
   .contacts-qr {
     width: 96px;
     height: 96px;
-  }
-
-  .case-logo-wrapper {
-    height: min(52svh, 420px);
-  }
-
-  .case-main-logo {
-    max-width: 78vw;
-    max-height: 14vh;
-  }
-}
+  }}
 
 @media (prefers-reduced-motion: reduce) {
   .cursor-oil-layer {
     display: none;
-  }
-}
-
-/* Portfolio Submenu Styles */
-.portfolio-submenu-container {
-    display: none;
-    flex-direction: column;
-    gap: 3rem;
-    width: 100%;
-}
-
-.portfolio-back-btn {
-    background: rgba(255, 255, 255, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(16px) saturate(120%);
-    -webkit-backdrop-filter: blur(16px) saturate(120%);
-    color: var(--text-color);
-    font-family: var(--font-body);
-    font-size: 1.1rem;
-    font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    cursor: pointer;
-    opacity: 0.9;
-    transition: all 0.3s ease;
-    padding: 0.6rem 1.4rem;
-    border-radius: 100px;
-    align-self: flex-start;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-}
-
-.portfolio-back-btn:hover {
-    opacity: 1;
-    background: rgba(255, 255, 255, 0.6);
-    transform: translateX(-5px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
-}
-
-.portfolio-submenu-title {
-    font-family: var(--font-title);
-    font-size: 4rem;
-    font-weight: 700;
-    letter-spacing: -0.04em;
-    line-height: 1;
-    margin: 0;
-}
-
-.portfolio-submenu-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    width: 100%;
-}
+  }}
 
 .portfolio-project-card {
     position: relative;
@@ -1097,12 +686,6 @@
 }
 
 @media (max-width: 900px) {
-    .portfolio-submenu-grid {
-        grid-template-columns: 1fr;
-    }
-    .portfolio-submenu-title {
-        font-size: 2.5rem;
-    }
     .portfolio-project-card {
         height: 380px;
         padding: 1.5rem;
@@ -1118,31 +701,14 @@
     }
     .portfolio-project-card .project-logo-fallback {
         font-size: 1.5rem;
-    }
-}
-
-
-/* Profile Section - Living Photo Effect */
-.profile-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4rem;
-  align-items: center;
-  margin-top: 4rem;
-  padding-bottom: 8rem;
-}
+    }}
 
 @media (max-width: 900px) {
-  .profile-content {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
   .profile-image-wrapper {
     order: -1;
     max-width: 400px;
     margin: 0 auto;
-  }
-}
+  }}
 
 .profile-image-wrapper {
   position: relative;
@@ -1188,7 +754,6 @@
 .profile-image-glow,
 .profile-oval-shadow,
 .profile-oval-body,
-.profile-oval-core,
 .profile-oval-rim,
 .profile-oval-bevel,
 .profile-oval-specular,
@@ -1337,33 +902,7 @@
 
   .profile-oval-bevel {
     padding: 28px;
-  }
-}
-
-.profile-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.profile-title {
-  font-family: var(--font-title);
-  font-size: clamp(2rem, 5vw, 4rem);
-  line-height: 1;
-  font-weight: 800;
-  text-transform: lowercase;
-  letter-spacing: -0.05em;
-  margin: 0;
-}
-
-.profile-text {
-  font-size: 1.1rem;
-  line-height: 1.6;
-  opacity: 0.8;
-  max-width: 45ch;
-}
-
-
+  }}
 
 .author-info {
   margin-top: 1rem;
@@ -1374,11 +913,6 @@
   font-size: 1.25rem;
   font-weight: 700;
   margin: 0;
-}
-
-.author-meta {
-  font-size: 0.85rem;
-  opacity: 0.6;
 }
 
 /* Morph Animation Layer */
@@ -1565,15 +1099,10 @@
     border-radius: 18px;
   }
 
-  .contacts-card-footer {
-    gap: 0.75rem;
-  }
-
   .contacts-qr {
     width: 58px;
     height: 58px;
-  }
-}
+  }}
 
 @media (max-width: 640px) {
   .contacts-section {
@@ -1686,42 +1215,10 @@
     font-size: 0.8rem;
   }
 
-  .contacts-card-footer {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: end;
-    gap: 0.75rem;
-    padding-top: 0.78rem;
-  }
-
-  .contacts-primary {
-    min-width: 0;
-  }
-
-  .contacts-name {
-    font-size: clamp(0.92rem, 4vw, 1.06rem);
-    overflow-wrap: anywhere;
-  }
-
-  .contacts-detail {
-    font-size: 0.78rem;
-  }
-
-  .contacts-channel-block {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.45rem;
-  }
-
   .contacts-qr {
     width: 62px;
     height: 62px;
-  }
-
-  .contacts-channel-link {
-    font-size: 0.76rem;
-  }
-}
+  }}
 
 @media (max-width: 380px) {
   .contacts-section {
@@ -1756,16 +1253,10 @@
     min-height: 64px;
   }
 
-  .contacts-card-footer {
-    gap: 0.62rem;
-    padding-top: 0.65rem;
-  }
-
   .contacts-qr {
     width: 56px;
     height: 56px;
-  }
-}
+  }}
 
 /* =========================================================================
    HIDDEN DEVELOPER FOOTER
@@ -1877,7 +1368,6 @@
 .industry-projects .project-logo-fallback {
   font-size: 1.4rem;
 }
-
 
 /* Подпись под логотипом на карточке проекта: логотип и текст в потоке, прижаты к низу */
 .industry-projects .portfolio-project-card.has-tagline {
@@ -2060,8 +1550,7 @@
     right: 0.8rem;
     font-size: 0.68rem;
     padding: 0.24rem 0.55rem;
-  }
-}
+  }}
 
 /* Mobile: force GPU rasterization of the blurred oval rim — iOS Safari bands
    large masked blur() layers when they repaint in place during scroll */
@@ -2168,8 +1657,7 @@
   align-items: start;
 }
 
-.contacts-qr-block,
-.contacts-about-block {
+.contacts-qr-block {
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
@@ -2187,17 +1675,6 @@
   width: clamp(90px, 8.5vw, 110px);
   height: auto;
   border-radius: 10px;
-}
-
-.contacts-about-text {
-  margin: 0;
-  max-width: 34ch;
-  font-family: var(--font-body);
-  font-size: clamp(0.85rem, 0.95vw, 0.95rem);
-  line-height: 1.5;
-  color: var(--text-color);
-  opacity: 0.62;
-  text-wrap: pretty;
 }
 
 /* Невысокие десктопные экраны: детали карточки компактнее, как и форма выше */
@@ -2257,9 +1734,4 @@
 @media (max-width: 380px) {
   .contacts-qr--panel {
     width: 76px;
-  }
-
-  .contacts-about-text {
-    font-size: 0.74rem;
-  }
-}
+  }}

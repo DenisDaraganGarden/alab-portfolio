@@ -4,6 +4,7 @@
  */
 
 import { audioEngine } from '../utils/WebAudioEngine.js';
+import { loadSettings } from '../boot/preloader.js';
 
 export const initHero = (container) => {
     if (!container) return;
@@ -15,8 +16,10 @@ export const initHero = (container) => {
 
     audioEngine.configure({ audio: { enabled: false } });
 
-    fetch('/data/settings.json', { cache: 'no-store' })
-        .then(response => response.ok ? response.json() : null)
+    // Общий промис настроек: раньше hero ходил за settings.json отдельным
+    // запросом с cache:'no-store' — дубль к запросу портфолио, который мог
+    // подвисать произвольно долго.
+    loadSettings()
         .then(settings => {
             audioEngine.configure(settings || { audio: { enabled: false } });
         })
@@ -64,25 +67,59 @@ export const initHero = (container) => {
         subtitleChars = splitText(subtitle);
     }
 
+    // Действия, которые должны стартовать только когда интро доиграло:
+    // rAF-физика букв пишет transform поверх значений того же твина, а
+    // курсор после ухода прелоадера с высокой вероятностью висит ровно
+    // над hero — стартовать её раньше значит гарантированно сломать
+    // elastic-вылет символов.
+    const afterIntro = [];
+    const runAfterIntro = () => {
+        while (afterIntro.length) {
+            try { afterIntro.shift()(); } catch (error) {
+                console.error('[A.LAB] hero: ошибка пост-интро', error);
+            }
+        }
+    };
+
+    // Интро собрано в одну паузированную таймлинию: прелоадер запускает её
+    // по alab:reveal. Тайминги, длительности, ease и stagger — те же, что
+    // были у трёх независимых твинов, позиции равны прежним delay.
+    // immediateRender остаётся включённым, поэтому стартовые состояния
+    // применяются сразу и при снятии шторки вспышки не будет.
+    let introTl = null;
+
+    // Снятие инлайновых остатков анимации. Вызывается и из коллбэков
+    // таймлинии, и напрямую при домотке: у totalProgress() подавление
+    // событий включено по умолчанию, полагаться на onComplete нельзя,
+    // а невычищенные transform/will-change — это постоянные слои
+    // композитора и сломанные ховеры .letter-trigger.
+    const finalizeIntroStyles = () => {
+        if (typeof gsap !== 'undefined' && fallingChars.length > 0) {
+            gsap.set(fallingChars, { clearProps: "transform,opacity,willChange" });
+        }
+        // splitText вешает will-change инлайном на каждый символ подзаголовка
+        // и никогда его не снимает
+        subtitleChars.forEach(char => { char.style.willChange = 'auto'; });
+    };
+
     if (typeof gsap !== 'undefined') {
-        // Animate falling characters
+        introTl = gsap.timeline({ paused: true, onComplete: runAfterIntro });
+
         if (fallingChars.length > 0) {
-            gsap.from(fallingChars, {
+            introTl.from(fallingChars, {
                 y: -150,
                 opacity: 0,
                 duration: 1.2,
                 stagger: 0.15,
                 ease: 'bounce.out',
-                delay: 0.1,
                 onComplete: () => {
                     gsap.set(fallingChars, { clearProps: "transform,opacity,willChange" });
                 }
-            });
+            }, 0.1);
         }
 
-        // Animate subtitle chars
         if (subtitleChars.length > 0) {
-            gsap.from(subtitleChars, {
+            introTl.from(subtitleChars, {
                 y: (i) => 20 + Math.random() * 40,
                 x: (i) => (Math.random() - 0.5) * 40,
                 rotationZ: (i) => (Math.random() - 0.5) * 45,
@@ -90,19 +127,19 @@ export const initHero = (container) => {
                 duration: 1.5,
                 stagger: 0.015,
                 ease: 'elastic.out(1, 0.5)',
-                delay: 0.5
-            });
+                onComplete: () => {
+                    subtitleChars.forEach(char => { char.style.willChange = 'auto'; });
+                }
+            }, 0.5);
         }
 
-        // Fade in new elements
-        gsap.from([servicesItems, ctaBlock], {
+        introTl.from([servicesItems, ctaBlock], {
             y: 20,
             opacity: 0,
             duration: 1,
             stagger: 0.1,
-            ease: 'power2.out',
-            delay: 0.8
-        });
+            ease: 'power2.out'
+        }, 0.8);
     }
 
     // -----------------------------------------
@@ -258,9 +295,9 @@ export const initHero = (container) => {
         return Math.min(Math.max(desiredLeft, half), max);
     };
 
-    // Start physics loop
+    // Start physics loop (после интро — см. afterIntro выше)
     if (!coarsePointer) {
-        updatePhysics();
+        afterIntro.push(updatePhysics);
     }
 
     // -----------------------------------------
@@ -555,25 +592,57 @@ export const initHero = (container) => {
 
     // ─── CTA rotating phrases ───
     const ctaEl = document.getElementById('heroCta');
+    let ctaTimer = 0;
+    let ctaFadeTimer = 0;
     if (ctaEl) {
         const phrases = [
             'готовы создать бренд, который вызывает эмоции?',
             'начни с брифа.'
         ];
         let pi = 0;
-        setInterval(() => {
-            ctaEl.classList.add('fade-out');
-            setTimeout(() => {
-                pi = (pi + 1) % phrases.length;
-                ctaEl.textContent = phrases[pi];
-                ctaEl.classList.remove('fade-out');
-            }, 500);
-        }, 3000);
+        // Стартует после интро: смена фразы во время вылета букв
+        // перебивала бы входную анимацию блока CTA.
+        afterIntro.push(() => {
+            ctaTimer = setInterval(() => {
+                ctaEl.classList.add('fade-out');
+                ctaFadeTimer = setTimeout(() => {
+                    pi = (pi + 1) % phrases.length;
+                    ctaEl.textContent = phrases[pi];
+                    ctaEl.classList.remove('fade-out');
+                }, 500);
+            }, 3000);
+        });
     }
+
+    // ─── Передача управления от прелоадера ───
+    // Событие идемпотентно и приходит из четырёх точек: штатное раскрытие,
+    // мягкий дедлайн, жёсткий дедлайн и глобальная ошибка.
+    const onReveal = () => {
+        if (!introTl) {
+            // GSAP не загрузился: анимации нет, но всё, что от неё зависело,
+            // обязано стартовать — иначе физика и смена фраз мертвы навсегда.
+            runAfterIntro();
+            return;
+        }
+        const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+        const hidden = document.hidden;
+        if (reduceMotion || hidden) {
+            introTl.totalProgress(1);
+            finalizeIntroStyles();
+            runAfterIntro();
+            return;
+        }
+        introTl.play();
+    };
+    document.addEventListener('alab:reveal', onReveal, { once: true });
 
     // Clean up
     return () => {
         if (animationFrame) cancelAnimationFrame(animationFrame);
+        if (ctaTimer) clearInterval(ctaTimer);
+        if (ctaFadeTimer) clearTimeout(ctaFadeTimer);
+        document.removeEventListener('alab:reveal', onReveal);
+        introTl?.kill();
         window.removeEventListener('mousemove', onMouseMove);
         window.removeEventListener('touchmove', onTouchMove);
         window.removeEventListener('mouseleave', clearPointer);

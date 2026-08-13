@@ -140,8 +140,7 @@ h3.case-block-heading {
         transform: none !important;
         filter: none !important;
         transition: none !important;
-    }
-}
+    }}
 
 /* ── Links ── */
 .case-block-links {
@@ -297,8 +296,7 @@ h3.case-block-heading {
     }
     .case-block-gallery img {
         height: 280px;
-    }
-}
+    }}
 
 /* ── Columns ── */
 .case-block-columns {
@@ -583,8 +581,7 @@ body.has-case-card-lightbox {
 
     .case-card-lightbox-hint {
         display: none;
-    }
-}
+    }}
 
 /* ── Compare (Before/After) ── */
 .case-block-compare {

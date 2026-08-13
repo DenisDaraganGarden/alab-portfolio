@@ -38,7 +38,7 @@
     <meta name="twitter:image:alt" content="A.LAB — Агентство Эмоциональной Инженерии">
     
     <!-- SEO: Additional Meta -->
-    <meta name="theme-color" content="#0a0a0a">
+    <meta name="theme-color" content="#f5f5f7">
     <meta name="apple-mobile-web-app-title" content="A.LAB">
     <meta name="application-name" content="A.LAB">
     
@@ -90,13 +90,674 @@
     <!-- Google Fonts: Unbounded & Roboto with preload for critical font -->
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-    
+
+    <!-- Данные, определяющие высоту документа: тянем параллельно со шрифтами -->
+    <link rel="preload" as="fetch" href="/data/cases.json">
+
     <!-- Load Lenis smooth scroll script (CDN, deferred) -->
     <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
     
     <!-- Load GSAP & ScrollTrigger scripts (CDN, deferred) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Экран предзагрузки. Стили и привратник живут ИНЛАЙНОМ и намеренно
+         не ссылаются ни на одну переменную из css/*: в dev-режиме Vite
+         инжектит стили джаваскриптом из main.js, то есть заведомо позже
+         первой отрисовки. Оверлей обязан быть закрашен первым же кадром.
+         ═══════════════════════════════════════════════════════════════ -->
+    <style id="alab-preloader-css">
+        html.alab-lock {
+            overflow: hidden;
+            touch-action: none;
+            overscroll-behavior: none;
+        }
+        /* страховка от 15-пиксельных качелей вьюпорта при появлении скроллбара */
+        html { scrollbar-gutter: stable; }
+
+        #alab-preloader {
+            position: fixed;
+            inset: 0;
+            /* потолок проекта — 10050 у .case-card-lightbox */
+            z-index: 2147483000;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            display: grid;
+            place-items: center;
+            opacity: 1;
+            visibility: visible;
+            /* ровно транзишн .case-study-modal — единый язык ухода слоёв */
+            transition: opacity 620ms cubic-bezier(0.76, 0, 0.24, 1),
+                        visibility 620ms cubic-bezier(0.76, 0, 0.24, 1);
+            /* последняя линия обороны: стреляет, только если инлайн-скрипт
+               не выполнился вовсе (CSP, расширение). Отменяется классом
+               .bundle-ok, который вешает main.js. */
+            animation: alab-failsafe 0s linear 12s forwards;
+        }
+        #alab-preloader.bundle-ok { animation: none; }
+        #alab-preloader.is-done { opacity: 0; visibility: hidden; pointer-events: none; }
+
+        @keyframes alab-failsafe {
+            to { opacity: 0; visibility: hidden; pointer-events: none; }
+        }
+
+        #alab-preloader-ui {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(14px, 2.4vh, 22px);
+            opacity: 0;
+            transform: translateY(0);
+            transition: opacity 200ms cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #alab-preloader.is-armed #alab-preloader-ui { opacity: 1; }
+        #alab-preloader.is-leaving #alab-preloader-ui {
+            opacity: 0;
+            transform: translateY(-8px);
+            transition-duration: 320ms;
+        }
+
+        /* Вордмарк намеренно системным стеком: фолбэк --font-title это
+           cursive (Apple Chancery / Comic Sans), и прелоадер, набранный
+           титульным шрифтом, показал бы ровно тот swap, ради сокрытия
+           которого он существует. */
+        #alab-wordmark {
+            font-family: ui-sans-serif, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+            font-size: clamp(1.5rem, 4.6vw, 2.2rem);
+            font-weight: 600;
+            letter-spacing: -0.045em;
+            text-transform: lowercase;
+            line-height: 1;
+        }
+        #alab-preloader.fonts-ready #alab-wordmark {
+            font-family: 'Unbounded', ui-sans-serif, -apple-system, sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.05em;
+        }
+
+        #alab-pct {
+            min-width: 4.2ch;
+            text-align: center;
+            font-family: ui-sans-serif, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+            font-size: clamp(2.6rem, 9vw, 4.6rem);
+            font-weight: 300;
+            line-height: 0.9;
+            /* без tabular-nums единица заметно уже восьмёрки и вся
+               колонка ездит на каждой смене цифры */
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum" 1;
+        }
+        #alab-pct-sign {
+            font-size: 0.36em;
+            color: #6e6e73;
+            margin-left: 0.12em;
+        }
+
+        #alab-bar {
+            width: min(240px, 46vw);
+            height: 1px;
+            background: rgba(29, 29, 31, 0.08);
+            border-radius: 1px;
+            overflow: hidden;
+        }
+        #alab-bar-fill {
+            display: block;
+            height: 1px;
+            width: 100%;
+            transform-origin: left center;
+            /* анимируем только transform: width давал бы layout каждый кадр
+               ровно тогда, когда браузер парсит шрифты и выполняет бандл */
+            transform: scaleX(0);
+            background: linear-gradient(90deg, #1d1d1f 0%, #1d1d1f 82%, rgba(232, 187, 255, 0.55) 100%);
+        }
+
+        #alab-phase {
+            min-height: 1em;
+            font-family: ui-sans-serif, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+            font-size: 0.72rem;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: #6e6e73;
+            transition: opacity 220ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #alab-phase.is-swapping { opacity: 0; }
+
+        #alab-ring {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border: 1px solid rgba(232, 187, 255, 0.45);
+            border-radius: 50%;
+            transform: scale(0.2);
+            opacity: 0;
+            pointer-events: none;
+        }
+        #alab-preloader.is-leaving #alab-ring {
+            animation: alab-ring 700ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes alab-ring {
+            from { transform: scale(0.2); opacity: 0.55; }
+            to   { transform: scale(14);  opacity: 0; }
+        }
+
+        @media (max-width: 600px) {
+            #alab-phase { display: none; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #alab-preloader {
+                transition: opacity 200ms linear, visibility 200ms linear;
+            }
+            #alab-preloader.is-leaving #alab-preloader-ui { transform: none; }
+            #alab-bar-fill { background: #1d1d1f; }
+            #alab-ring { display: none; }
+        }
+    </style>
+
+    <script>
+    /* Привратник загрузки. Выполняется синхронно до первой отрисовки.
+       Порядок операторов внутри значим: аварийные таймеры заводятся
+       ПЕРВЫМИ, иначе синхронное исключение ниже оставит экран залитым
+       и заблокированным навсегда. */
+    (function () {
+        'use strict';
+
+        var T0 = (window.performance && performance.now) ? performance.now() : Date.now();
+        var root = document.documentElement;
+        var SOFT_DEADLINE = 6000;
+        var HARD_DEADLINE = 9000;
+
+        var boot = {
+            T0: T0,
+            bootHash: '',
+            revealed: false,
+            released: false,
+            reason: '',
+            reduceMotion: false
+        };
+        window.__ALAB_BOOT = boot;
+
+        /* ── 1. Аварийные таймеры — раньше всего остального ───────────── */
+        var softTimer = setTimeout(function () { boot.reveal('soft-deadline'); }, SOFT_DEADLINE);
+        var hardTimer = setTimeout(function () { boot.hardRelease('hard-deadline'); }, HARD_DEADLINE);
+
+        try {
+            boot.reduceMotion = !!(window.matchMedia &&
+                window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        } catch (e) {}
+
+        /* ── 2. Скролл: ручное восстановление, снятие якоря, обнуление ── */
+        try {
+            if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        } catch (e) {}
+
+        try {
+            /* Без снятия hash браузер прыгнет к якорю, пока pin-spacer'ов
+               ещё нет, сетка портфолио пуста, а --app-height равен 1vh —
+               и склампит позицию к заниженной максимальной прокрутке. */
+            boot.bootHash = location.hash || '';
+            if (boot.bootHash) {
+                history.replaceState(null, '', location.pathname + location.search);
+            }
+        } catch (e) {}
+
+        /* Позицию восстанавливаем сами, после пересчёта сцен: браузерное
+           авто-восстановление сработало бы, когда pin-spacer'ов ещё нет,
+           сетка портфолио пуста, а --app-height равен 1vh — и склампило бы
+           позицию к заниженной максимальной прокрутке. */
+        try {
+            var savedY = parseInt(sessionStorage.getItem('alab:scrollY') || '0', 10);
+            boot.savedScrollY = (savedY > 0 && !boot.bootHash) ? savedY : 0;
+            sessionStorage.removeItem('alab:scrollY');
+        } catch (e) { boot.savedScrollY = 0; }
+
+        window.addEventListener('pagehide', function () {
+            try { sessionStorage.setItem('alab:scrollY', String(Math.round(window.scrollY))); } catch (e) {}
+        });
+
+        try { window.scrollTo(0, 0); } catch (e) {}
+
+        /* Лок только на <html>: html{overflow-x:hidden} из base.css делает
+           скроллером корневой элемент, и body.style.overflow='hidden'
+           здесь просто ничего не делает. */
+        root.className += ' alab-booting alab-lock';
+
+        /* ── 3. Реестр единиц загрузки. Сумма весов ровно 100 ─────────── */
+        var UNITS = [
+            ['boot',           3,    'шрифты',  0],
+            ['css',            5,    'шрифты',  300],
+            ['bundle',         12,   'шрифты',  800],
+            ['lib:gsap',       6,    'шрифты',  600],
+            ['lib:st',         6,    'шрифты',  600],
+            ['font:unb400',    4.2,  'шрифты',  900],
+            ['font:unb700',    4.2,  'шрифты',  900],
+            ['font:rob300',    4.2,  'шрифты',  900],
+            ['font:rob400',    4.2,  'шрифты',  900],
+            ['font:rob500',    4.2,  'шрифты',  900],
+            ['fonts:ready',    5,    'шрифты',  1000],
+            ['data:cases',     5,    'данные',  700],
+            ['data:settings',  3,    'данные',  700],
+            ['layout:metrics', 4,    'сцена',   60],
+            ['layout:settle',  4,    'сцена',   150],
+            ['layout:refresh', 4,    'сцена',   200]
+        ];
+        var SECTION_IDS = ['hero', 'manifesto', 'profile', 'mission',
+                           'principles', 'emotional-engineering', 'portfolio', 'contacts'];
+        var i;
+        for (i = 0; i < SECTION_IDS.length; i++) {
+            UNITS.push(['section:' + SECTION_IDS[i], 1.25, 'элементы', 300]);
+        }
+        for (i = 0; i < 6; i++) {
+            UNITS.push(['media:' + i, 2, 'элементы', 500]);
+        }
+
+        var registry = {};
+        var order = [];
+        for (i = 0; i < UNITS.length; i++) {
+            var u = UNITS[i];
+            registry[u[0]] = {
+                id: u[0], weight: u[1], group: u[2], expectedMs: u[3],
+                state: 'pending', startedAt: T0
+            };
+            order.push(u[0]);
+        }
+        boot.registry = registry;
+
+        var waiters = [];
+
+        function settle(id, state) {
+            var unit = registry[id];
+            if (!unit || unit.state !== 'pending') return;
+            unit.state = state;
+            unit.doneAt = now();
+            flushWaiters();
+        }
+
+        boot.mark = function (id) { settle(id, 'done'); };
+        boot.retire = function (id) { settle(id, 'retired'); };
+        boot.retireGroup = function (group) {
+            for (var k = 0; k < order.length; k++) {
+                if (registry[order[k]].group === group) settle(order[k], 'retired');
+            }
+        };
+
+        function now() {
+            return (window.performance && performance.now) ? performance.now() : Date.now();
+        }
+
+        function groupSettled(group) {
+            for (var k = 0; k < order.length; k++) {
+                var unit = registry[order[k]];
+                if (unit.group === group && unit.state === 'pending') return false;
+            }
+            return true;
+        }
+
+        function flushWaiters() {
+            for (var k = waiters.length - 1; k >= 0; k--) {
+                if (boot.revealed || groupSettled(waiters[k].group)) {
+                    var w = waiters.splice(k, 1)[0];
+                    w.resolve();
+                }
+            }
+        }
+
+        /* Ожидание группы. Всегда резолвится: либо по готовности,
+           либо по подтаймауту, либо при раскрытии по дедлайну. */
+        boot.gate = function (group, timeout) {
+            return new Promise(function (resolve) {
+                if (boot.revealed || groupSettled(group)) { resolve(); return; }
+                var entry = { group: group, resolve: resolve };
+                waiters.push(entry);
+                setTimeout(function () {
+                    var idx = waiters.indexOf(entry);
+                    if (idx >= 0) {
+                        waiters.splice(idx, 1);
+                        boot.retireGroup(group);
+                        resolve();
+                    }
+                }, timeout || 4000);
+            });
+        };
+
+        boot.mark('boot');
+
+        /* ── 4. Сигналы готовности ────────────────────────────────────── */
+
+        /* Опрос ведётся таймерами, а НЕ requestAnimationFrame: в фоновой
+           вкладке кадры не приходят вовсе, и сайт, открытый в соседней
+           вкладке, досиживал бы до жёсткого дедлайна. Таймеры там тоже
+           придушены, но продолжают идти. */
+
+        /* CSS-сентинел: base.css объявляет --alab-css-ready. Работает и в
+           prod с блокирующим <link>, и в dev с JS-инжектом. */
+        var cssDeadline = now() + 1500;
+        var cssTimer = setInterval(function () {
+            var ready = false;
+            try {
+                ready = getComputedStyle(root).getPropertyValue('--alab-css-ready').indexOf('1') >= 0;
+            } catch (e) {}
+            if (ready) { clearInterval(cssTimer); boot.mark('css'); return; }
+            if (now() > cssDeadline) { clearInterval(cssTimer); boot.retire('css'); }
+        }, 40);
+
+        /* GSAP с CDN. defer-скрипт, который не загрузился, НЕ блокирует
+           DOMContentLoaded, не бросает исключение и не отклоняет промис —
+           единственный надёжный признак это подписка на теги плюс опрос. */
+        function markLibs() {
+            if (typeof window.gsap !== 'undefined') boot.mark('lib:gsap');
+            if (typeof window.ScrollTrigger !== 'undefined') boot.mark('lib:st');
+            return registry['lib:gsap'].state !== 'pending'
+                && registry['lib:st'].state !== 'pending';
+        }
+
+        function dropLibs() {
+            boot.retire('lib:gsap');
+            boot.retire('lib:st');
+            boot.retire('layout:refresh');
+            if (root.className.indexOf('no-gsap') < 0) root.className += ' no-gsap';
+        }
+
+        var libDeadline = now() + 3500;
+        var libTimer = setInterval(function () {
+            if (markLibs()) { clearInterval(libTimer); return; }
+            if (now() > libDeadline) { clearInterval(libTimer); dropLibs(); }
+        }, 40);
+
+        var libTags = document.querySelectorAll('script[src*="gsap.min.js"], script[src*="ScrollTrigger.min.js"]');
+        for (i = 0; i < libTags.length; i++) {
+            libTags[i].addEventListener('load', function () { markLibs(); });
+            libTags[i].addEventListener('error', dropLibs);
+        }
+        markLibs();
+
+        /* Шрифты. Второй аргумент — реальный русский текст: без него
+           браузер проверит готовность латиницы и не запросит кириллический
+           сабсет. Запрашиваем ровно те веса, что реально отдаёт Google
+           Fonts (400/700 Unbounded, 300/400/500 Roboto): запрос
+           отсутствующего 800 отрезолвился бы ближайшим начертанием
+           и дал бы ложную готовность. */
+        var FONT_JOBS = [
+            ['font:unb400', '400 1rem Unbounded', 'а.лаб'],
+            ['font:unb700', '700 1rem Unbounded', 'агентство'],
+            ['font:rob300', '300 1rem Roboto', 'абвгд'],
+            ['font:rob400', '400 1rem Roboto', 'абвгд'],
+            ['font:rob500', '500 1rem Roboto', 'абвгд']
+        ];
+        if (document.fonts && document.fonts.load) {
+            (function () {
+                for (var f = 0; f < FONT_JOBS.length; f++) {
+                    (function (job) {
+                        var settled = false;
+                        var finish = function (state) {
+                            if (settled) return;
+                            settled = true;
+                            settle(job[0], state);
+                        };
+                        setTimeout(function () { finish('retired'); }, 2800);
+                        try {
+                            document.fonts.load(job[1], job[2]).then(
+                                function () { finish('done'); },
+                                function () { finish('retired'); }
+                            );
+                        } catch (e) { finish('retired'); }
+                    })(FONT_JOBS[f]);
+                }
+                var readySettled = false;
+                setTimeout(function () {
+                    if (!readySettled) { readySettled = true; boot.retire('fonts:ready'); }
+                }, 3200);
+                document.fonts.ready.then(function () {
+                    if (!readySettled) { readySettled = true; boot.mark('fonts:ready'); }
+                }, function () {
+                    if (!readySettled) { readySettled = true; boot.retire('fonts:ready'); }
+                });
+            })();
+        } else {
+            /* Font Loading API недоступен — ждать нечего, шлюз пропускаем */
+            boot.retireGroup('шрифты');
+        }
+
+        /* ── 5. Счётчик ───────────────────────────────────────────────── */
+        var shown = 0;
+        var prevShown = 0;
+        var lastFrame = now();
+        var lastInt = -1;
+        var tau = boot.reduceMotion ? 60 : 180;
+        var capAt99 = true;
+        var el = {};
+
+        var PHASE_LABELS = ['шрифты', 'данные', 'элементы', 'сцена'];
+        var currentPhase = '';
+
+        function computeTarget() {
+            var doneW = 0, pendingW = 0, credit = 0;
+            var t = now();
+            for (var k = 0; k < order.length; k++) {
+                var unit = registry[order[k]];
+                if (unit.state === 'retired') continue;
+                if (unit.state === 'done') { doneW += unit.weight; continue; }
+                pendingW += unit.weight;
+                /* Частичный кредит по времени с жёстким потолком 0.75 веса:
+                   счётчик выдумывает максимум несколько пунктов и мгновенно
+                   схлопывается в правду при резолве. Сцена кредита не имеет —
+                   цифра 100 пишется только по факту. */
+                if (unit.group !== 'сцена' && unit.expectedMs > 0) {
+                    var elapsed = t - unit.startedAt;
+                    credit += unit.weight * Math.min(0.75, 1 - Math.exp(-elapsed / unit.expectedMs));
+                }
+            }
+            var total = doneW + pendingW;
+            if (total <= 0) return 100;
+            return 100 * (doneW + credit) / total;
+        }
+
+        function activePhase() {
+            for (var p = 0; p < PHASE_LABELS.length; p++) {
+                if (!groupSettled(PHASE_LABELS[p])) return PHASE_LABELS[p];
+            }
+            return 'сцена';
+        }
+
+        function tick() {
+            var t = now();
+            /* клампим dt: возврат из фоновой вкладки не должен давать скачок */
+            var dt = Math.min(t - lastFrame, 50);
+            lastFrame = t;
+
+            var target = boot.forceFull ? 100 : computeTarget();
+            if (capAt99 && target > 99) target = 99;
+
+            shown += (target - shown) * (1 - Math.exp(-dt / tau));
+            if (shown < prevShown) shown = prevShown;   /* жёсткая монотонность */
+            prevShown = shown;
+
+            var whole = Math.floor(shown);
+            if (whole !== lastInt) {
+                lastInt = whole;
+                if (el.num) el.num.firstChild.nodeValue = whole;
+                if (el.overlay) el.overlay.setAttribute('aria-valuenow', whole);
+            }
+            if (el.fill) el.fill.style.transform = 'scaleX(' + (shown / 100).toFixed(4) + ')';
+
+            if (el.phase) {
+                var ph = activePhase();
+                if (ph !== currentPhase) { currentPhase = ph; el.phase.firstChild.nodeValue = ph; }
+            }
+
+            if (!boot.removed) requestAnimationFrame(tick);
+        }
+
+        /* ── 6. Привязка к DOM и grace window ─────────────────────────── */
+        function bindDom() {
+            el.overlay = document.getElementById('alab-preloader');
+            el.ui = document.getElementById('alab-preloader-ui');
+            el.num = document.getElementById('alab-pct-num');
+            el.fill = document.getElementById('alab-bar-fill');
+            el.phase = document.getElementById('alab-phase');
+            if (!el.overlay) return;
+
+            /* Полотно видно всегда с первого пейнта, а цифры — только если
+               загрузка ощутима. При горячем кэше пользователь увидит ровное
+               серое поле, неотличимое от отсутствия прелоадера. */
+            var warm = false;
+            try { warm = sessionStorage.getItem('alab:warm') === '1'; } catch (e) {}
+            var armDelay = boot.reduceMotion ? 0 : (warm ? 120 : 260);
+            setTimeout(function () {
+                if (boot.revealed || !el.overlay) return;
+                el.overlay.className += ' is-armed';
+                boot.armedAt = now();
+            }, armDelay);
+
+            /* iOS Safari не гасит резиновую прокрутку одним overflow:hidden */
+            el.overlay.addEventListener('touchmove', function (ev) {
+                if (!boot.released) ev.preventDefault();
+            }, { passive: false });
+
+            requestAnimationFrame(tick);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bindDom, { once: true });
+            /* оверлей — первый элемент body, ждать полного DOM не нужно */
+            var early = setInterval(function () {
+                if (document.getElementById('alab-preloader')) {
+                    clearInterval(early);
+                    bindDom();
+                }
+            }, 16);
+            setTimeout(function () { clearInterval(early); }, 3000);
+        } else {
+            bindDom();
+        }
+
+        window.addEventListener('scroll', function () {
+            if (!boot.released) { try { window.scrollTo(0, 0); } catch (e) {} }
+        }, { passive: true });
+
+        /* ── 7. Раскрытие ─────────────────────────────────────────────── */
+        boot.release = function () {
+            if (boot.released) return;
+            boot.released = true;
+            root.className = root.className.replace(/\balab-lock\b/g, '');
+        };
+
+        boot.reveal = function (reason) {
+            if (boot.revealed) return Promise.resolve();
+            boot.revealed = true;
+            boot.reason = reason || 'ready';
+            clearTimeout(softTimer);
+            flushWaiters();
+
+            if (reason === 'soft-deadline' || reason === 'hard-deadline' || reason === 'error') {
+                root.className += ' preload-timeout';
+                boot.timeoutMs = now() - T0;
+            }
+
+            boot.release();
+            boot.forceFull = true;
+            capAt99 = false;
+            tau = 60;
+
+            var overlay = el.overlay;
+            if (!overlay) { finishReveal(); return Promise.resolve(); }
+
+            var armed = !!boot.armedAt;
+            var minHold = armed && !boot.reduceMotion
+                ? Math.max(0, 500 - (now() - boot.armedAt))
+                : 0;
+
+            return new Promise(function (resolve) {
+                var startedWait = now();
+                /* На таймере, не на кадрах: в фоновой вкладке rAF молчит,
+                   и раскрытие зависло бы до жёсткого дедлайна. */
+                (function waitFull() {
+                    if (Math.floor(shown) >= 100 || now() - startedWait > 400) {
+                        shown = 100; prevShown = 100;
+                        if (el.num) el.num.firstChild.nodeValue = 100;
+                        if (el.fill) el.fill.style.transform = 'scaleX(1)';
+                        setTimeout(function () { leave(resolve); }, boot.reduceMotion ? 0 : (180 + minHold));
+                        return;
+                    }
+                    setTimeout(waitFull, 16);
+                })();
+            });
+        };
+
+        function leave(resolve) {
+            var overlay = el.overlay;
+            if (!overlay) { finishReveal(); if (resolve) resolve(); return; }
+
+            overlay.className += ' is-leaving';
+            setTimeout(function () {
+                overlay.className += ' is-done';
+            }, boot.reduceMotion ? 0 : 60);
+
+            /* Событие уходит, пока оверлей ещё частично непрозрачен: буквы
+               a.lab начинают падать сквозь последние кадры растворения,
+               и передача читается как одно движение, а не два. */
+            setTimeout(function () {
+                finishReveal();
+                if (resolve) resolve();
+            }, boot.reduceMotion ? 0 : 380);
+
+            var removeAt = boot.reduceMotion ? 220 : 1000;
+            setTimeout(function () {
+                boot.removed = true;
+                if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                root.className = root.className.replace(/\balab-booting\b/g, '');
+            }, removeAt);
+        }
+
+        var dispatched = false;
+        function finishReveal() {
+            if (dispatched) return;
+            dispatched = true;
+            clearTimeout(hardTimer);
+            boot.release();
+            try { sessionStorage.setItem('alab:warm', '1'); } catch (e) {}
+            try {
+                document.dispatchEvent(new CustomEvent('alab:reveal', {
+                    detail: { reason: boot.reason, ms: now() - T0 }
+                }));
+            } catch (e) {
+                var ev = document.createEvent('CustomEvent');
+                ev.initCustomEvent('alab:reveal', false, false, { reason: boot.reason });
+                document.dispatchEvent(ev);
+            }
+        }
+
+        /* Жёсткое раскрытие: не зависит ни от бандла, ни от анимаций.
+           Видимый, но непрокручиваемый сайт недопустим ни при каком отказе. */
+        boot.hardRelease = function (reason) {
+            boot.reason = reason || 'hard';
+            boot.release();
+            var overlay = document.getElementById('alab-preloader');
+            if (overlay) {
+                overlay.className += ' is-done';
+                setTimeout(function () {
+                    boot.removed = true;
+                    if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                }, 700);
+            }
+            root.className = root.className.replace(/\balab-booting\b/g, '');
+            boot.revealed = true;
+            flushWaiters();
+            finishReveal();
+        };
+
+        window.addEventListener('error', function () { boot.reveal('error'); });
+        window.addEventListener('unhandledrejection', function () { boot.reveal('error'); });
+
+        /* bfcache: вернувшаяся страница не должна оказаться под мёртвым слоем */
+        window.addEventListener('pageshow', function (ev) {
+            if (ev.persisted) { boot.hardRelease('bfcache'); }
+        });
+    })();
+    </script>
 
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript">
@@ -118,6 +779,21 @@
 
 </head>
 <body>
+    <!-- Экран предзагрузки. Прямой потомок body и первый элемент: у body
+         стоит isolation:isolate, а #smooth-wrapper имеет z-index:1 и
+         создаёт свой контекст наложения — внутри него никакое число
+         не подняло бы оверлей над контентом. -->
+    <div id="alab-preloader" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Загрузка сайта">
+        <div id="alab-ring" aria-hidden="true"></div>
+        <div id="alab-preloader-ui">
+            <div id="alab-wordmark">a.lab</div>
+            <div id="alab-pct"><span id="alab-pct-num">0</span><span id="alab-pct-sign">%</span></div>
+            <div id="alab-bar"><i id="alab-bar-fill"></i></div>
+            <div id="alab-phase" aria-live="polite">шрифты</div>
+        </div>
+    </div>
+    <noscript><style>#alab-preloader{display:none!important}html.alab-lock{overflow:auto!important;touch-action:auto!important}</style></noscript>
+
     <!-- Yandex.Metrika noscript fallback -->
     <noscript><div><img src="https://mc.yandex.ru/watch/108408263" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 
@@ -251,9 +927,12 @@
                             <div class="profile-image-container profile-oval-object">
                                 <div class="profile-oval-shadow"></div>
                                 <div class="profile-oval-body">
-                                    <video class="profile-photo-img" autoplay loop muted playsinline webkit-playsinline preload="auto" disablepictureinpicture poster="/images/lari.jpg">
-                                        <source src="/images/lari-animated.mp4" type="video/mp4">
-                                        <img src="/images/lari.jpg" alt="Александра Лари" class="profile-photo-img">
+                                    <!-- Видео и постер (1,77 МБ) подключаются по alab:reveal:
+                                         во время загрузки они отбирали бы канал у шрифтов,
+                                         а на вёрстку не влияют — контейнер с aspect-ratio. -->
+                                    <video class="profile-photo-img" loop muted playsinline webkit-playsinline preload="none" disablepictureinpicture data-poster="/images/lari.jpg">
+                                        <source data-src="/images/lari-animated.mp4" type="video/mp4">
+                                        <img src="/images/lari.jpg" alt="Александра Лари" class="profile-photo-img" loading="lazy" decoding="async">
                                     </video>
                                     <div class="profile-oval-rim"></div>
                                     <div class="profile-oval-bevel"></div>
@@ -377,21 +1056,11 @@
                         <h2 class="portfolio-title">Проекты</h2>
                         <span class="portfolio-subtitle">индустрии</span>
                     </div>
-                    <!-- Все направления с плашками проектов сразу, без перехода во вкладки -->
-                    <div class="portfolio-industries" id="main-portfolio-grid">
-                        <div class="portfolio-industry" data-category="development">
-                            <h3 class="industry-title">Девелопмент и Архитектура</h3>
-                            <div class="industry-projects"><!-- Плашки из cases.json (JS) --></div>
-                        </div>
-                        <div class="portfolio-industry" data-category="production">
-                            <h3 class="industry-title">Наука и Производство</h3>
-                            <div class="industry-projects"><!-- Плашки из cases.json (JS) --></div>
-                        </div>
-                        <div class="portfolio-industry" data-category="services">
-                            <h3 class="industry-title">Продукты и Сервисы</h3>
-                            <div class="industry-projects"><!-- Плашки из cases.json (JS) --></div>
-                        </div>
-                    </div>
+                    <!-- Все направления с плашками проектов сразу, без перехода во вкладки.
+                         Категории и карточки целиком строятся из public/data/cases.json
+                         в js/sections/portfolio.js: раньше плашки были захардкожены
+                         здесь, и новая категория из редактора на сайт не попадала. -->
+                    <div class="portfolio-industries" id="main-portfolio-grid"></div>
                 </div>
             </section>
 

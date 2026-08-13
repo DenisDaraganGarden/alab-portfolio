@@ -13,6 +13,11 @@
   --font-body: 'Roboto', sans-serif;
   --font-title: 'Unbounded', cursive;
   --transition-slow: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Сентинел для привратника предзагрузки (инлайн-скрипт в index.html):
+     по нему он узнаёт, что базовые стили применены. Работает и в prod
+     с блокирующим <link>, и в dev, где Vite инжектит CSS джаваскриптом.
+     Не удалять и не переносить в другой файл. */
+  --alab-css-ready: 1;
 }
 
 html {
@@ -49,18 +54,4 @@ body {
   position: relative;
   isolation: isolate;
   overscroll-behavior-x: none;
-}
-
-
-
-/* Themes */
-body.theme-dark {
-  --bg-color: #f7f7f7;
-  --text-color: #1d1d1f;
-}
-
-.theme-light {
-  --bg-color: #ffffff;
-  --text-color: #1a1a1a;
-  --accent-color: #555555;
 }

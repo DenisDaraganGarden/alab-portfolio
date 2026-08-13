@@ -3,25 +3,52 @@
  * Handles interactions for the portfolio section, including the case study full-screen modal.
  */
 
+import { fetchJson, loadSettings, refreshScrollScenes } from '../boot/preloader.js';
+import {
+    renderCaseBlocks,
+    hydrateCompareBlocks,
+    escapeHtml,
+    escapeAttr,
+    normalizeLinkUrl
+} from './case-blocks.js';
+
 export async function initPortfolio(container) {
 
 
-    const industryBlocks = container.querySelectorAll('.portfolio-industry');
+    // Плашки индустрий строятся из данных, а не берутся из разметки: раньше
+    // три категории были захардкожены в index.html, и любая новая категория,
+    // заведённая в редакторе, на сайт просто не попадала — публикация
+    // проходила без единого предупреждения.
+    const industriesRoot = container.querySelector('.portfolio-industries');
+
+    // Порядок показа исторически сложившихся категорий. Остальные идут следом
+    // в том порядке, в каком их отдаёт редактор.
+    const CATEGORY_ORDER = ['development', 'production', 'services'];
+
+    const orderedCategoryIds = () => {
+        const ids = Object.keys(portfolioData.categories || {});
+        const known = CATEGORY_ORDER.filter(id => ids.includes(id));
+        const rest = ids.filter(id => !CATEGORY_ORDER.includes(id));
+        return [...known, ...rest];
+    };
 
     let portfolioData = null;
-    
+
     let siteSettings = {};
     try {
-        const response = await fetch('/data/cases.json');
-        portfolioData = await response.json();
+        portfolioData = await fetchJson('/data/cases.json', 4000);
+        window.__ALAB_BOOT?.mark('data:cases');
     } catch (e) {
         console.error('[A.LAB] Ошибка загрузки cases.json', e);
+        // Сетка останется пустой — снимаем с прогресса всё, что от неё
+        // зависело, иначе процент никогда не дойдёт до ста.
+        window.__ALAB_BOOT?.retire('data:cases');
+        for (let i = 0; i < 6; i += 1) window.__ALAB_BOOT?.retire(`media:${i}`);
         return;
     }
 
     try {
-        const sr = await fetch('/data/settings.json');
-        siteSettings = await sr.json();
+        siteSettings = (await loadSettings()) || {};
         // Apply card styles from settings
         if (siteSettings.cards) {
             const cs = siteSettings.cards;
@@ -104,9 +131,55 @@ export async function initPortfolio(container) {
         return more;
     };
 
+    // Создаёт плашку категории со всей обвязкой. Заголовок кликабелен —
+    // это вход в категорию.
+    function buildIndustryBlock(categoryId) {
+        const block = document.createElement('div');
+        block.className = 'portfolio-industry';
+        block.setAttribute('data-category', categoryId);
+
+        const titleEl = document.createElement('h3');
+        titleEl.className = 'industry-title industry-title--link';
+        titleEl.setAttribute('role', 'button');
+        titleEl.setAttribute('tabindex', '0');
+
+        const toggleCategory = () => setCategory(activeCategory === categoryId ? null : categoryId);
+        titleEl.addEventListener('click', toggleCategory);
+        titleEl.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                toggleCategory();
+            }
+        });
+
+        const grid = document.createElement('div');
+        grid.className = 'industry-projects';
+
+        block.appendChild(titleEl);
+        block.appendChild(grid);
+        return block;
+    }
+
     function renderIndustries() {
-        industryBlocks.forEach(block => {
-            const categoryId = block.getAttribute('data-category');
+        if (!industriesRoot) return;
+
+        const ids = orderedCategoryIds();
+
+        // Убираем плашки категорий, которых больше нет в данных
+        Array.from(industriesRoot.querySelectorAll('.portfolio-industry')).forEach(block => {
+            if (!ids.includes(block.getAttribute('data-category'))) block.remove();
+        });
+
+        ids.forEach(categoryId => {
+            let block = industriesRoot.querySelector(`.portfolio-industry[data-category="${CSS.escape(categoryId)}"]`);
+            if (!block) {
+                block = buildIndustryBlock(categoryId);
+                industriesRoot.appendChild(block);
+            } else {
+                // Порядок мог измениться — переставляем в конец по очереди
+                industriesRoot.appendChild(block);
+            }
+
             const titleEl = block.querySelector('.industry-title');
             const grid = block.querySelector('.industry-projects');
             if (!grid) return;
@@ -150,25 +223,15 @@ export async function initPortfolio(container) {
     function setCategory(categoryId) {
         activeCategory = categoryId;
         renderIndustries();
+        // Провал в категорию перерисовывает сетку и меняет высоту документа.
+        // Без пересчёта позиции секции контактов протухают сразу после
+        // первого клика, а её карточка появляется за экраном или не
+        // появляется вовсе — с pointer-events:none, то есть форма
+        // становится физически нерабочей.
+        refreshScrollScenes();
     }
 
-    industryBlocks.forEach(block => {
-        const categoryId = block.getAttribute('data-category');
-        const titleEl = block.querySelector('.industry-title');
-        if (!titleEl) return;
-        titleEl.classList.add('industry-title--link');
-        titleEl.setAttribute('role', 'button');
-        titleEl.setAttribute('tabindex', '0');
-        const toggleCategory = () => setCategory(activeCategory === categoryId ? null : categoryId);
-        titleEl.addEventListener('click', toggleCategory);
-        titleEl.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                toggleCategory();
-            }
-        });
-    });
-
+    // Обработчики вешаются при создании плашки в buildIndustryBlock
     renderIndustries();
 
     // Modal logic
@@ -185,156 +248,14 @@ export async function initPortfolio(container) {
     let touchStartY = null;
     let activeCardOverlay = null;
     let modalAnimationObserver = null;
+    // Отложенная очистка содержимого после анимации закрытия — id хранится,
+    // чтобы отменить её при быстром открытии следующего кейса
+    let closeTimer = 0;
 
     if (!modal || !modalScrollArea || !modalContent) return;
 
-    const LINK_PLATFORMS = {
-        website: { label: 'Сайт', mark: '↗' },
-        behance: { label: 'Behance', mark: 'Be' },
-        telegram: { label: 'Telegram', mark: 'Tg' },
-        whatsapp: { label: 'WhatsApp', mark: 'Wa' },
-        instagram: { label: 'Instagram', mark: 'Ig' },
-        youtube: { label: 'YouTube', mark: 'Yt' },
-        pdf: { label: 'PDF', mark: 'PDF' },
-        drive: { label: 'Drive', mark: 'Dr' },
-        other: { label: 'Ссылка', mark: '•' },
-    };
-
-    const escapeHtml = (value = '') => String(value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-
-    const escapeAttr = (value = '') => escapeHtml(value).replace(/`/g, '&#96;');
-
-    const normalizeLinkUrl = (value, platform = '') => {
-        const raw = String(value || '').trim();
-        if (!raw) return '';
-        if (/^(javascript|data|vbscript):/i.test(raw)) return '';
-        if (/^(https?:|mailto:|tel:)/i.test(raw)) return raw;
-        if (platform === 'telegram' && /^@?[\w\d_]{3,}$/i.test(raw)) {
-            return `https://t.me/${raw.replace(/^@/, '')}`;
-        }
-        if (platform === 'whatsapp' && /^[+\d\s().-]{7,}$/i.test(raw)) {
-            const phone = raw.replace(/\D/g, '');
-            return phone ? `https://wa.me/${phone}` : '';
-        }
-        if (/^(www\.|[\w-]+(\.[\w-]+)+)([/?#].*)?$/i.test(raw)) return `https://${raw}`;
-        if (/^(\/(?!\/)|#)/.test(raw)) return raw;
-        return '';
-    };
-
-    const displayLinkUrl = (value) => String(value || '')
-        .replace(/^https?:\/\//i, '')
-        .replace(/^mailto:/i, '')
-        .replace(/^tel:/i, '')
-        .replace(/^www\./i, '')
-        .replace(/\/$/, '');
-
-    const blockAnimation = (block) => block?.style?.animation || 'none';
-
-    const stripHtmlForAnimation = (value = '') => String(value || '')
-        .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<\/(p|div|h[1-6])>/gi, '\n')
-        .replace(/<[^>]+>/g, '')
-        .replace(/&nbsp;/g, ' ')
-        .trim();
-
-    const renderAnimatedText = (value, animation) => {
-        if (animation === 'split-lines') {
-            const lines = stripHtmlForAnimation(value).split(/\n+/).map(line => line.trim()).filter(Boolean);
-            return lines.map((line, index) => `<span class="case-anim-line" style="--item-i:${index}">${escapeHtml(line)}</span>`).join('');
-        }
-        if (animation === 'split-words') {
-            const words = stripHtmlForAnimation(value).split(/\s+/).filter(Boolean);
-            return words.map((word, index) => `<span class="case-anim-word" style="--item-i:${index}">${escapeHtml(word)}</span>`).join(' ');
-        }
-        return String(value || '').replace(/\n/g, '<br>');
-    };
-
-    const renderCaseBlock = (block, html) => {
-        if (!html) return '';
-        const animation = blockAnimation(block);
-        if (animation === 'none') return html;
-        return `<div class="case-block-reveal" data-animation="${escapeAttr(animation)}">${html}</div>`;
-    };
-
-    const renderLinksBlock = (block) => {
-        const items = (block.items || [])
-            .map(item => ({ ...item, href: normalizeLinkUrl(item.url, item.platform) }))
-            .filter(item => item.href);
-        if (!items.length) return '';
-
-        const layoutClass = block.layout === 'inline' ? ' case-block-links--inline' : '';
-        const title = block.title ? `<h3 class="case-links-title">${escapeHtml(block.title)}</h3>` : '';
-        const links = items.map(item => {
-            const platform = LINK_PLATFORMS[item.platform] || LINK_PLATFORMS.other;
-            const label = item.label || platform.label;
-            return `
-                <a class="case-link-card" href="${escapeAttr(item.href)}" target="_blank" rel="noopener noreferrer" data-platform="${escapeAttr(item.platform || 'other')}">
-                    <span class="case-link-icon">${escapeHtml(platform.mark)}</span>
-                    <span class="case-link-copy">
-                        <span class="case-link-label">${escapeHtml(label)}</span>
-                        <span class="case-link-url">${escapeHtml(displayLinkUrl(item.href))}</span>
-                    </span>
-                </a>
-            `;
-        }).join('');
-
-        return `<section class="case-block-links${layoutClass}">${title}<div class="case-links-grid">${links}</div></section>`;
-    };
-
-    const renderColumnCopy = (text = '') => {
-        const lines = String(text || '')
-            .split(/\n+/)
-            .map(line => line.trim())
-            .filter(Boolean);
-
-        if (!lines.length) return '';
-        if (lines.length === 1 && lines[0].length > 64) {
-            return `<div class="case-col-copy"><p>${escapeHtml(lines[0])}</p></div>`;
-        }
-
-        const [title, ...body] = lines;
-        return `
-            <div class="case-col-copy">
-                <h3 class="case-col-title">${escapeHtml(title)}</h3>
-                ${body.length ? `<p>${body.map(escapeHtml).join('<br>')}</p>` : ''}
-            </div>
-        `;
-    };
-
-    const renderColumnsBlock = (block) => {
-        const cols = (block.cols || [])
-            .filter(col => String(col?.image || '').trim() || String(col?.text || '').trim());
-
-        if (!cols.length) return '';
-
-        const columnCount = Math.min(Math.max(cols.length, 1), 3);
-        const cards = cols.map((col, index) => {
-            const image = String(col.image || '').trim();
-            const label = String(col.text || '').split(/\n+/).find(Boolean) || 'Материал проекта';
-            const interactiveAttrs = image
-                ? ` tabindex="0" role="button" aria-label="Открыть карточку: ${escapeAttr(label)}"`
-                : '';
-
-            return `
-                <article class="case-col${image ? ' case-col--expandable' : ''}" style="--card-i:${index}"${interactiveAttrs}>
-                    ${image ? `
-                        <div class="case-col-media" aria-hidden="true">
-                            <img src="${escapeAttr(image)}" alt="${escapeAttr(label)}"/>
-                        </div>
-                    ` : ''}
-                    ${renderColumnCopy(col.text)}
-                    ${image ? '<span class="case-col-affordance" aria-hidden="true">развернуть</span>' : ''}
-                </article>
-            `;
-        }).join('');
-
-        return `<div class="case-block-columns" data-cols="${columnCount}">${cards}</div>`;
-    };
+    // Рендер блоков кейса вынесен в ./case-blocks.js — тот же модуль
+    // подключает предпросмотр редактора, чтобы вёрстка совпадала.
 
     const closeFocusedCard = (immediate = false) => {
         if (!activeCardOverlay) return;
@@ -476,7 +397,8 @@ export async function initPortfolio(container) {
         modal.classList.remove('is-open');
         modal.setAttribute('aria-hidden', 'true');
 
-        window.setTimeout(() => {
+        closeTimer = window.setTimeout(() => {
+            closeTimer = 0;
             modalContent.innerHTML = '';
             modalScrollArea.scrollTop = 0;
             restorePagePosition();
@@ -505,83 +427,27 @@ export async function initPortfolio(container) {
     };
 
     const openModal = (proj) => {
+        // Отменяем отложенную очистку от предыдущего закрытия: если закрыть
+        // кейс и в течение анимации открыть другой, старый таймер вычистил бы
+        // содержимое уже открытой модалки.
+        if (closeTimer) { clearTimeout(closeTimer); closeTimer = 0; }
+
         modalContent.innerHTML = '';
-        
-        let hasBlocks = false;
-        if (proj.blocks && proj.blocks.length) {
-            proj.blocks.forEach(block => {
-                if (block.enabled === false) return;
-                hasBlocks = true;
-                switch(block.type) {
-                    case 'raw_html':
-                        modalContent.innerHTML += block.content;
-                        break;
-                    case 'heading': {
-                        const lvl = block.level || 'h2';
-                        modalContent.innerHTML += renderCaseBlock(block, `<${lvl} class="case-block-heading">${renderAnimatedText(block.content, blockAnimation(block))}</${lvl}>`);
-                        break;
-                    }
-                    case 'text':
-                        modalContent.innerHTML += renderCaseBlock(block, `<p class="case-block-text">${renderAnimatedText(block.content, blockAnimation(block))}</p>`);
-                        break;
-                    case 'image':
-                        if (block.content) {
-                            const mask = block.mask ? `clip-path: url(#${block.mask});` : '';
-                            modalContent.innerHTML += renderCaseBlock(block, `<div class="case-block-image"><img src="${escapeAttr(block.content)}" alt="" style="${mask}"/></div>`);
-                        }
-                        break;
-                    case 'video':
-                        if (block.content) modalContent.innerHTML += renderCaseBlock(block, `<div class="case-block-video"><video src="${escapeAttr(block.content)}" autoplay muted loop playsinline></video></div>`);
-                        break;
-                    case 'gallery': {
-                        const imgs = (block.images||[]).map(src => `<img src="${escapeAttr(src)}" alt=""/>`).join('');
-                        modalContent.innerHTML += renderCaseBlock(block, `<div class="case-block-gallery">${imgs}</div>`);
-                        break;
-                    }
-                    case 'links':
-                        modalContent.innerHTML += renderCaseBlock(block, renderLinksBlock(block));
-                        break;
-                    case 'spacer':
-                        modalContent.innerHTML += `<div style="height:${block.height||80}px"></div>`;
-                        break;
-                    case 'masked_image':
-                        if (block.content) {
-                            const cp = block.clipPath || 'circle(50% at 50% 50%)';
-                            modalContent.innerHTML += renderCaseBlock(block, `<div class="case-block-image"><img src="${escapeAttr(block.content)}" alt="" style="clip-path:${cp};"/></div>`);
-                        }
-                        break;
-                    case 'columns': {
-                        modalContent.innerHTML += renderCaseBlock(block, renderColumnsBlock(block));
-                        break;
-                    }
-                    case 'compare': {
-                        if (block.before && block.after) {
-                            const uid = 'cmp-' + Math.random().toString(36).slice(2,8);
-                            modalContent.innerHTML += renderCaseBlock(block, `<div class="case-block-compare" id="${uid}"><img src="${escapeAttr(block.after)}" class="cmp-after" alt=""/><div class="cmp-before"><img src="${escapeAttr(block.before)}" class="cmp-before-img" alt=""/></div><div class="cmp-line"></div><span class="cmp-label cmp-label--before">ДО</span><span class="cmp-label cmp-label--after">ПОСЛЕ</span></div>`);
-                            requestAnimationFrame(() => {
-                                const el = document.getElementById(uid);
-                                if (!el) return;
-                                const onMove = (x) => { const r = el.getBoundingClientRect(); const pct = Math.max(0,Math.min(100,((x-r.left)/r.width)*100)); el.querySelector('.cmp-before').style.clipPath = `polygon(0 0, ${pct}% 0, ${pct}% 100%, 0 100%)`; el.querySelector('.cmp-line').style.left=pct+'%'; };
-                                el.addEventListener('mousemove', e => onMove(e.clientX));
-                                el.addEventListener('touchmove', e => { e.preventDefault(); onMove(e.touches[0].clientX); }, {passive:false});
-                            });
-                        }
-                        break;
-                    }
-                    case 'quote':
-                        modalContent.innerHTML += renderCaseBlock(block, `<blockquote class="case-block-quote"><p class="case-quote-text">${escapeHtml(block.text||'')}</p><div class="case-quote-author">${block.photo?`<img class="case-quote-photo" src="${escapeAttr(block.photo)}" alt=""/>`:''}<div><strong>${escapeHtml(block.author||'')}</strong>${block.role?`<br><span class="case-quote-role">${escapeHtml(block.role)}</span>`:''}</div></div></blockquote>`);
-                        break;
-                    case 'metrics':
-                        modalContent.innerHTML += renderCaseBlock(block, `<div class="case-block-metrics">${(block.items||[]).map(m => `<div class="case-metric"><div class="case-metric-value">${escapeHtml(m.value||'')}</div><div class="case-metric-label">${escapeHtml(m.label||'')}</div></div>`).join('')}</div>`);
-                        break;
-                }
-            });
-        }
+
+        // Разметка собирается общим модулем и вставляется ОДНИМ присваиванием.
+        const html = renderCaseBlocks(proj.blocks);
+
+        // Наличие контента определяем по факту собранной разметки, а не по
+        // длине массива: кейс из одного незаполненного блока раньше давал
+        // пустую простыню вместо заглушки.
+        const hasBlocks = html.trim().length > 0;
+        if (hasBlocks) modalContent.innerHTML = html;
 
         decorateModalLinks();
         initColumnCards();
         initCaseBlockAnimations();
-        
+        hydrateCompareBlocks(modalContent);
+
         if (!hasBlocks) {
             modalContent.innerHTML = `
                 <div class="case-study-detail case-placeholder" style="padding: 10rem 5%; color: white;">

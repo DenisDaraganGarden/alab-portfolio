@@ -119,24 +119,6 @@
   gap: 1.5rem;
 }
 
-.hero-cta-link {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  text-decoration: none;
-  color: var(--text-color);
-  cursor: pointer;
-  transition: opacity 0.3s;
-}
-
-.hero-cta-link:hover {
-  opacity: 0.7;
-}
-
-.hero-cta-link:hover .hero-cta-arrow {
-  transform: translateX(4px);
-}
-
 .hero-cta-rotate {
   font-family: var(--font-body);
   font-size: 1.05rem;
@@ -150,13 +132,6 @@
 .hero-cta-rotate.fade-out {
   opacity: 0;
   transform: translateY(6px);
-}
-
-.hero-cta-arrow {
-  font-size: 1.4rem;
-  opacity: 0.5;
-  transition: transform 0.3s ease;
-  flex-shrink: 0;
 }
 
 /* Circular Premium CTA Button */
@@ -299,8 +274,11 @@
     /* масштаб от ширины экрана, чтобы «управление вниманием» помещалось целиком */
     font-size: clamp(0.72rem, 3.6vw, 1.1rem);
     font-weight: 500;
-    /* страховка: на мобильных список виден всегда, даже если входная
-       анимация не успела отработать (слабое устройство, свёрнутая вкладка) */
+    /* На мобильных список услуг — постоянный элемент композиции (сетка
+       4×1fr выше), а не всплывающая по ховеру подсказка, как на десктопе.
+       Перебиваем инлайн-стили GSAP намеренно: входной твин оставляет
+       элементы в opacity 0, потому что на десктопе они и должны быть
+       скрыты до наведения на букву. */
     opacity: 1 !important;
     transform: none !important;
     text-transform: uppercase;
@@ -364,7 +342,6 @@
   right: -0.12em;
   z-index: 10;
 }
-
 
 /* Global dimming when a sibling is hovered */
 .dimmed-sibling {

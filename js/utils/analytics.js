@@ -175,12 +175,22 @@ export const initAnalytics = () => {
         send('outbound_click', { metadata: { href: url.href, text: link.textContent.trim().slice(0, 120) } });
     }, { capture: true });
 
-    const sendEngagement = () => {
-        send('engagement', { duration: Date.now() - startedAt });
+    // Троттлинг: событие уходило на КАЖДОЕ переключение вкладки, и одна
+    // сессия с частым альт-табом давала тысячи записей — 4022 из 9793 строк
+    // в таблице аналитики пришли из одного визита.
+    const ENGAGEMENT_MIN_INTERVAL = 30000;
+    let lastEngagementAt = 0;
+
+    const sendEngagement = (force = false) => {
+        const now = Date.now();
+        if (!force && now - lastEngagementAt < ENGAGEMENT_MIN_INTERVAL) return;
+        lastEngagementAt = now;
+        send('engagement', { duration: now - startedAt });
     };
 
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') sendEngagement();
     });
-    window.addEventListener('pagehide', sendEngagement);
+    // Уход со страницы — последний шанс отчитаться, шлём безусловно
+    window.addEventListener('pagehide', () => sendEngagement(true));
 };

@@ -1,3 +1,4 @@
+import './css/preloader.css';
 import './css/base.css';
 import './css/layout.css';
 import './css/components/header.css';
@@ -24,6 +25,9 @@ import { initViewportMetrics } from './js/utils/viewport.js';
 import { initIridescentTrail } from './js/effects/iridescent-trail.js';
 import { initWaterRipple } from './js/effects/water-ripple.js';
 import { initAnalytics } from './js/utils/analytics.js';
+import { gate, runPreloader, refreshScrollScenes } from './js/boot/preloader.js';
+
+export { refreshScrollScenes };
 
 /**
  * [A.LAB] Main Initialization Script
@@ -72,10 +76,47 @@ const initHeaderAnchorNavigation = () => {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+/**
+ * Тяжёлые фоновые эффекты стартуют только после раскрытия: под шторкой
+ * они жгли бы кадры ровно тогда, когда браузер парсит шрифты и меряет
+ * вёрстку. Ни один из них не создаёт ScrollTrigger.
+ */
+const initDeferredEffects = () => {
+    const isTouchScrollDevice = window.matchMedia?.('(pointer: coarse)').matches;
+
+    // Жидкостный след — только для десктопа: iOS Safari не поддерживает canvas
+    // ctx.filter blur (пиксельные розово-фиолетовые пятна), а покадровая симуляция
+    // нагружает главный поток во время скролла.
+    if (!isTouchScrollDevice && window.matchMedia?.('(min-width: 769px)').matches) {
+        try {
+            initIridescentTrail();
+        } catch (error) {
+            console.error('[A.LAB] Ошибка инициализации iridescent-trail:', error);
+        }
+    }
+    // Водная гладь в финале (секция contacts): интерактивная лиловая рябь
+    // + плавное растворение масляного следа при входе в секцию.
+    try {
+        initWaterRipple();
+    } catch (error) {
+        console.error('[A.LAB] Ошибка инициализации water-ripple:', error);
+    }
+    initAnalytics();
+};
+
+document.addEventListener('alab:reveal', initDeferredEffects, { once: true });
+
+/**
+ * Загрузка сайта. Модульный скрипт по определению deferred, обёртка
+ * DOMContentLoaded ничего не давала и только вводила в заблуждение.
+ */
+async function boot() {
     console.log('[A.LAB] Инициализация модулей...');
 
-    const isTouchScrollDevice = window.matchMedia?.('(pointer: coarse)').matches;
+    // Отменяем CSS-предохранитель: бандл выполнился, дальше за раскрытие
+    // отвечает обычная логика.
+    window.__ALAB_BOOT?.mark('bundle');
+    document.getElementById('alab-preloader')?.classList.add('bundle-ok');
 
     if (typeof ScrollTrigger !== 'undefined') {
         ScrollTrigger.config({
@@ -86,25 +127,19 @@ document.addEventListener('DOMContentLoaded', () => {
         // и ведёт скролл через JS, что на iPhone даёт микро-подёргивания при скролле.
     }
 
-    // 1. Основная логика и утилиты (Lenis и др. загружаются через CDN в index.html)
+    // 1. Утилиты, от которых зависят измерения. Без initViewportMetrics
+    // переменная --app-height остаётся равной 1vh, и min-height каждой
+    // секции считается от 100px.
     initViewportMetrics();
-    // Жидкостный след — только для десктопа: iOS Safari не поддерживает canvas
-    // ctx.filter blur (пиксельные розово-фиолетовые пятна), а покадровая симуляция
-    // нагружает главный поток во время скролла.
-    if (!isTouchScrollDevice && window.matchMedia?.('(min-width: 769px)').matches) {
-        initIridescentTrail();
-    }
-    // Водная гладь в финале (секция contacts): интерактивная лиловая рябь
-    // + плавное растворение масляного следа при входе в секцию.
-    try {
-        initWaterRipple();
-    } catch (error) {
-        console.error('[A.LAB] Ошибка инициализации water-ripple:', error);
-    }
     initHeaderAnchorNavigation();
-    initAnalytics();
 
-    // 2. Реестр инициализации секций
+    // 2. ШРИФТОВОЙ ШЛЮЗ. Всё, что ниже, меряет вёрстку уже в Unbounded,
+    // а не в фолбэке cursive: иначе посимвольный сплит, buildLayout
+    // принципов и кеш прозрачности в emotional-engineering запекаются
+    // по чужим метрикам, и поздний refresh их уже не лечит.
+    await gate('шрифты', 4200);
+
+    // 3. Реестр инициализации секций
     const sections = [
         { id: 'hero', init: initHero },
         { id: 'manifesto', init: initManifesto },
@@ -116,25 +151,35 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'contacts', init: initContacts }
     ];
 
-    // 3. Цикл инициализации секций
-    sections.forEach(section => {
+    // 4. Инициализация. initPortfolio асинхронна — её промис раньше
+    // терялся в forEach, а отказ после первого await становился
+    // необработанным и молча убивал секцию.
+    await Promise.allSettled(sections.map((section) => {
         const element = document.querySelector(`[data-section="${section.id}"]`);
-        if (element) {
-            try {
-                section.init(element);
-                console.log(`[A.LAB] Секция инициализирована: ${section.id}`);
-            } catch (error) {
-                console.error(`[A.LAB] Ошибка инициализации секции ${section.id}:`, error);
-            }
-        } else {
+        if (!element) {
             console.warn(`[A.LAB] Контейнер секции не найден: ${section.id}`);
+            window.__ALAB_BOOT?.retire(`section:${section.id}`);
+            return Promise.resolve();
         }
-    });
+        return Promise.resolve()
+            .then(() => section.init(element))
+            .then(() => {
+                console.log(`[A.LAB] Секция инициализирована: ${section.id}`);
+            })
+            .catch((error) => {
+                console.error(`[A.LAB] Ошибка инициализации секции ${section.id}:`, error);
+            })
+            .finally(() => {
+                window.__ALAB_BOOT?.mark(`section:${section.id}`);
+            });
+    }));
 
-    // 4. Global Animations/Triggers
-    setTimeout(() => {
-        if (typeof ScrollTrigger !== 'undefined') {
-            ScrollTrigger.refresh();
-        }
-    }, 100);
+    // 5. Картинки, стабилизация вёрстки, пересчёт скролл-сцен и раскрытие.
+    await runPreloader();
+}
+
+boot().catch((error) => {
+    console.error('[A.LAB] Критическая ошибка загрузки:', error);
+    // Видимый, но непрокручиваемый сайт недопустим ни при каком отказе.
+    window.__ALAB_BOOT?.reveal('error');
 });

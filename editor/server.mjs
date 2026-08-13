@@ -7,7 +7,7 @@ import crypto from 'crypto';
 import { execFile } from 'child_process';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import { getCases, saveCases, recordAnalyticsEvent, getAnalyticsSummary } from './db.mjs';
+import { getCases, saveCases, recordAnalyticsEvent, getAnalyticsSummary, backupDb } from './db.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -62,6 +62,11 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/images', express.static(path.join(ROOT_DIR, 'public', 'images')));
 app.use('/audio', express.static(AUDIO_DIR));
+// Боевой код сайта для предпросмотра: тот же модуль рендера блоков и те же
+// стили, что и на alabspace.com. Раньше предпросмотр рисовал собственную
+// вёрстку с инлайн-стилями и показывал не то, что окажется на сайте.
+app.use('/site-js', express.static(path.join(ROOT_DIR, 'js')));
+app.use('/site-css', express.static(path.join(ROOT_DIR, 'css')));
 
 // ─── Auth (fail-closed, timing-safe, rate-limited) ───
 const authConfigured = () => Boolean(process.env.CMS_LOGIN && process.env.CMS_PASSWORD);
@@ -165,25 +170,39 @@ function buildPublicCases(data) {
     return { categories: publicCategories, projects: publicProjects };
 }
 
-// Sync DB -> JSON
-function syncToJsonFile(data) {
-    try {
-        const publicData = buildPublicCases(data);
-        const dir = path.dirname(CASES_JSON_PATH);
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-        fs.writeFileSync(CASES_JSON_PATH, JSON.stringify(publicData, null, 2) + '\n', 'utf-8');
-        console.log('[A.LAB] Synced DB -> cases.json');
-        return publicData;
-    } catch (e) { console.error('[A.LAB] Sync error:', e); }
+// Атомарная запись: пишем во временный файл рядом и переименовываем.
+// Прямой writeFileSync в целевой файл при падении или нехватке места
+// оставляет обрезанный JSON — на нём падает весь сайт, а стартовый
+// импорт из cases.json уже ничего не восстановит.
+function writeJsonAtomic(targetPath, value) {
+    const dir = path.dirname(targetPath);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    const tmpPath = `${targetPath}.tmp`;
+    fs.writeFileSync(tmpPath, JSON.stringify(value, null, 2) + '\n', 'utf-8');
+    fs.renameSync(tmpPath, targetPath);
 }
 
-// How many projects are currently published in public/data/cases.json
+// Sync DB -> JSON
+// Ошибка НЕ глотается: раньше запись падала, а клиент получал success:true
+// и зелёный тост — пользователь был уверен, что сохранил, а на диске
+// оставалось старое содержимое.
+function syncToJsonFile(data) {
+    const publicData = buildPublicCases(data);
+    writeJsonAtomic(CASES_JSON_PATH, publicData);
+    console.log('[A.LAB] Synced DB -> cases.json');
+    return publicData;
+}
+
+// Сколько проектов сейчас опубликовано в public/data/cases.json.
+// Возвращает null, если файл не читается: «ноль проектов» и «файл битый» —
+// разные вещи, и защита от обнуления портфолио обязана срабатывать именно
+// во второй ситуации, а не выключаться в ней.
 function countJsonProjects() {
+    if (!fs.existsSync(CASES_JSON_PATH)) return 0;
     try {
-        if (!fs.existsSync(CASES_JSON_PATH)) return 0;
         const data = JSON.parse(fs.readFileSync(CASES_JSON_PATH, 'utf-8'));
         return Array.isArray(data.projects) ? data.projects.length : 0;
-    } catch { return 0; }
+    } catch { return null; }
 }
 
 // Startup guard: empty DB + non-empty cases.json -> import JSON into the DB
@@ -269,37 +288,67 @@ app.post('/api/cases', apiAuth, (req, res) => {
     const validationError = validateCasesPayload(req.body);
     if (validationError) return res.status(400).json({ error: validationError });
 
-    // Guard: never silently wipe a non-empty portfolio with an empty payload
-    if (req.body.projects.length === 0 && countJsonProjects() > 0) {
-        return res.status(409).json({ error: 'Отказ: попытка сохранить пустое портфолио поверх непустого. Если это намеренно, удалите проекты по одному.' });
+    // Guard: never silently wipe a non-empty portfolio with an empty payload.
+    // На нечитаемом cases.json (countJsonProjects() === null) отказываем тоже:
+    // именно в этой аварии защита и нужна.
+    if (req.body.projects.length === 0) {
+        const published = countJsonProjects();
+        if (published === null) {
+            return res.status(409).json({ error: 'Отказ: cases.json не читается, а вы сохраняете пустое портфолио. Проверьте файл вручную.' });
+        }
+        if (published > 0) {
+            return res.status(409).json({ error: 'Отказ: попытка сохранить пустое портфолио поверх непустого. Если это намеренно, удалите проекты по одному.' });
+        }
+    }
+
+    let savedData;
+    try {
+        // Автосохранение приходит часто — снимок не чаще раза в 15 минут
+        backupDb('save', { throttle: true });
+        saveCases(req.body);
+        savedData = getCases();
+    }
+    catch (e) {
+        console.error('[A.LAB] Save error:', e);
+        return res.status(500).json({ error: 'Не удалось сохранить в базу: ' + e.message });
     }
 
     try {
-        saveCases(req.body);
-        const savedData = getCases();
         const publicData = syncToJsonFile(savedData);
         res.json({
             success: true,
-            publicProjects: publicData?.projects?.length || 0,
+            publicProjects: publicData.projects.length,
             draftProjects: savedData.projects.filter(project => project.status === 'draft').length
         });
     }
     catch (e) {
-        console.error('[A.LAB] Save error:', e);
-        res.status(500).json({ error: 'Save error' });
+        console.error('[A.LAB] Sync error:', e);
+        // База уже обновлена, а файл — нет. Молчать здесь нельзя: пользователь
+        // будет уверен, что сохранил, и опубликует старое содержимое.
+        res.status(500).json({ error: 'Данные сохранены в базу, но cases.json обновить не удалось: ' + e.message });
     }
 });
 
-app.get('/api/publish-status', apiAuth, (req, res) => {
+app.get('/api/publish-status', apiAuth, async (req, res) => {
     try {
         const data = getCases();
         const publicData = buildPublicCases(data);
+        // Ветку отдаём наружу, чтобы интерфейс мог предупредить ДО нажатия
+        // кнопки: пуш не из main деплой не запускает.
+        const branch = await runGit(['rev-parse', '--abbrev-ref', 'HEAD'])
+            .then(r => r.stdout.trim()).catch(() => null);
+        const workingCopy = await describeWorkingCopy().catch(() => ({ isWorktree: false }));
         res.json({
             publicProjects: publicData.projects.length,
             draftProjects: data.projects.filter(project => project.status === 'draft').length,
-            publicCategories: Object.keys(publicData.categories).length
+            publicCategories: Object.keys(publicData.categories).length,
+            branch,
+            publishBranch: PUBLISH_BRANCH,
+            canPublish: branch === PUBLISH_BRANCH && !workingCopy.isWorktree,
+            isWorktree: Boolean(workingCopy.isWorktree)
         });
     } catch (e) {
+        console.error('[A.LAB] Status error:', e);
         res.status(500).json({ error: 'Status error' });
     }
 });
@@ -307,10 +356,24 @@ app.get('/api/publish-status', apiAuth, (req, res) => {
 app.delete('/api/projects/:id', apiAuth, (req, res) => {
     try {
         const data = getCases();
+        const before = data.projects.length;
         data.projects = data.projects.filter(p => p.id !== req.params.id);
-        saveCases(data); syncToJsonFile(data);
+        if (data.projects.length === before) {
+            return res.status(404).json({ error: 'Проект не найден' });
+        }
+        // Тот же барьер, что и при сохранении: удаление последнего проекта
+        // не должно опустошать боевое портфолио одним запросом.
+        if (data.projects.length === 0 && (countJsonProjects() ?? 1) > 0) {
+            return res.status(409).json({ error: 'Отказ: это последний проект. Опустошить портфолио через API нельзя.' });
+        }
+        backupDb('delete');
+        saveCases(data);
+        syncToJsonFile(getCases());
         res.json({ success: true });
-    } catch (e) { res.status(500).json({ error: 'Delete error' }); }
+    } catch (e) {
+        console.error('[A.LAB] Delete error:', e);
+        res.status(500).json({ error: 'Не удалось удалить проект: ' + e.message });
+    }
 });
 
 app.post('/api/upload', apiAuth, (req, res) => {
@@ -480,7 +543,9 @@ app.post('/api/analytics/collect', (req, res) => {
             screen: body.screen,
             dpr: body.dpr,
             connection: body.connection,
-            vpnStatus: process.env.IPINFO_TOKEN ? 'not_configured' : 'unknown',
+            // Условие было перевёрнуто: «не настроено» показывалось именно тогда,
+            // когда токен как раз задан
+            vpnStatus: process.env.IPINFO_TOKEN ? 'unknown' : 'not_configured',
             isBot: isBotUA(ua),
             duration: body.duration,
             ipHash: hashIp(clientIp(req)),
@@ -519,35 +584,56 @@ function filterSettings(data) {
     return filtered;
 }
 
+const DEFAULT_SETTINGS = { audio: { enabled: false, letters: [], masterVolume: 0.35 } };
+
+// «Файла нет» и «файл не парсится» — разные ситуации. Раньше обе давали
+// дефолтную заглушку, и повреждённый settings.json молча перезаписывался
+// ею при публикации: typography и cards исчезали и с диска, и с сайта.
 function getSettings() {
+    if (!fs.existsSync(SETTINGS_JSON_PATH)) return { ...DEFAULT_SETTINGS };
+    const raw = fs.readFileSync(SETTINGS_JSON_PATH, 'utf-8');
     try {
-        if (fs.existsSync(SETTINGS_JSON_PATH)) {
-            return JSON.parse(fs.readFileSync(SETTINGS_JSON_PATH, 'utf-8'));
-        }
-    } catch(e) {}
-    return { audio: { enabled: false, letters: [], masterVolume: 0.35 } };
+        return JSON.parse(raw);
+    } catch (e) {
+        throw new Error(`settings.json повреждён и не разбирается: ${e.message}`);
+    }
+}
+
+// Безопасное чтение для мест, где отказ недопустим (например, отдать клиенту
+// хоть что-то). Возвращает null, если файл битый, — вызывающий решает сам.
+function getSettingsSafe() {
+    try { return getSettings(); } catch { return null; }
 }
 
 function saveSettings(data) {
-    const dir = path.dirname(SETTINGS_JSON_PATH);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     // Whitelist applied on EVERY write (including the /api/publish re-save):
     // a legacy figmaToken left on disk by the old editor must never survive a re-save,
     // let alone reach a public git commit.
-    fs.writeFileSync(SETTINGS_JSON_PATH, JSON.stringify(filterSettings(data), null, 2) + '\n', 'utf-8');
+    writeJsonAtomic(SETTINGS_JSON_PATH, filterSettings(data));
     console.log('[A.LAB] Settings saved');
 }
 
 app.get('/api/settings', apiAuth, (req, res) => {
-    res.json(getSettings());
+    const current = getSettingsSafe();
+    if (!current) return res.status(422).json({ error: 'settings.json повреждён и не разбирается' });
+    // Whitelist и на чтение: инвариант «секреты только в .env» должен быть
+    // симметричным, иначе забытый на диске токен уедет клиенту.
+    res.json(filterSettings(current));
 });
 
 app.post('/api/settings', apiAuth, (req, res) => {
     try {
-        saveSettings(req.body); // saveSettings drops all non-whitelisted keys
+        // Слияние, а не подмена: filterSettings копирует только присутствующие
+        // ключи, поэтому частичный запрос от клиента раньше стирал остальные
+        // разделы настроек целиком.
+        const current = getSettingsSafe() || { ...DEFAULT_SETTINGS };
+        saveSettings({ ...current, ...(req.body && typeof req.body === 'object' ? req.body : {}) });
         res.json({ success: true });
     }
-    catch (e) { res.status(500).json({ error: 'Save error' }); }
+    catch (e) {
+        console.error('[A.LAB] Settings save error:', e);
+        res.status(500).json({ error: 'Не удалось сохранить настройки: ' + e.message });
+    }
 });
 
 app.post('/api/upload-audio', apiAuth, (req, res) => {
@@ -638,9 +724,20 @@ app.post('/api/figma-import', apiAuth, async (req, res) => {
 // ─── Publish to GitHub (content -> git commit -> push) ───
 const GIT_PUBLISH_PATHS = ['public/data', 'public/images', 'public/audio'];
 
-function runGit(args) {
+// Ветка, из которой разрешена публикация: только с неё GitHub Actions
+// собирает и выкладывает Pages (.github/workflows/deploy.yml)
+const PUBLISH_BRANCH = process.env.CMS_PUBLISH_BRANCH || 'main';
+
+function runGit(args, { timeout = 30000 } = {}) {
     return new Promise((resolve, reject) => {
-        execFile('git', args, { cwd: ROOT_DIR, timeout: 30000, maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
+        execFile('git', args, {
+            cwd: ROOT_DIR,
+            timeout,
+            maxBuffer: 10 * 1024 * 1024,
+            // Без этого git при незакешированных учётных данных уходит в
+            // интерактивный запрос пароля и немо висит до таймаута
+            env: { ...process.env, GIT_TERMINAL_PROMPT: '0', GIT_ASKPASS: 'echo' }
+        }, (err, stdout, stderr) => {
             if (err) {
                 err.stdout = stdout;
                 err.stderr = stderr;
@@ -650,6 +747,20 @@ function runGit(args) {
         });
     });
 }
+
+// Публикация должна идти из основной рабочей копии: в git-воркте пуш уйдёт
+// в фиче-ветку, деплой не сработает, а редактор отрапортует об успехе.
+async function describeWorkingCopy() {
+    const [gitDir, commonDir] = await Promise.all([
+        runGit(['rev-parse', '--absolute-git-dir']).then(r => r.stdout.trim()).catch(() => ''),
+        runGit(['rev-parse', '--path-format=absolute', '--git-common-dir']).then(r => r.stdout.trim()).catch(() => '')
+    ]);
+    return { gitDir, commonDir, isWorktree: Boolean(gitDir && commonDir && gitDir !== commonDir) };
+}
+
+// Одновременная публикация ломает git index.lock и оставляет содержимое
+// в staged, откуда его утащит следующий посторонний коммит
+let publishInFlight = false;
 
 // Recursively collect strings that look like local media paths
 function collectMediaPaths(value, out = new Set()) {
@@ -668,19 +779,55 @@ function collectMediaPaths(value, out = new Set()) {
 }
 
 app.post('/api/publish', apiAuth, async (req, res) => {
+    if (publishInFlight) {
+        return res.status(409).json({ error: 'Публикация уже выполняется — дождитесь её завершения.' });
+    }
+    publishInFlight = true;
+    let committed = false;
+    let staging = false;
     try {
         const dryRun = Boolean(req.body?.dryRun);
 
+        // a0. Публиковать можно только из main и только из основной рабочей копии.
+        //     Проверка идёт ДО git add: иначе при отказе содержимое остаётся в индексе.
+        const branch = (await runGit(['rev-parse', '--abbrev-ref', 'HEAD'])).stdout.trim();
+        if (branch === 'HEAD') {
+            return res.status(409).json({ error: 'Git в состоянии detached HEAD — переключитесь на ветку и повторите публикацию.' });
+        }
+        if (branch !== PUBLISH_BRANCH) {
+            return res.status(409).json({
+                error: `Публикация возможна только из ветки «${PUBLISH_BRANCH}», сейчас «${branch}». Пуш из другой ветки не запускает деплой, и сайт не обновится.`,
+                branch
+            });
+        }
+        const workingCopy = await describeWorkingCopy();
+        if (workingCopy.isWorktree) {
+            return res.status(409).json({
+                error: 'Редактор запущен из git-воркти. Публикуйте из основной папки проекта, иначе деплой не сработает.',
+                branch
+            });
+        }
+
         // a. Never publish an empty DB over a non-empty cases.json
         const dbData = getCases();
-        if ((dbData.projects || []).length === 0 && countJsonProjects() > 0) {
-            return res.status(409).json({ error: 'Отказ: база данных пуста, а cases.json содержит проекты. Публикация остановлена.' });
+        const publishedCount = countJsonProjects();
+        if ((dbData.projects || []).length === 0 && (publishedCount ?? 1) > 0) {
+            return res.status(409).json({ error: 'Отказ: база данных пуста, а cases.json содержит проекты (или не читается). Публикация остановлена.' });
         }
+
+        backupDb('publish');
 
         // b. Regenerate public/data/*.json from current state
         const publicData = syncToJsonFile(dbData);
-        if (!publicData) return res.status(500).json({ error: 'Не удалось обновить cases.json' });
-        saveSettings(getSettings()); // re-save runs the SETTINGS_ALLOWED_KEYS scrub over the on-disk file
+        // Пересохранение прогоняет whitelist по файлу на диске. Если файл
+        // повреждён — останавливаемся, а не подменяем его заглушкой.
+        let currentSettings;
+        try {
+            currentSettings = getSettings();
+        } catch (e) {
+            return res.status(422).json({ error: `Публикация остановлена: ${e.message}. Восстановите public/data/settings.json и повторите.` });
+        }
+        saveSettings(currentSettings);
 
         // c. Media integrity for published projects
         const mediaPaths = new Set();
@@ -706,14 +853,10 @@ app.post('/api/publish', apiAuth, async (req, res) => {
 
         // d. Stage content and check whether anything changed — scoped to the publish
         //    paths only, so files pre-staged by a developer are neither counted nor committed
+        staging = true;
         await runGit(['add', ...GIT_PUBLISH_PATHS]);
         const staged = (await runGit(['diff', '--cached', '--name-only', '--', ...GIT_PUBLISH_PATHS])).stdout
             .split('\n').map(line => line.trim()).filter(Boolean);
-
-        const branch = (await runGit(['rev-parse', '--abbrev-ref', 'HEAD'])).stdout.trim();
-        if (branch === 'HEAD') {
-            return res.status(409).json({ error: 'Git в состоянии detached HEAD — переключитесь на ветку и повторите публикацию.' });
-        }
 
         if (staged.length === 0) {
             // Nothing new to commit — but a previous publish may have committed
@@ -737,7 +880,7 @@ app.post('/api/publish', apiAuth, async (req, res) => {
                 if (foreign.length > 0) {
                     return res.json({ published: false, unpushedCommits: unpushed, message: 'Есть неотправленные коммиты с изменениями вне контента — отправьте их вручную (git push)' });
                 }
-                await runGit(['push', 'origin', 'HEAD']);
+                await runGit(['push', 'origin', 'HEAD'], { timeout: 120000 });
                 const sha = (await runGit(['rev-parse', 'HEAD'])).stdout.trim();
                 return res.json({ published: true, pushed: true, sha, message: 'Отправлен ранее неопубликованный коммит' });
             }
@@ -762,6 +905,8 @@ app.post('/api/publish', apiAuth, async (req, res) => {
         }
 
         await runGit(['commit', '-m', 'content: публикация из редактора', '-m', 'Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>', '--', ...GIT_PUBLISH_PATHS]);
+        committed = true;
+        staging = false;
         const sha = (await runGit(['rev-parse', 'HEAD'])).stdout.trim();
 
         if (originAhead > 0) {
@@ -773,18 +918,39 @@ app.post('/api/publish', apiAuth, async (req, res) => {
             });
         }
 
-        await runGit(['push', 'origin', 'HEAD']);
+        await runGit(['push', 'origin', 'HEAD'], { timeout: 120000 });
         res.json({ published: true, pushed: true, sha });
     } catch (e) {
         console.error('[A.LAB] Publish error:', e);
+        // Снимаем содержимое с индекса, если коммит ещё не был создан: иначе
+        // после сбоя public/ остаётся в staged и уедет в посторонний коммит.
+        if (staging && !committed) {
+            try { await runGit(['reset', '--', ...GIT_PUBLISH_PATHS]); }
+            catch (resetError) { console.error('[A.LAB] Не удалось откатить индекс:', resetError.message); }
+        }
         const detail = String(e?.stderr || e?.message || e).trim().slice(0, 400);
         res.status(500).json({ error: `Ошибка git при публикации: ${detail}` });
+    } finally {
+        publishInFlight = false;
     }
 });
 
 // ─── Startup ───
 if (!authConfigured()) {
     console.warn('[A.LAB] ВНИМАНИЕ: CMS_LOGIN/CMS_PASSWORD не заданы в .env — все API-запросы будут отклоняться (503)');
+}
+
+// Этот же инструмент делает git push в боевой репозиторий. Стартовать с
+// парой из .env.example нельзя: достаточно один раз пробросить порт наружу.
+const DEFAULT_CREDENTIALS = [['ALAB', 'ALAB'], ['admin', 'admin'], ['alab', 'alab']];
+const usingDefaultCreds = DEFAULT_CREDENTIALS.some(
+    ([login, password]) => process.env.CMS_LOGIN === login && process.env.CMS_PASSWORD === password
+);
+if (usingDefaultCreds && !process.env.CMS_ALLOW_DEFAULT_CREDS) {
+    console.error('[A.LAB] ОСТАНОВЛЕНО: в .env стоят учётные данные по умолчанию из .env.example.');
+    console.error('[A.LAB] Задайте свои CMS_LOGIN и CMS_PASSWORD — редактор публикует сайт в интернет.');
+    console.error('[A.LAB] Если это осознанный локальный запуск, поставьте CMS_ALLOW_DEFAULT_CREDS=1');
+    process.exit(1);
 }
 if (!process.env.ANALYTICS_SALT) {
     console.warn('[A.LAB] ВНИМАНИЕ: ANALYTICS_SALT не задан в .env — используется соль по умолчанию');
