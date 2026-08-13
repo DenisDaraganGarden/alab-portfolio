@@ -700,8 +700,9 @@
         bottom: 1.5rem;
     }
     .portfolio-project-card .project-logo {
-        width: min(64vw, 220px);
-        max-height: 68px;
+        height: 34px;
+        width: auto;
+        max-width: min(64vw, 220px);
     }
     .portfolio-project-card .project-logo-fallback {
         font-size: 1.5rem;
@@ -1533,8 +1534,9 @@
   }
 
   .industry-projects .project-logo {
-    width: min(70%, 130px);
-    max-height: 40px;
+    height: 26px;
+    width: auto;
+    max-width: min(70%, 130px);
   }
 
   .industry-projects .portfolio-project-card.has-tagline {
