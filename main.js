@@ -82,17 +82,16 @@ const initHeaderAnchorNavigation = () => {
  * вёрстку. Ни один из них не создаёт ScrollTrigger.
  */
 const initDeferredEffects = () => {
-    const isTouchScrollDevice = window.matchMedia?.('(pointer: coarse)').matches;
-
-    // Жидкостный след — только для десктопа: iOS Safari не поддерживает canvas
-    // ctx.filter blur (пиксельные розово-фиолетовые пятна), а покадровая симуляция
-    // нагружает главный поток во время скролла.
-    if (!isTouchScrollDevice && window.matchMedia?.('(min-width: 769px)').matches) {
-        try {
-            initIridescentTrail();
-        } catch (error) {
-            console.error('[A.LAB] Ошибка инициализации iridescent-trail:', error);
-        }
+    // Жидкостный след работает и на тач-устройствах. Прежний запрет стоял
+    // из-за canvas-фильтра, который iOS Safari не поддерживал: эффект там
+    // распадался на пиксельные пятна. Фильтра в эффекте больше нет, размытие
+    // делает CSS одинаково во всех движках. На таче дымка появляется только
+    // под пальцем, кадры ограничены по частоте, а все слушатели passive —
+    // прокрутка остаётся нативной.
+    try {
+        initIridescentTrail();
+    } catch (error) {
+        console.error('[A.LAB] Ошибка инициализации iridescent-trail:', error);
     }
     // Водная гладь в финале (секция contacts): интерактивная лиловая рябь
     // + плавное растворение масляного следа при входе в секцию.

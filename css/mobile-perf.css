@@ -17,13 +17,9 @@
         -webkit-backdrop-filter: blur(6px) !important;
     }
 
-    /* iOS Safari does not support canvas ctx.filter blur (added in iOS 18),
-       so the iridescent oil-trail canvas renders its coarse sim grid as
-       pixelated/banded pink-purple blobs, and its per-frame fluid simulation
-       janks scrolling. Removed on mobile (also guarded in main.js). */
-    .cursor-oil-layer {
-        display: none !important;
-    }
+    /* Слой жидкого следа на таче больше не скрывается: canvas-фильтра,
+       который iOS Safari не поддерживал, в эффекте не осталось. Дымка
+       появляется только под пальцем и с ограниченной частотой кадров. */
 
     /* Slow down infinite animations (less repaints) */
     .contact-card-frame::before,

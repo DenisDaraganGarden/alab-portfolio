@@ -46,7 +46,6 @@ export const initIridescentTrail = () => {
 
     if (!context || !simContext || !midContext) return;
 
-
     layer.className = 'cursor-oil-layer';
     layer.setAttribute('aria-hidden', 'true');
 
@@ -190,7 +189,10 @@ export const initIridescentTrail = () => {
     const resizeSimulation = () => {
         state.width = window.innerWidth;
         state.height = window.innerHeight;
-        state.dpr = Math.min(window.devicePixelRatio || 1, isTouchLike() ? 1.5 : 2);
+        // На телефоне холст рисуется в один пиксель на точку CSS, а не в
+        // полтора: при размытии в 22 пикселя разницы не видно, а работы
+        // композитору вдвое меньше.
+        state.dpr = Math.min(window.devicePixelRatio || 1, isTouchLike() ? 1 : 2);
         // Ячейка мельче прежней (было 11): вдвое меньше площадь артефакта
         // реконструкции при росте стоимости симуляции примерно в полтора раза,
         // а она в разы дешевле полноэкранных фильтров
@@ -343,37 +345,12 @@ export const initIridescentTrail = () => {
         ensureFrame();
     };
 
-    const pushTouchTarget = (x, y, options = {}) => {
-        const now = options.now ?? performance.now();
-        const velocityEase = options.velocityEase ?? 0.2;
-
-        if (!pointer.started) {
-            pointer.started = true;
-            pointer.x = x;
-            pointer.y = y;
-            pointer.targetX = x;
-            pointer.targetY = y;
-            pointer.lastTime = now;
-            pointer.lastMoveAt = now;
-        }
-
-        const dt = Math.max(14, now - pointer.lastTime);
-        const nextVx = ((x - pointer.targetX) / dt) * 16;
-        const nextVy = ((y - pointer.targetY) / dt) * 16;
-
-        pointer.inputVx = lerp(pointer.inputVx, nextVx, velocityEase);
-        pointer.inputVy = lerp(pointer.inputVy, nextVy, velocityEase);
-        pointer.targetX = x;
-        pointer.targetY = y;
-        pointer.lastTime = now;
-        pointer.lastMoveAt = now;
-
-        ensureFrame();
-    };
-
     const injectScrollWake = (velocity) => {
         const touchLike = isTouchLike();
-        if (touchLike && pointer.down) return;
+        // На таче прокрутка не порождает дымку вообще: там прокрутка это
+        // основной способ пользоваться страницей, и след за каждым движением
+        // пальца по экрану был бы навязчивым и дорогим.
+        if (touchLike) return;
 
         const strength = clamp(Math.abs(velocity), 0, touchLike ? 8 : 28);
         if (strength < 1.2) return;
@@ -396,7 +373,9 @@ export const initIridescentTrail = () => {
 
     const updatePointer = (event) => {
         if (event.isPrimary === false) return;
-        if (event.pointerType === 'touch' && isTouchLike()) return;
+        // Палец ведёт след, только пока касается экрана. Без этого условия
+        // касание оставляло бы за собой дымку и после отпускания.
+        if (event.pointerType === 'touch' && !pointer.down) return;
 
         pushInputPoint(event.clientX, event.clientY, {
             pressure: event.pressure || (pointer.down ? 0.88 : 0.36),
@@ -406,8 +385,6 @@ export const initIridescentTrail = () => {
     };
 
     const onPointerDown = (event) => {
-        if (event.pointerType === 'touch' && isTouchLike()) return;
-
         pointer.down = true;
         updatePointer(event);
         injectAt(
@@ -421,68 +398,6 @@ export const initIridescentTrail = () => {
     };
 
     const onPointerUp = () => {
-        pointer.down = false;
-        pointer.touchId = null;
-        pointer.lastMoveAt = performance.now();
-        ensureFrame();
-    };
-
-    const getTrackedTouch = (event) => {
-        if (pointer.touchId == null) return event.touches[0] || event.changedTouches[0] || null;
-
-        return Array.from(event.touches).find((touch) => touch.identifier === pointer.touchId)
-            || Array.from(event.changedTouches).find((touch) => touch.identifier === pointer.touchId)
-            || null;
-    };
-
-    const onTouchStart = (event) => {
-        const touch = event.changedTouches[0] || event.touches[0];
-        if (!touch) return;
-
-        pointer.touchId = touch.identifier;
-        pointer.down = true;
-
-        pushTouchTarget(touch.clientX, touch.clientY, {
-            velocityEase: 0.4,
-            now: performance.now(),
-        });
-
-        pointer.x = touch.clientX;
-        pointer.y = touch.clientY;
-        pointer.vx = 0;
-        pointer.vy = 0;
-
-        injectAt(
-            touch.clientX,
-            touch.clientY,
-            0,
-            0,
-            0.74
-        );
-        ensureFrame();
-    };
-
-    const onTouchMove = (event) => {
-        const touch = getTrackedTouch(event);
-        if (!touch) return;
-
-        pushTouchTarget(touch.clientX, touch.clientY, {
-            velocityEase: 0.28,
-            now: performance.now(),
-        });
-    };
-
-    const onTouchEnd = (event) => {
-        if (pointer.touchId == null) {
-            pointer.down = false;
-            pointer.lastMoveAt = performance.now();
-            ensureFrame();
-            return;
-        }
-
-        const ended = Array.from(event.changedTouches).some((touch) => touch.identifier === pointer.touchId);
-        if (!ended && event.touches.length) return;
-
         pointer.down = false;
         pointer.touchId = null;
         pointer.lastMoveAt = performance.now();
@@ -709,7 +624,19 @@ export const initIridescentTrail = () => {
 
     const renderFrame = (timestamp) => {
         state.frameId = 0;
-        const delta = Math.min(34, timestamp - state.lastFrameAt || 16);
+
+        // Потолок частоты кадров. Без него на экранах 120 Гц вся работа
+        // удваивалась, а на телефоне это прямой расход батареи. Тридцать два
+        // миллисекунды на таче — примерно тридцать кадров в секунду, для
+        // медленно плывущей дымки этого достаточно.
+        const minStep = isTouchLike() ? 32 : 15;
+        const sinceLast = timestamp - state.lastFrameAt;
+        if (sinceLast < minStep) {
+            state.frameId = window.requestAnimationFrame(renderFrame);
+            return;
+        }
+
+        const delta = Math.min(34, sinceLast || 16);
         state.lastFrameAt = timestamp;
 
         stepTouchFollow(delta);
@@ -726,13 +653,15 @@ export const initIridescentTrail = () => {
                 pointer.vy * 0.7,
                 pointer.down ? 0.72 : 0.22
             );
-        } else if (isTouchLike() && (idle > 0.01 || pointer.down)) {
+        } else if (isTouchLike() && pointer.down) {
+            // На таче — только пока палец на экране. Никакой самостоятельной
+            // жизни: отпустил, и дымка просто рассеивается.
             injectAt(
                 pointer.x,
                 pointer.y,
                 pointer.vx * 0.32,
                 pointer.vy * 0.32,
-                pointer.down ? 0.18 : 0.08
+                0.18
             );
         }
 
@@ -762,10 +691,12 @@ export const initIridescentTrail = () => {
     window.addEventListener('pointerdown', onPointerDown, { passive: true });
     window.addEventListener('pointerup', onPointerUp, { passive: true });
     window.addEventListener('pointercancel', onPointerUp, { passive: true });
-    window.addEventListener('touchstart', onTouchStart, { passive: true });
-    window.addEventListener('touchmove', onTouchMove, { passive: true });
-    window.addEventListener('touchend', onTouchEnd, { passive: true });
-    window.addEventListener('touchcancel', onTouchEnd, { passive: true });
+    // Отдельных touch-слушателей нет: касания приходят теми же событиями
+    // указателя, что и мышь. Два набора давали бы двойной впрыск на
+    // ноутбуках с сенсорным экраном.
+    //
+    // Все слушатели passive и ни один не вызывает preventDefault — прокрутка
+    // остаётся полностью нативной, эффект в неё не вмешивается.
     window.addEventListener('scroll', onScroll, { passive: true });
 
     document.addEventListener('visibilitychange', () => {
