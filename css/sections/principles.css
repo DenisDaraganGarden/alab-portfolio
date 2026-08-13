@@ -89,14 +89,6 @@
     z-index: 100;
 }
 
-.principles-row-slot {
-    flex: 0 1 300px;
-    text-align: left;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    transform: translateY(20px);
-}
-
 .principle-item {
   position: absolute;
   top: 0;
@@ -124,17 +116,6 @@
   color: var(--text-color);
   text-wrap: balance;
   overflow: visible;
-}
-
-.principle-desc {
-  font-family: var(--font-body);
-  font-size: var(--principle-desc-size);
-  color: var(--text-color);
-  max-width: var(--principle-desc-width);
-  margin: 0 auto;
-  line-height: 1.45;
-  opacity: 0.8;
-  text-wrap: pretty;
 }
 
 /* 3D Box Styling */
@@ -201,10 +182,6 @@
   pointer-events: none;
 }
 
-.principles-footer {
-  align-self: flex-start;
-}
-
 @media (max-width: 768px) {
   .principles-row {
     --principle-block-width: min(86vw, 420px);
@@ -213,8 +190,7 @@
     --principle-desc-width: 26ch;
     top: calc(50% - 210px);
     height: 220px;
-  }
-}
+  }}
 
 /* Principle Points (bold-only, no bullets) */
 .principle-points {

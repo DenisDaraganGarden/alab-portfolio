@@ -1,6 +1,5 @@
 #smooth-wrapper,
-#smooth-content,
-.smooth-wrapper {
+#smooth-content {
   position: relative;
   width: 100%;
   z-index: 1;
@@ -37,7 +36,6 @@ svg {
   position: relative;
 }
 
-.container,
 .content {
   width: 100%;
   max-width: var(--content-max-width);
