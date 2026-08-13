@@ -669,7 +669,7 @@
    почти вдвое, и в ряду они выглядели разнокалиберными. Теперь высота у всех
    одна, а ширина подстраивается под пропорцию. */
 .portfolio-project-card .project-logo {
-    height: 38px;
+    height: 20px;
     width: auto;
     max-width: min(58vw, 260px);
     object-fit: contain;
@@ -700,7 +700,7 @@
         bottom: 1.5rem;
     }
     .portfolio-project-card .project-logo {
-        height: 34px;
+        height: 18px;
         width: auto;
         max-width: min(64vw, 220px);
     }
@@ -1534,7 +1534,7 @@
   }
 
   .industry-projects .project-logo {
-    height: 26px;
+    height: 13px;
     width: auto;
     max-width: min(70%, 130px);
   }
