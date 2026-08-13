@@ -1,4 +1,6 @@
 const MOBILE_BREAKPOINT = 900;
+// Во сколько раз промежуточный холст крупнее сетки симуляции
+const MID_FACTOR = 3;
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const lerp = (from, to, alpha) => from + ((to - from) * alpha);
@@ -8,6 +10,20 @@ const smoothstep = (edge0, edge1, value) => {
 };
 
 const allocateField = (size) => new Float32Array(size);
+
+/**
+ * Мягкое насыщение вместо clamp(t, 0, 1).
+ *
+ * clamp даёт излом первой производной ровно в точке насыщения: поле выходит
+ * на плато с резкой границей, и после растяжения сетки в несколько раз эта
+ * граница читается как полоса. Кубический доводчик достигает единицы в t=1.5
+ * с нулевой производной, то есть выходит на плато гладко.
+ */
+const softSat = (value) => {
+    if (value <= 0) return 0;
+    const t = value >= 1.5 ? 1.5 : value;
+    return t - ((t * t * t) / 6.75);
+};
 
 export const initIridescentTrail = () => {
     if (typeof window === 'undefined') return;
@@ -20,8 +36,16 @@ export const initIridescentTrail = () => {
     const context = canvas.getContext('2d');
     const simCanvas = document.createElement('canvas');
     const simContext = simCanvas.getContext('2d', { willReadFrequently: true });
+    // Промежуточный холст втрое крупнее сетки. Одна ступень билинейного
+    // увеличения даёт кусочно-линейную картинку: на границах ячеек ломается
+    // вторая производная, и глаз читает это как фасетки. Две ступени подряд
+    // сворачивают ядро в гладкое, и лесенки исчезают ещё до всякого размытия —
+    // одинаково в любом движке, без опоры на его качество интерполяции.
+    const midCanvas = document.createElement('canvas');
+    const midContext = midCanvas.getContext('2d');
 
-    if (!context || !simContext) return;
+    if (!context || !simContext || !midContext) return;
+
 
     layer.className = 'cursor-oil-layer';
     layer.setAttribute('aria-hidden', 'true');
@@ -167,7 +191,10 @@ export const initIridescentTrail = () => {
         state.width = window.innerWidth;
         state.height = window.innerHeight;
         state.dpr = Math.min(window.devicePixelRatio || 1, isTouchLike() ? 1.5 : 2);
-        state.cellSize = isTouchLike() ? 10 : 11;
+        // Ячейка мельче прежней (было 11): вдвое меньше площадь артефакта
+        // реконструкции при росте стоимости симуляции примерно в полтора раза,
+        // а она в разы дешевле полноэкранных фильтров
+        state.cellSize = isTouchLike() ? 8 : 9;
         state.gridWidth = Math.max(72, Math.ceil(state.width / state.cellSize));
         state.gridHeight = Math.max(48, Math.ceil(state.height / state.cellSize));
 
@@ -186,6 +213,13 @@ export const initIridescentTrail = () => {
         simContext.imageSmoothingEnabled = true;
         simContext.imageSmoothingQuality = 'high';
         state.imageData = simContext.createImageData(state.gridWidth, state.gridHeight);
+
+        // Промежуточная ступень: втрое крупнее сетки и во столько же раз
+        // дешевле экрана — 0.15 Мпикс против 1.3
+        midCanvas.width = state.gridWidth * MID_FACTOR;
+        midCanvas.height = state.gridHeight * MID_FACTOR;
+        midContext.imageSmoothingEnabled = true;
+        midContext.imageSmoothingQuality = 'high';
 
         const size = state.gridWidth * state.gridHeight;
         state.mass = allocateField(size);
@@ -495,7 +529,11 @@ export const initIridescentTrail = () => {
                 const cool = state.cool[index];
                 const violet = state.violet[index];
 
-                if (density < 0.006 && warm < 0.004 && cool < 0.004 && violet < 0.004) {
+                // Полный пропуск только для заведомо нулевых ячеек. Прежний
+                // порог 0.006 обрывал ячейку насухо, тогда как у соседней
+                // альфа могла достигать 0.09 за счёт кромочного члена, —
+                // после растяжения сетки этот обрыв и был ступенькой.
+                if (density < 0.0008 && warm < 0.0006 && cool < 0.0006 && violet < 0.0006) {
                     data[px] = 0;
                     data[px + 1] = 0;
                     data[px + 2] = 0;
@@ -503,20 +541,25 @@ export const initIridescentTrail = () => {
                     continue;
                 }
 
+                // Плавный вход в видимость на месте прежнего обрыва
+                const gate = smoothstep(0.0008, 0.008, Math.max(density, Math.max(warm, Math.max(cool, violet))));
+
                 const edgeX = state.mass[indexFor(xNext, y)] - state.mass[indexFor(xPrev, y)];
                 const edgeY = state.mass[indexFor(x, yNext)] - state.mass[indexFor(x, yPrev)];
-                const edge = clamp(Math.hypot(edgeX, edgeY) * 5.8, 0, 1);
+                // sqrt вместо Math.hypot: тот же результат, но hypot заметно
+                // дороже, а вызов идёт на каждую ячейку каждый кадр
+                const edge = softSat(Math.sqrt((edgeX * edgeX) + (edgeY * edgeY)) * 5.8);
                 const body = smoothstep(0.01, 0.32, density);
-                const pearl = clamp(violet * 2.1, 0, 1);
-                const warmTone = clamp(warm * 3.8, 0, 1);
-                const coolTone = clamp(cool * 4.1, 0, 1);
-                const milk = clamp((body * 0.62) + (edge * 0.42), 0, 1);
+                const pearl = softSat(violet * 2.1);
+                const warmTone = softSat(warm * 3.8);
+                const coolTone = softSat(cool * 4.1);
+                const milk = softSat((body * 0.62) + (edge * 0.42));
                 const base = 236 - (body * 34) - (milk * 12);
 
                 const red = clamp(base + (warmTone * 42) + (edge * 10), 0, 255);
                 const green = clamp((base - 4) + (warmTone * 8) + (coolTone * 5), 0, 255);
                 const blue = clamp((base + 8) + (coolTone * 56) + (pearl * 20), 0, 255);
-                const alpha = clamp((body * 0.54) + (edge * 0.34) + (milk * 0.12), 0, 1);
+                const alpha = softSat((body * 0.54) + (edge * 0.34) + (milk * 0.12)) * gate;
 
                 data[px] = red;
                 data[px + 1] = green;
@@ -527,24 +570,28 @@ export const initIridescentTrail = () => {
 
         simContext.putImageData(state.imageData, 0, 0);
 
+        // Ступень 1: сетка -> втрое крупнее. Ступень 2 (ниже) -> экран.
+        // Свёртка двух билинейных ядер даёт гладкую реконструкцию вместо
+        // кусочно-линейной, у которой на границах ячеек ломается производная.
+        midContext.clearRect(0, 0, midCanvas.width, midCanvas.height);
+        midContext.drawImage(simCanvas, 0, 0, midCanvas.width, midCanvas.height);
+
         context.clearRect(0, 0, state.width, state.height);
 
+        // Ни одного canvas-фильтра. Раньше здесь было три прохода с
+        // blur(28/14/6px), и всё сглаживание держалось на них — а Safari до
+        // 18-й версии этот фильтр молча игнорирует, рисуя сырую сетку.
+        // Теперь путь отрисовки один и тот же во всех движках, а размытие
+        // берёт на себя CSS-фильтр холста: он считается композитором на GPU
+        // и ведёт себя одинаково везде.
+        //
+        // Плотность прежних трёх проходов при наложении source-over равна
+        // 1 − (1−0.82s)(1−0.54s)(1−0.14s) ≈ 1.5s при малых s, поэтому один
+        // проход рисуется с полной непрозрачностью, а недостающая насыщенность
+        // добирается в CSS.
         context.save();
-        context.globalAlpha = isTouchLike() ? 0.68 : 0.82;
-        context.filter = `blur(${isTouchLike() ? 40 : 28}px) saturate(${isTouchLike() ? 108 : 118}%)`;
-        context.drawImage(simCanvas, 0, 0, state.width, state.height);
-        context.restore();
-
-        context.save();
-        context.globalAlpha = isTouchLike() ? 0.4 : 0.54;
-        context.filter = `blur(${isTouchLike() ? 24 : 14}px) saturate(${isTouchLike() ? 116 : 132}%)`;
-        context.drawImage(simCanvas, 0, 0, state.width, state.height);
-        context.restore();
-
-        context.save();
-        context.globalAlpha = isTouchLike() ? 0.04 : 0.14;
-        context.filter = `blur(${isTouchLike() ? 13 : 6}px) saturate(${isTouchLike() ? 112 : 124}%)`;
-        context.drawImage(simCanvas, 0, 0, state.width, state.height);
+        context.globalAlpha = 1;
+        context.drawImage(midCanvas, 0, 0, state.width, state.height);
         context.restore();
 
         const idle = clamp(1 - ((timestamp - pointer.lastMoveAt) / 1800), 0, 1);
@@ -557,7 +604,9 @@ export const initIridescentTrail = () => {
 
             context.save();
             context.globalAlpha = idle * 0.42;
-            context.filter = `blur(${mediaQuery.matches ? 22 : 28}px)`;
+            // Фильтра здесь тоже нет: это радиальный градиент, гаснущий в
+            // прозрачность, он мягкий сам по себе, а общее CSS-размытие
+            // холста доводит его так же, как и всё остальное
             const glow = context.createRadialGradient(glowX, glowY, radius * 0.06, glowX, glowY, radius);
             glow.addColorStop(0, 'rgba(255,255,255,0.44)');
             glow.addColorStop(0.38, 'rgba(255,221,204,0.18)');
