@@ -657,9 +657,11 @@
     left: 2.5rem;
     bottom: 2.5rem;
     z-index: 1;
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-start;
+    /* Блок, а не флекс: во флексе коробка картинки получала ширину контейнера,
+       и вписывание шло по ширине — высоты названий расходились. Здесь внутри
+       одна картинка, флекс ей ничего не давал. */
+    display: block;
+    line-height: 0;
     user-select: none;
 }
 
@@ -671,6 +673,9 @@
 .portfolio-project-card .project-logo {
     height: 20px;
     width: auto;
+    /* Без запрета на сжатие обёртка ужимает картинку по ширине, и она
+       вписывается по ширине вместо высоты — высоты снова расходятся */
+    flex-shrink: 0;
     max-width: min(58vw, 260px);
     object-fit: contain;
     object-position: left bottom;
@@ -1366,8 +1371,11 @@
 }
 
 .industry-projects .project-logo {
-  width: min(60%, 170px);
-  max-height: 52px;
+  /* Тоже по высоте: это правило идёт ниже в файле и при равной
+     специфичности перебивало размер, заданный для карточки */
+  height: 20px;
+  width: auto;
+  max-width: 100%;
 }
 
 .industry-projects .project-logo-fallback {
