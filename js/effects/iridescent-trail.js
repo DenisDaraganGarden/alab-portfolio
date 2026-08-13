@@ -46,27 +46,8 @@ export const initIridescentTrail = () => {
 
     if (!context || !simContext || !midContext) return;
 
-    // Единственное место, где решается судьба сглаживания картинки:
-    // Safari до 18-й версии молча игнорирует canvas-фильтр, и все проходы
-    // рисуют сырую сетку. Определяем один раз и компенсируем радиусом
-    // CSS-размытия — путь отрисовки при этом остаётся один и тот же.
-    const canvasFilterSupported = (() => {
-        try {
-            const probe = document.createElement('canvas').getContext('2d');
-            if (!probe) return false;
-            probe.filter = 'blur(1px)';
-            return probe.filter === 'blur(1px)';
-        } catch (e) {
-            return false;
-        }
-    })();
 
-    // Без canvas-фильтра всё сглаживание картинки берёт на себя CSS-размытие
-    // самого холста: оно считается композитором на GPU и работает одинаково
-    // во всех движках, включая Safari и iOS.
-    layer.className = canvasFilterSupported
-        ? 'cursor-oil-layer'
-        : 'cursor-oil-layer cursor-oil-layer--css-blur';
+    layer.className = 'cursor-oil-layer';
     layer.setAttribute('aria-hidden', 'true');
 
     canvas.className = 'cursor-oil-canvas';
@@ -597,21 +578,19 @@ export const initIridescentTrail = () => {
 
         context.clearRect(0, 0, state.width, state.height);
 
+        // Ни одного canvas-фильтра. Раньше здесь было три прохода с
+        // blur(28/14/6px), и всё сглаживание держалось на них — а Safari до
+        // 18-й версии этот фильтр молча игнорирует, рисуя сырую сетку.
+        // Теперь путь отрисовки один и тот же во всех движках, а размытие
+        // берёт на себя CSS-фильтр холста: он считается композитором на GPU
+        // и ведёт себя одинаково везде.
+        //
+        // Плотность прежних трёх проходов при наложении source-over равна
+        // 1 − (1−0.82s)(1−0.54s)(1−0.14s) ≈ 1.5s при малых s, поэтому один
+        // проход рисуется с полной непрозрачностью, а недостающая насыщенность
+        // добирается в CSS.
         context.save();
-        context.globalAlpha = isTouchLike() ? 0.68 : 0.82;
-        context.filter = `blur(${isTouchLike() ? 40 : 28}px) saturate(${isTouchLike() ? 108 : 118}%)`;
-        context.drawImage(midCanvas, 0, 0, state.width, state.height);
-        context.restore();
-
-        context.save();
-        context.globalAlpha = isTouchLike() ? 0.4 : 0.54;
-        context.filter = `blur(${isTouchLike() ? 24 : 14}px) saturate(${isTouchLike() ? 116 : 132}%)`;
-        context.drawImage(midCanvas, 0, 0, state.width, state.height);
-        context.restore();
-
-        context.save();
-        context.globalAlpha = isTouchLike() ? 0.04 : 0.14;
-        context.filter = `blur(${isTouchLike() ? 13 : 6}px) saturate(${isTouchLike() ? 112 : 124}%)`;
+        context.globalAlpha = 1;
         context.drawImage(midCanvas, 0, 0, state.width, state.height);
         context.restore();
 
@@ -625,7 +604,9 @@ export const initIridescentTrail = () => {
 
             context.save();
             context.globalAlpha = idle * 0.42;
-            context.filter = `blur(${mediaQuery.matches ? 22 : 28}px)`;
+            // Фильтра здесь тоже нет: это радиальный градиент, гаснущий в
+            // прозрачность, он мягкий сам по себе, а общее CSS-размытие
+            // холста доводит его так же, как и всё остальное
             const glow = context.createRadialGradient(glowX, glowY, radius * 0.06, glowX, glowY, radius);
             glow.addColorStop(0, 'rgba(255,255,255,0.44)');
             glow.addColorStop(0.38, 'rgba(255,221,204,0.18)');
