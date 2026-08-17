@@ -7,6 +7,9 @@ import { fetchJson, loadSettings, refreshScrollScenes } from '../boot/preloader.
 import {
     renderCaseBlocks,
     hydrateCompareBlocks,
+    hydrateCaseMedia,
+    teardownCaseMedia,
+    parseVideoEmbed,
     escapeHtml,
     escapeAttr,
     normalizeLinkUrl
@@ -86,6 +89,70 @@ export async function initPortfolio(container) {
 
     const escText = (v = '') => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+    const mq = (query) => typeof matchMedia === 'function' && matchMedia(query).matches;
+    const prefersReducedMotion = () => mq('(prefers-reduced-motion: reduce)');
+    const canHover = () => mq('(hover: hover) and (pointer: fine)');
+
+    // Наблюдатели превью-видео карточек живут, пока живут карточки. Сетка
+    // пересоздаётся при каждой навигации (renderIndustries → grid.innerHTML=''),
+    // поэтому перед пересборкой все наблюдатели отключаются (см. renderIndustries).
+    const hoverVideoObservers = new Set();
+    const teardownHoverVideos = () => {
+        hoverVideoObservers.forEach((io) => io.disconnect());
+        hoverVideoObservers.clear();
+    };
+
+    // Ленивое зацикленное превью-видео карточки (поле проекта hoverVideo).
+    // Десктоп — по наведению/фокусу, тач — автоплей, когда карточка в кадре.
+    // Уважает prefers-reduced-motion (тогда остаётся статичный логотип).
+    // Провязку делаем в buildCard: сетка карточек пересоздаётся при каждой
+    // навигации по категориям, одноразовая гидрация после init не удержится.
+    const wireHoverVideo = (card) => {
+        const video = card.querySelector('.project-hover-video');
+        if (!video || prefersReducedMotion()) return;
+
+        // Флаг намерения: play() резолвится асинхронно, и если курсор уже ушёл
+        // (или карточка вышла из кадра), опоздавший 'playing'/then не должен
+        // снова показать превью поверх уже поставленного на паузу видео.
+        let wantPreview = false;
+        const attach = () => {
+            if (!video.getAttribute('src')) {
+                video.setAttribute('src', video.dataset.src);
+                video.load();
+            }
+        };
+        const reveal = () => { if (wantPreview) card.classList.add('is-previewing'); };
+        const start = () => {
+            wantPreview = true;
+            attach();
+            const played = video.play();
+            if (played && typeof played.then === 'function') {
+                played.then(reveal).catch(() => {});
+            } else {
+                reveal();
+            }
+        };
+        const stop = () => {
+            wantPreview = false;
+            card.classList.remove('is-previewing');
+            video.pause();
+        };
+        video.addEventListener('playing', reveal);
+
+        if (canHover()) {
+            card.addEventListener('pointerenter', start);
+            card.addEventListener('pointerleave', stop);
+            card.addEventListener('focusin', start);
+            card.addEventListener('focusout', stop);
+        } else if (typeof IntersectionObserver === 'function') {
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => (entry.isIntersecting ? start() : stop()));
+            }, { threshold: 0.6 });
+            io.observe(card);
+            hoverVideoObservers.add(io);
+        }
+    };
+
     const buildCard = (proj) => {
         const card = document.createElement('div');
         card.className = 'portfolio-project-card';
@@ -95,10 +162,17 @@ export async function initPortfolio(container) {
         card.setAttribute('tabindex', '0');
         const tagline = String(proj.tagline || '').trim();
         if (tagline) card.classList.add('has-tagline');
+        // Превью карточки — только настоящий медиафайл (parseVideoEmbed отсекает
+        // не-http(s), javascript:/data: и ссылки на плееры: зациклить iframe
+        // как превью нельзя, нужен прямой mp4/webm).
+        const hoverMedia = parseVideoEmbed(proj.hoverVideo);
+        const hoverVideo = hoverMedia && hoverMedia.kind === 'file' ? hoverMedia.src : '';
+        if (hoverVideo) card.classList.add('has-hover-video');
         const badge = proj.isExternal && proj.externalUrl
             ? '<span class="project-external-badge">Behance ↗</span>'
             : '';
         card.innerHTML = `
+            ${hoverVideo ? `<video class="project-hover-video" muted loop playsinline preload="none" data-src="${escText(hoverVideo)}" aria-hidden="true"></video>` : ''}
             ${proj.logo ? `<div class="project-logo-wrapper"><img src="${escText(proj.logo)}" class="project-logo" alt="${escText(proj.title)} logo"></div>` : `<div class="project-logo-fallback">${escText(proj.title)}</div>`}
             ${tagline ? `<span class="project-tagline">${escText(tagline)}</span>` : ''}
             ${badge}
@@ -118,6 +192,7 @@ export async function initPortfolio(container) {
                 openProject();
             }
         });
+        if (hoverVideo) wireHoverVideo(card);
         return card;
     };
 
@@ -162,6 +237,10 @@ export async function initPortfolio(container) {
 
     function renderIndustries() {
         if (!industriesRoot) return;
+
+        // Все карточки ниже будут пересозданы (grid.innerHTML=''), поэтому
+        // сначала отключаем наблюдатели превью-видео старых карточек.
+        teardownHoverVideos();
 
         const ids = orderedCategoryIds();
 
@@ -389,6 +468,7 @@ export async function initPortfolio(container) {
         closeFocusedCard(true);
         modalAnimationObserver?.disconnect();
         modalAnimationObserver = null;
+        teardownCaseMedia(modalContent);
         isClosing = true;
         isOpen = false;
         touchStartY = null;
@@ -447,6 +527,7 @@ export async function initPortfolio(container) {
         initColumnCards();
         initCaseBlockAnimations();
         hydrateCompareBlocks(modalContent);
+        hydrateCaseMedia(modalContent);
 
         if (!hasBlocks) {
             modalContent.innerHTML = `
