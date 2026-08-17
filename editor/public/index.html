@@ -1093,7 +1093,6 @@
                             <div style={{display:'flex',gap:'0.5rem',alignItems:'center',flexWrap:'wrap'}}>
                                 <button className="btn btn-white btn-sm" style={{whiteSpace:'nowrap'}} disabled={publishing} onClick={publishSite}>{publishing ? 'Публикуем…' : 'Опубликовать'}</button>
                                 <a href="https://alabspace.com/#portfolio" target="_blank" className="btn btn-dark btn-sm" style={{textDecoration:'none',whiteSpace:'nowrap'}}>Сайт</a>
-                                <a href="http://localhost:5173/#portfolio" target="_blank" className="btn btn-dark btn-sm" style={{textDecoration:'none',whiteSpace:'nowrap'}}>Превью (dev)</a>
                             </div>
                             {publishWarnings.length ? <div className="publish-warnings">{publishWarnings.slice(0,5).map((w,i)=><div className="publish-warning" key={i}>⚠ {w}</div>)}</div> : null}
                         </div>
@@ -1553,6 +1552,19 @@
                 return () => document.body.classList.remove('preview-fullscreen-open');
             }, [previewFullscreen]);
 
+            // Живой предпросмотр в отдельной вкладке: на каждое изменение кейса
+            // кладём его в localStorage. Открытая вкладка preview.html ловит
+            // событие storage и перерисовывается — видно ещё до сохранения.
+            useEffect(() => {
+                try { localStorage.setItem('alab_preview_case', JSON.stringify(proj)); } catch {}
+            }, [proj]);
+
+            const openPreview = () => {
+                try { localStorage.setItem('alab_preview_case', JSON.stringify(proj)); } catch {}
+                // Именованная цель — повторный клик обновляет ту же вкладку, а не плодит новые
+                window.open(`${CMS_BASE_PATH}/preview.html`, 'alab-preview');
+            };
+
             const restartPreview = () => setPreviewSeed(Date.now());
             const showToast = (msg, ok = true, duration = 3000) => { setToast({ msg, ok }); setTimeout(() => setToast(null), duration); };
             const handleUpload = async (e, cb) => {
@@ -1574,7 +1586,7 @@
                         <div style={{display:'flex',gap:'0.5rem',alignItems:'center'}}>
                             <button className="btn btn-dark btn-sm" onClick={onClose}>← Назад</button>
                             <a href="https://alabspace.com/#portfolio" target="_blank" className="btn btn-dark btn-sm" style={{textDecoration:'none'}}>↗ Сайт</a>
-                            <a href="http://localhost:5173/#portfolio" target="_blank" className="btn btn-dark btn-sm" style={{textDecoration:'none'}}>Превью (dev)</a>
+                            <button className="btn btn-white btn-sm" onClick={openPreview} title="Открыть кейс в отдельной вкладке — как он будет выглядеть на сайте (с учётом несохранённых правок)">👁 Превью</button>
                             <span style={{fontSize:'1.1rem',fontWeight:700}}>{proj.title||'—'}</span>
                             <span className={`status-badge ${proj.status==='draft'?'status-draft':'status-published'}`} style={{cursor:'pointer'}} onClick={()=>update('status',proj.status==='draft'?'published':'draft')}>{proj.status==='draft'?'Черновик':'Опубликован'}</span>
                             <span className={'status-badge ' + (proj.featured?'status-featured-on':'status-featured-off')} style={{cursor:'pointer'}} title="До трёх проектов с меткой показываются на главной первыми" onClick={()=>update('featured', !proj.featured)}>{proj.featured?'★ На главной':'☆ На главную'}</span>
