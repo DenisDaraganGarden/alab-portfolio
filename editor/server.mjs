@@ -30,9 +30,9 @@ const app = express();
 // порт — браузер отклонял запросы с сайта в CMS. Порт у Vite не постоянный:
 // он уступает его любому другому проекту, который запустился раньше.
 //
-// На безопасность это не влияет: сервер слушает только 127.0.0.1, а публичный
-// сайт не может выдать себя за источник localhost — такой Origin браузер
-// проставляет лишь страницам, которые сами открыты с локального адреса.
+// Сам по себе CORS(origin:false) лишь не добавляет заголовки, но НЕ отменяет
+// выполнение маршрута — поэтому реальную границу на запись держит guard на
+// /api ниже (проверка Host + Origin против DNS-rebinding и cross-site POST).
 const LOCAL_ORIGIN = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/;
 
 app.use(cors({
@@ -59,6 +59,33 @@ app.use((req, res, next) => {
         req.url = `${stripped}${query}`;
     }
 
+    next();
+});
+
+// ─── Anti-DNS-rebinding / anti-CSRF для всех /api ───
+// Стоит ПОСЛЕ снятия префикса CMS_BASE_PATH, чтобы ловить и /api, и
+// /cms-3001/api. Сервер слушает только 127.0.0.1, но этого мало против двух
+// атак из браузера владельца: (1) DNS-rebinding — страница на evil.com, чей
+// домен переуказан на 127.0.0.1, шлёт запросы с Host: evil.com; (2) «простой»
+// cross-site POST с Content-Type: text/plain не вызывает preflight. Поэтому на
+// каждом /api проверяем, что Host — это localhost, а Origin (если есть) —
+// локальный. Особенно важно при CMS_SKIP_AUTH=1, когда токен не требуется, а
+// /api/publish делает реальный git push боевого сайта.
+function hostIsLocal(hostHeader) {
+    const host = String(hostHeader || '')
+        .trim().toLowerCase()
+        .replace(/:\d+$/, '')      // отбросить порт
+        .replace(/^\[|\]$/g, '');  // снять скобки IPv6
+    return host === 'localhost' || host === '127.0.0.1' || host === '::1';
+}
+app.use('/api', (req, res, next) => {
+    if (!hostIsLocal(req.headers.host)) {
+        return res.status(403).json({ error: 'Forbidden: запрос не с локального адреса' });
+    }
+    const origin = req.headers.origin;
+    if (origin && !LOCAL_ORIGIN.test(origin)) {
+        return res.status(403).json({ error: 'Forbidden: сторонний источник' });
+    }
     next();
 });
 
@@ -260,6 +287,54 @@ function safeFilename(originalName, fallback = 'media') {
     return `${Date.now()}-${stem}${ext}`;
 }
 
+// Расширение файла задаёт загружающий (safeFilename берёт его из имени, а не из
+// MIME), поэтому после сохранения проверяем, что оно в белом списке: иначе
+// часть с mimetype:image/png и именем evil.html легла бы на боевой домен как
+// исполняемый .html.
+// .tiff/.bmp тоже проходят: sharp ниже умеет их оптимизировать в webp, а без
+// них в списке эта ветка оптимизации была бы мёртвой, а загрузка — молча 400.
+const ALLOWED_UPLOAD_EXT = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.tiff', '.bmp', '.mp4', '.webm', '.mov']);
+
+// SVG раздаётся с боевого домена (GitHub Pages) как image/svg+xml, где нельзя
+// навесить CSP/Content-Disposition — единственная граница это сами байты файла.
+// Поэтому вырезаем всю активную начинку: <script>, обработчики on* (в т.ч.
+// <svg/onload=…> без пробела перед on), анимирующие элементы (умеют менять href
+// на скрипт), <foreignObject> и любые javascript:/vbscript:-схемы, включая
+// спрятанные за числовой сущностью двоеточия или пробелами внутри слова.
+// Это не полноценный парсер, но снимает исполнимые векторы; статичному
+// логотипу перечисленное не нужно в принципе.
+function sanitizeSvgFile(filePath) {
+    try {
+        const before = fs.readFileSync(filePath, 'utf-8');
+        // Раскрываем числовые сущности двоеточия и управляющих/пробельных
+        // символов (код ≤ 0x20) — именно ими маскируют схему: `javascript&#58;`
+        // и `jav&#x09;ascript:` (браузер декодирует и склеивает). Остальные
+        // сущности не трогаем, чтобы не портить текст логотипа.
+        const decodeMaskingEntity = (code) => (code === 0x3a || code <= 0x20)
+            ? String.fromCharCode(code) : null;
+        let svg = before
+            .replace(/&#x0*([0-9a-f]{1,4});/gi, (m, hex) => decodeMaskingEntity(parseInt(hex, 16)) ?? m)
+            .replace(/&#0*(\d{1,5});/g, (m, dec) => decodeMaskingEntity(parseInt(dec, 10)) ?? m)
+            // Активные и анимирующие элементы целиком
+            .replace(/<script[\s\S]*?<\/script\s*>/gi, '')
+            .replace(/<script\b[^>]*\/?>/gi, '')
+            .replace(/<foreignObject[\s\S]*?<\/foreignObject\s*>/gi, '')
+            .replace(/<(animate|animateTransform|animateMotion|set|handler|listener)\b[^>]*\/>/gi, '')
+            .replace(/<(animate|animateTransform|animateMotion|set|handler|listener)\b[\s\S]*?<\/\1\s*>/gi, '')
+            .replace(/<\?xml-stylesheet[\s\S]*?\?>/gi, '')
+            // Обработчики событий: пробел ИЛИ '/' перед on… (ловит <svg/onload=>)
+            .replace(/[\s/]on[a-z]+\s*=\s*"[^"]*"/gi, ' ')
+            .replace(/[\s/]on[a-z]+\s*=\s*'[^']*'/gi, ' ')
+            .replace(/[\s/]on[a-z]+\s*=\s*[^\s>]+/gi, ' ')
+            // Скрипт-схемы в любом атрибуте, даже с пробелами внутри слова
+            .replace(/j\s*a\s*v\s*a\s*s\s*c\s*r\s*i\s*p\s*t\s*:/gi, 'blocked:')
+            .replace(/v\s*b\s*s\s*c\s*r\s*i\s*p\s*t\s*:/gi, 'blocked:');
+        if (svg !== before) fs.writeFileSync(filePath, svg, 'utf-8');
+    } catch (e) {
+        console.error('[SVG sanitize] failed:', e.message);
+    }
+}
+
 function validateCasesPayload(payload) {
     if (!payload || typeof payload !== 'object') return 'Invalid payload';
     if (!payload.categories || typeof payload.categories !== 'object' || Array.isArray(payload.categories)) return 'Invalid categories';
@@ -401,6 +476,16 @@ app.post('/api/upload', apiAuth, (req, res) => {
         const originalPath = req.file.path;
         const ext = path.extname(req.file.filename).toLowerCase();
         const basePath = `/images/${caseId}/${req.file.filename}`;
+
+        // Расширение из имени файла независимо от заявленного MIME — отсекаем
+        // всё, что не в белом списке, и удаляем уже записанный файл.
+        if (!ALLOWED_UPLOAD_EXT.has(ext)) {
+            try { fs.unlinkSync(originalPath); } catch {}
+            return res.status(400).json({ error: `Недопустимое расширение файла: ${ext || '—'}` });
+        }
+
+        // SVG обезвреживаем сразу после записи, до любого использования.
+        if (ext === '.svg') sanitizeSvgFile(originalPath);
 
         // Auto-optimize images (skip SVG and video)
         if (['.jpg','.jpeg','.png','.webp','.tiff','.bmp'].includes(ext)) {

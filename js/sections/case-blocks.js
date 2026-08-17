@@ -56,6 +56,47 @@ export const displayLinkUrl = (value) => String(value || '')
     .replace(/^www\./i, '')
     .replace(/\/$/, '');
 
+/**
+ * Разбор ссылки в видео-блоке: прямой файл (.mp4/.webm/...) отдаём в <video>,
+ * ссылку на страницу VK Video / YouTube / Vimeo / Rutube — во встраиваемый
+ * iframe. Хостинга своих видео нет, поэтому длинные ролики живут во внешних
+ * плеерах (для РФ — VK Video), а короткие можно грузить файлом в кейс.
+ */
+export const parseVideoEmbed = (rawUrl = '') => {
+    let url = String(rawUrl || '').trim();
+    if (!url) return null;
+    if (/^(javascript|data|vbscript):/i.test(url)) return null;
+
+    // Схемелесс-хост (www.site.ru/clip.mp4, vk.com/...) — как в normalizeLinkUrl
+    // для блока ссылок: дописываем https, чтобы дальше работал разбор хостов.
+    if (!url.startsWith('/') && /^(?:www\.|[\w-]+(?:\.[\w-]+)+)(?:[/?#]|$)/i.test(url)) {
+        url = 'https://' + url;
+    }
+
+    // Хосты заякорены на схему — иначе not-youtube.com/embed/… ложно совпал бы.
+    let m = url.match(/^https?:\/\/(?:www\.|m\.)?(?:youtube\.com|youtube-nocookie\.com)\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/|live\/)([\w-]{6,})/i)
+         || url.match(/^https?:\/\/youtu\.be\/([\w-]{6,})/i);
+    if (m) return { kind: 'embed', embedUrl: `https://www.youtube-nocookie.com/embed/${m[1]}?rel=0` };
+
+    m = url.match(/^https?:\/\/(?:www\.|player\.)?vimeo\.com\/(?:video\/)?(\d+)/i);
+    if (m) return { kind: 'embed', embedUrl: `https://player.vimeo.com/video/${m[1]}` };
+
+    m = url.match(/^https?:\/\/(?:www\.)?(?:vk\.com|vkvideo\.ru)\/video(-?\d+)_(\d+)/i);
+    if (m) return { kind: 'embed', embedUrl: `https://vk.com/video_ext.php?oid=${m[1]}&id=${m[2]}` };
+    if (/^https?:\/\/(?:www\.)?(?:vk\.com|vkvideo\.ru)\/video_ext\.php\?/i.test(url)) return { kind: 'embed', embedUrl: url };
+
+    m = url.match(/^https?:\/\/(?:www\.)?rutube\.ru\/(?:video|play\/embed)\/(\w+)/i);
+    if (m) return { kind: 'embed', embedUrl: `https://rutube.ru/play/embed/${m[1]}` };
+
+    // Прямой файл — ТОЛЬКО то, что похоже на медиа (расширение). Незнакомую
+    // ссылку/страницу плеера, не попавшую под шаблоны выше, возвращаем как null,
+    // чтобы блок не отрисовался пустым <video> (opacity:0 без события playing).
+    if (/\.(?:mp4|webm|ogv|ogg|mov|m4v)(?:[?#]|$)/i.test(url) && (/^https?:\/\//i.test(url) || url.startsWith('/'))) {
+        return { kind: 'file', src: url };
+    }
+    return null;
+};
+
 const blockAnimation = (block) => block?.style?.animation || 'none';
 
 const stripHtmlForAnimation = (value = '') => String(value || '')
@@ -187,9 +228,20 @@ export function renderCaseBlock(block) {
             return wrapReveal(block, `<div class="case-block-image"><img src="${escapeAttr(block.content)}" alt="" style="${mask}"/></div>`);
         }
 
-        case 'video':
+        case 'video': {
             if (!block.content) return '';
-            return wrapReveal(block, `<div class="case-block-video"><video src="${escapeAttr(block.content)}" autoplay muted loop playsinline></video></div>`);
+            const media = parseVideoEmbed(block.content);
+            if (!media) return '';
+            if (media.kind === 'embed') {
+                return wrapReveal(block, `<div class="case-block-video case-block-video--embed"><iframe src="${escapeAttr(media.embedUrl)}" loading="lazy" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Видео"></iframe></div>`);
+            }
+            // Прямой файл: ленивая подгрузка и автоплей отданы hydrateCaseMedia
+            // (viewport-gating, плавное появление, пауза вне экрана, учёт
+            // prefers-reduced-motion). preload='none' и data-src — чтобы видео
+            // не тянулось, пока кейс не открыт и блок не в зоне видимости.
+            const poster = block.poster ? ` poster="${escapeAttr(block.poster)}"` : '';
+            return wrapReveal(block, `<div class="case-block-video"><video class="case-video" data-src="${escapeAttr(media.src)}"${poster} muted loop playsinline preload="none"></video></div>`);
+        }
 
         case 'gallery': {
             const imgs = (block.images || []).map(src => `<img src="${escapeAttr(src)}" alt=""/>`).join('');
@@ -270,5 +322,90 @@ export function hydrateCompareBlocks(root = document) {
             event.preventDefault();
             onMove(event.touches[0].clientX);
         }, { passive: false });
+    });
+}
+
+/**
+ * Оживление файловых видео-блоков кейса (.case-video[data-src]). Вызывается
+ * ПОСЛЕ вставки разметки. Делает то, что нельзя выразить чистой строкой:
+ *  • ленивая подгрузка — src подключается только когда блок входит в кадр;
+ *  • автоплей/пауза по видимости — видео не молотит за пределами экрана;
+ *  • плавное появление (класс is-playing) и лёгкое затухание на стыке
+ *    цикла (is-looping), чтобы петля не «дёргалась»;
+ *  • prefers-reduced-motion — вместо автоплея обычный плеер с controls.
+ * iframe-эмбеды (VK/YouTube/Vimeo) грузятся сами через loading="lazy".
+ */
+export function hydrateCaseMedia(root = document) {
+    const videos = root.querySelectorAll('.case-video[data-src]');
+    if (!videos.length) return;
+
+    const reduceMotion = typeof matchMedia === 'function'
+        && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    videos.forEach((video) => {
+        if (video.dataset.mediaReady === '1') return;
+        video.dataset.mediaReady = '1';
+
+        const wrap = video.closest('.case-block-video');
+        const attachSource = () => {
+            if (!video.getAttribute('src')) {
+                video.setAttribute('src', video.dataset.src);
+                video.load();
+            }
+        };
+
+        if (reduceMotion) {
+            attachSource();
+            video.setAttribute('controls', '');
+            video.loop = false;
+            wrap && wrap.classList.add('is-playing');
+            return;
+        }
+
+        // Показываем видео, как только есть первый кадр — постер/кадр виден и
+        // тогда, когда автоплей заблокирован (иначе opacity:0 держал бы блок
+        // пустым). Класс тот же, что и при старте воспроизведения.
+        const reveal = () => wrap && wrap.classList.add('is-playing');
+        video.addEventListener('loadeddata', reveal);
+        video.addEventListener('playing', reveal);
+        video.addEventListener('timeupdate', () => {
+            if (!video.duration || Number.isNaN(video.duration)) return;
+            const remaining = video.duration - video.currentTime;
+            wrap && wrap.classList.toggle('is-looping', remaining < 0.45);
+        });
+
+        if (typeof IntersectionObserver !== 'function') {
+            attachSource();
+            video.play().catch(() => {});
+            return;
+        }
+
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    attachSource();
+                    video.play().catch(() => {});
+                } else {
+                    video.pause();
+                }
+            });
+        }, { threshold: 0.25 });
+        io.observe(video);
+        video._mediaIO = io;  // чтобы teardownCaseMedia мог отключить наблюдатель
+    });
+}
+
+/**
+ * Отключение наблюдателей видео перед удалением разметки (закрытие модалки).
+ * Без этого IntersectionObserver'ы держат ссылки на снятые с DOM <video>
+ * с забуференным медиа и продолжают дёргать колбэки на мёртвых узлах.
+ */
+export function teardownCaseMedia(root = document) {
+    root.querySelectorAll('.case-video').forEach((video) => {
+        if (video._mediaIO) {
+            video._mediaIO.disconnect();
+            video._mediaIO = null;
+        }
+        try { video.pause(); } catch {}
     });
 }

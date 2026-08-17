@@ -652,6 +652,33 @@
     background: rgba(255, 255, 255, 0.5);
 }
 
+/* Зацикленное превью-видео карточки: слой под логотипом (z:1) и бейджем (z:2),
+   поверх ::before-градиента (z:0). Появляется плавно, когда portfolio.js
+   ставит .is-previewing (наведение на десктопе / карточка в кадре на таче).
+   pointer-events:none — вся карточка остаётся единой кликабельной областью. */
+.portfolio-project-card .project-hover-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.55s ease;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.portfolio-project-card.is-previewing .project-hover-video {
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .portfolio-project-card .project-hover-video {
+        display: none;
+    }
+}
+
 .portfolio-project-card .project-logo-wrapper {
     position: absolute;
     left: 2.5rem;

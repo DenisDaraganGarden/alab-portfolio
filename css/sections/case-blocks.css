@@ -266,6 +266,29 @@ h3.case-block-heading {
     background: #1a1a1a;
 }
 
+/* Файловое видео появляется плавно, когда hydrateCaseMedia его запускает,
+   и слегка притухает на стыке цикла — петля не «дёргается». */
+.case-block-video .case-video {
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+.case-block-video.is-playing .case-video {
+    opacity: 1;
+}
+
+.case-block-video.is-looping .case-video {
+    opacity: 0.55;
+    transition: opacity 0.4s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .case-block-video .case-video {
+        opacity: 1;
+        transition: none;
+    }
+}
+
 /* ── Gallery ── */
 .case-block-gallery {
     max-width: var(--case-max-width);

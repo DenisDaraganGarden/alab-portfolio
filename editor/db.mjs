@@ -113,7 +113,8 @@ const requiredProjectColumns = {
     ogImage: 'TEXT DEFAULT NULL',
     externalUrl: 'TEXT DEFAULT NULL',
     featured: 'INTEGER DEFAULT 0',
-    tagline: 'TEXT DEFAULT NULL'
+    tagline: 'TEXT DEFAULT NULL',
+    hoverVideo: 'TEXT DEFAULT NULL'
 };
 
 function ensureColumns(tableName, columns) {
@@ -161,7 +162,8 @@ export function getCases() {
         ogImage: row.ogImage || undefined,
         externalUrl: row.externalUrl || undefined,
         featured: row.featured === 1 ? true : undefined,
-        tagline: row.tagline || undefined
+        tagline: row.tagline || undefined,
+        hoverVideo: row.hoverVideo || undefined
     }));
 
     return { categories, projects };
@@ -179,7 +181,7 @@ export function saveCases(payload) {
     const clearProjects = db.prepare('DELETE FROM projects');
     
     const insertCategory = db.prepare('INSERT INTO categories (id, title) VALUES (?, ?)');
-    const insertProject = db.prepare('INSERT INTO projects (id, title, logo, isExternal, categoryId, blocks, sort_order, status, theme, accentColor, seoTitle, seoDesc, ogImage, externalUrl, featured, tagline) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    const insertProject = db.prepare('INSERT INTO projects (id, title, logo, isExternal, categoryId, blocks, sort_order, status, theme, accentColor, seoTitle, seoDesc, ogImage, externalUrl, featured, tagline, hoverVideo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
 
     const transaction = db.transaction(() => {
         clearCategories.run();
@@ -208,7 +210,8 @@ export function saveCases(payload) {
                 proj.ogImage || null,
                 proj.externalUrl || null,
                 proj.featured ? 1 : 0,
-                String(proj.tagline || '').trim() ? Array.from(String(proj.tagline).trim()).slice(0, 80).join('') : null
+                String(proj.tagline || '').trim() ? Array.from(String(proj.tagline).trim()).slice(0, 80).join('') : null,
+                String(proj.hoverVideo || '').trim() || null
             );
         });
     });
