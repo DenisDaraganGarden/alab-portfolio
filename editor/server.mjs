@@ -75,6 +75,11 @@ app.use('/site-css', express.static(path.join(ROOT_DIR, 'css')));
 // ─── Auth (fail-closed, timing-safe, rate-limited) ───
 const authConfigured = () => Boolean(process.env.CMS_LOGIN && process.env.CMS_PASSWORD);
 
+// Вход без пароля для работы на своём компьютере: CMS_SKIP_AUTH=1 в .env.
+// Сервер слушает только 127.0.0.1 и снаружи не виден; флаг лишь убирает
+// экран логина. Чужой доступ к этой машине и так означает доступ к .env.
+const AUTH_SKIPPED = process.env.CMS_SKIP_AUTH === '1';
+
 function sha256Buf(value) {
     return crypto.createHash('sha256').update(String(value ?? '')).digest();
 }
@@ -125,6 +130,7 @@ function recordAuthFailure(ip, tokenKey = null) {
 
 // Auth middleware — only for /api routes
 const apiAuth = (req, res, next) => {
+    if (AUTH_SKIPPED) return next();
     if (!authConfigured()) return res.status(503).json({ error: 'CMS_LOGIN/CMS_PASSWORD не заданы в .env' });
     const ip = authIp(req);
     const token = req.headers['x-cms-token'];
@@ -162,6 +168,11 @@ app.post('/api/login', (req, res) => {
     if (authRateLimited(ip)) return res.status(429).json({ error: 'Слишком много неудачных попыток входа. Попробуйте через 15 минут.' });
     recordAuthFailure(ip);
     res.status(401).json({ error: 'Неверный логин или пароль' });
+});
+
+// Режим входа: фронтенд по нему решает, показывать ли экран логина
+app.get('/api/auth-mode', (req, res) => {
+    res.json({ skipAuth: AUTH_SKIPPED });
 });
 
 function buildPublicCases(data) {
@@ -940,7 +951,9 @@ app.post('/api/publish', apiAuth, async (req, res) => {
 });
 
 // ─── Startup ───
-if (!authConfigured()) {
+if (AUTH_SKIPPED) {
+    console.warn('[A.LAB] Вход без пароля: CMS_SKIP_AUTH=1 — экран логина отключён (сервер виден только с этого компьютера)');
+} else if (!authConfigured()) {
     console.warn('[A.LAB] ВНИМАНИЕ: CMS_LOGIN/CMS_PASSWORD не заданы в .env — все API-запросы будут отклоняться (503)');
 }
 

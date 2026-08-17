@@ -903,6 +903,8 @@
         // ─── App ───
         function App() {
             const [authed, setAuthed] = useState(!!sessionStorage.getItem('cms_token'));
+            // null — режим входа ещё выясняется; true — сервер пускает без пароля (CMS_SKIP_AUTH=1)
+            const [skipAuth, setSkipAuth] = useState(null);
             const [data, setData] = useState({ categories: {}, projects: [] });
             const [loading, setLoading] = useState(true);
             const [editing, setEditing] = useState(null);
@@ -968,6 +970,12 @@
                 finally { setPublishing(false); }
             };
 
+            useEffect(() => {
+                fetch(`${API}/auth-mode`)
+                    .then(r => r.json())
+                    .then(m => { setSkipAuth(!!m.skipAuth); if (m.skipAuth) setAuthed(true); })
+                    .catch(() => setSkipAuth(false));
+            }, []);
             useEffect(() => { if (authed) { loadData(); loadSettings(); loadAnalytics(); } }, [authed]);
             useEffect(() => { if (authed && tab === 'analytics') loadAnalytics(analyticsDays); }, [authed, tab, analyticsDays]);
 
@@ -1025,7 +1033,12 @@
 
             const logout = () => { sessionStorage.removeItem('cms_token'); setAuthed(false); };
 
-            if (!authed) return <LoginScreen onLogin={() => setAuthed(true)} />;
+            // Пока не выяснили режим входа — ничего не рисуем, чтобы экран
+            // логина не мигал перед автоматическим входом без пароля.
+            if (!authed) {
+                if (skipAuth === null) return null;
+                return <LoginScreen onLogin={() => setAuthed(true)} />;
+            }
             if (loading) return <div className="cms-wrap"><p>Загрузка...</p></div>;
 
             if (editing) {
@@ -1053,7 +1066,7 @@
                         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                             {tab === 'projects' && <><label className="btn btn-dark btn-sm" style={{cursor:'pointer'}}><input type="file" accept=".json" style={{display:'none'}} onChange={importProject}/>Импорт</label><button className="btn btn-white" onClick={()=>setShowTemplates(true)}>+ Новый кейс</button></>}
                             {tab === 'analytics' && <button className="btn btn-white btn-sm" onClick={()=>loadAnalytics(analyticsDays)}>Обновить</button>}
-                            <button className="btn-ghost" onClick={logout}>Выйти</button>
+                            {!skipAuth && <button className="btn-ghost" onClick={logout}>Выйти</button>}
                         </div>
                     </div>
                     <div className="tabs">
