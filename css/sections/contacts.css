@@ -1664,12 +1664,14 @@
   white-space: nowrap;
 }
 
-/* Два кода рядом: телеграм и Дзен. Третья колонка — свободное место справа */
+/* Два кода рядом: телеграм и Дзен. Третья колонка — свободное место справа.
+   Блоки растянуты на одну высоту: подписи стоят по верхней линии,
+   а сами коды прижаты к нижней (margin-top: auto у ссылки). */
 .contacts-final-row {
   display: grid;
   grid-template-columns: auto auto minmax(0, 1fr);
   gap: clamp(1.1rem, 2.4vw, 2rem);
-  align-items: start;
+  align-items: stretch;
 }
 
 /* Подпись над кодом набирается в две строки и не растягивает колонку */
@@ -1689,6 +1691,7 @@
   display: block;
   width: fit-content;
   line-height: 0;
+  margin-top: auto;
 }
 
 .contacts-qr--panel {
@@ -1696,6 +1699,43 @@
   width: clamp(90px, 8.5vw, 110px);
   height: auto;
   border-radius: 10px;
+  position: relative;
+  transform-origin: 50% 100%;
+  will-change: transform;
+  transition:
+    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.55s ease,
+    background-color 0.35s ease;
+}
+
+/* Наведение: код вырастает из своей нижней линии и приподнимается
+   над стеклом на белой подложке. Масштаб 1.5 просчитан под внутренние
+   поля карточки — она режет содержимое (overflow: hidden). */
+@media (hover: hover) and (pointer: fine) {
+  .contacts-qr-link:hover .contacts-qr--panel {
+    transform: scale(1.5);
+    background-color: #fff;
+    box-shadow: 0 24px 48px -12px rgba(29, 29, 31, 0.35);
+    z-index: 2;
+  }
+}
+
+.contacts-qr-link:focus-visible .contacts-qr--panel {
+  transform: scale(1.5);
+  background-color: #fff;
+  box-shadow: 0 24px 48px -12px rgba(29, 29, 31, 0.35);
+  z-index: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contacts-qr--panel {
+    transition: none;
+  }
+
+  .contacts-qr-link:hover .contacts-qr--panel,
+  .contacts-qr-link:focus-visible .contacts-qr--panel {
+    transform: none;
+  }
 }
 
 /* Невысокие десктопные экраны: детали карточки компактнее, как и форма выше */
@@ -1738,7 +1778,7 @@
   .contacts-final-row {
     grid-template-columns: auto minmax(0, 1fr);
     gap: 0.9rem;
-    align-items: end;
+    align-items: stretch;
   }
 
   .contacts-qr--panel {
