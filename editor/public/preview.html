@@ -114,11 +114,12 @@
                 return emptyDoc('В этом кейсе пока нет включённых блоков.<br>Добавьте блоки в редакторе — предпросмотр обновится сам.');
             }
             const pad = 'clamp(1.5rem,5vw,5rem) 0';
+            const accent = /^#[0-9a-fA-F]{3,8}$/.test(proj?.accentColor || '') ? `--case-accent-color:${proj.accentColor};` : '';
             return `<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8">`
                 + `<base href="${location.origin}/"/>`
                 + `<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">`
                 + `<link href="/site-css/sections/case-blocks.css" rel="stylesheet">`
-                + `<style>*{box-sizing:border-box;margin:0;padding:0}body{background:var(--case-bg,#f5f5f7);color:var(--case-text,#1d1d1f);font-family:'Roboto',sans-serif;padding:${pad}}</style>`
+                + `<style>*{box-sizing:border-box;margin:0;padding:0}body{${accent}background:var(--case-bg,#f5f5f7);color:var(--case-text,#1d1d1f);font-family:'Roboto',sans-serif;padding:${pad}}</style>`
                 + `</head><body>${html}<script>${HYDRATE}<\/script>${SLIDER_SCRIPT}</body></html>`;
         }
 
