@@ -9,13 +9,214 @@
       "id": "case-1778748627478",
       "title": "VERDETECH",
       "logo": "/images/VERDETECH/logo.png",
-      "isExternal": true,
+      "isExternal": false,
       "categoryId": "production",
-      "blocks": [],
+      "blocks": [
+        {
+          "type": "image",
+          "content": "/images/VERDETECH/hero.png",
+          "style": {
+            "animation": "fade-in"
+          }
+        },
+        {
+          "type": "heading",
+          "level": "h1",
+          "content": "VERDE®TECH — брендинг производителя пищевых ингредиентов",
+          "style": {
+            "animation": "split-lines"
+          }
+        },
+        {
+          "type": "text",
+          "content": "Современное производство пищевых ингредиентов. Стратегия и позиционирование, нейминг и смысловая платформа, фирменный стиль, коммуникационная платформа, упаковка и выставочное присутствие.",
+          "style": {
+            "animation": "fade-up"
+          }
+        },
+        {
+          "type": "spacer",
+          "height": 40
+        },
+        {
+          "type": "video",
+          "content": "/images/VERDETECH/video.mp4"
+        },
+        {
+          "type": "spacer",
+          "height": 64
+        },
+        {
+          "type": "heading",
+          "level": "h2",
+          "content": "Идея: забота о будущем через продукт",
+          "style": {
+            "animation": "fade-up"
+          }
+        },
+        {
+          "type": "text",
+          "content": "Компания воспринималась как ещё один поставщик ингредиентов: сложный продукт и одинаковый для всего рынка язык «эко / био / инновации». Мы сместили фокус — с технологии на влияние, с b2b на ценность для конечного покупателя.",
+          "style": {
+            "animation": "fade-up"
+          }
+        },
+        {
+          "type": "quote",
+          "text": "В сложных b2b-продуктах выигрывает не тот, кто говорит «про технологии», а тот, кто переводит их в ценность для человека.",
+          "author": "Инсайт проекта",
+          "role": "смысловая платформа VERDE®TECH"
+        },
+        {
+          "type": "image",
+          "content": "/images/VERDETECH/product-text.png",
+          "style": {
+            "animation": "fade-up"
+          }
+        },
+        {
+          "type": "spacer",
+          "height": 64
+        },
+        {
+          "type": "heading",
+          "level": "h2",
+          "content": "Настроение бренда",
+          "style": {
+            "animation": "fade-up"
+          }
+        },
+        {
+          "type": "text",
+          "content": "Фактуры живых продуктов крупным планом — материал, из которого собран визуальный язык. Листайте.",
+          "style": {
+            "animation": "fade-up"
+          }
+        },
+        {
+          "type": "gallery",
+          "layout": "slider",
+          "background": "dark",
+          "images": [
+            "/images/VERDETECH/mood-01.png",
+            "/images/VERDETECH/mood-02.png",
+            "/images/VERDETECH/mood-03.png",
+            "/images/VERDETECH/mood-04.png",
+            "/images/VERDETECH/mood-05.png",
+            "/images/VERDETECH/mood-06.png",
+            "/images/VERDETECH/mood-07.png",
+            "/images/VERDETECH/mood-08.png",
+            "/images/VERDETECH/mood-09.png",
+            "/images/VERDETECH/mood-10.png",
+            "/images/VERDETECH/mood-11.png",
+            "/images/VERDETECH/mood-12.png",
+            "/images/VERDETECH/mood-13.png",
+            "/images/VERDETECH/mood-14.png",
+            "/images/VERDETECH/mood-15.png",
+            "/images/VERDETECH/mood-16.png",
+            "/images/VERDETECH/mood-17.png",
+            "/images/VERDETECH/mood-18.png"
+          ]
+        },
+        {
+          "type": "spacer",
+          "height": 64
+        },
+        {
+          "type": "heading",
+          "level": "h2",
+          "content": "Продукт и производство",
+          "style": {
+            "animation": "fade-up"
+          }
+        },
+        {
+          "type": "text",
+          "content": "Мы отказались от клише «эко-брендов» и сделали чистый, технологичный образ: бренд выглядит как партнёр, который специализируется на инновациях и опирается на мощную научную базу.",
+          "style": {
+            "animation": "fade-up"
+          }
+        },
+        {
+          "type": "columns",
+          "cols": [
+            {
+              "image": "/images/VERDETECH/product-1.png",
+              "text": "Сырьё\nЖивые ингредиенты крупным планом — то, из чего складывается продукт."
+            },
+            {
+              "image": "/images/VERDETECH/product-2.png",
+              "text": "Технология\nПроизводственный процесс — часть образа бренда, а не закулисье."
+            },
+            {
+              "image": "/images/VERDETECH/product-3.png",
+              "text": "Производство\nЛюди и контроль качества на каждом этапе."
+            }
+          ]
+        },
+        {
+          "type": "image",
+          "content": "/images/VERDETECH/packaging.png",
+          "style": {
+            "animation": "fade-up"
+          }
+        },
+        {
+          "type": "spacer",
+          "height": 64
+        },
+        {
+          "type": "heading",
+          "level": "h2",
+          "content": "Айдентика в среде",
+          "style": {
+            "animation": "fade-up"
+          }
+        },
+        {
+          "type": "image",
+          "content": "/images/VERDETECH/city-banner.png",
+          "style": {
+            "animation": "fade-up"
+          }
+        },
+        {
+          "type": "image",
+          "content": "/images/VERDETECH/palette.png",
+          "style": {
+            "animation": "fade-up"
+          }
+        },
+        {
+          "type": "spacer",
+          "height": 48
+        },
+        {
+          "type": "links",
+          "title": "Материалы проекта",
+          "layout": "cards",
+          "items": [
+            {
+              "platform": "behance",
+              "label": "Кейс на Behance",
+              "url": "https://www.behance.net/gallery/247989821/brending-ajdentika-filosofija-VERDETECH"
+            }
+          ]
+        },
+        {
+          "type": "spacer",
+          "height": 64
+        }
+      ],
       "status": "published",
       "theme": "light",
-      "accentColor": "#6b6b6b",
-      "externalUrl": "https://www.behance.net/gallery/247989821/brending-ajdentika-filosofija-VERDETECH"
+      "accentColor": "#00c420",
+      "seoTitle": "VERDETECH — брендинг производителя пищевых ингредиентов",
+      "seoDesc": "Стратегия, айдентика, упаковка и коммуникация для современного производства пищевых ингредиентов VERDE®TECH.",
+      "ogImage": "/images/VERDETECH/hero.png",
+      "externalUrl": "https://www.behance.net/gallery/247989821/brending-ajdentika-filosofija-VERDETECH",
+      "tagline": "производитель пищевых ингредиентов",
+      "hoverVideo": "/images/VERDETECH/video.mp4"
     },
     {
       "id": "case-1778748689044",
@@ -27,7 +228,8 @@
       "status": "published",
       "theme": "light",
       "accentColor": "#6b6b6b",
-      "externalUrl": "https://www.behance.net/gallery/248044035/brending-ajdentika-filosofija-DOMM"
+      "externalUrl": "https://www.behance.net/gallery/248044035/brending-ajdentika-filosofija-DOMM",
+      "tagline": "клубный дом"
     },
     {
       "id": "case-1778748719490",
@@ -39,7 +241,8 @@
       "status": "published",
       "theme": "light",
       "accentColor": "#6b6b6b",
-      "externalUrl": "https://www.behance.net/gallery/248044653/brending-ajdentika-filosofija-princip-32"
+      "externalUrl": "https://www.behance.net/gallery/248044653/brending-ajdentika-filosofija-princip-32",
+      "tagline": "стоматологическая клиника"
     },
     {
       "id": "case-1778748764324",
@@ -51,7 +254,8 @@
       "status": "published",
       "theme": "light",
       "accentColor": "#6b6b6b",
-      "externalUrl": "https://www.behance.net/gallery/248044845/brending-ajdentika-filosofija-LBURO"
+      "externalUrl": "https://www.behance.net/gallery/248044845/brending-ajdentika-filosofija-LBURO",
+      "tagline": "студия ландшафтного дизайна"
     },
     {
       "id": "case-1778748805391",
@@ -63,7 +267,8 @@
       "status": "published",
       "theme": "light",
       "accentColor": "#6b6b6b",
-      "externalUrl": "https://www.behance.net/gallery/248042129/brending-ajdentika-filosofija-TUT-development"
+      "externalUrl": "https://www.behance.net/gallery/248042129/brending-ajdentika-filosofija-TUT-development",
+      "tagline": "девелопер и застройщик"
     }
   ]
 }
