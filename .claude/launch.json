@@ -2,10 +2,24 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "editor-wt",
-      "runtimeExecutable": "node",
-      "runtimeArgs": ["editor/server.mjs"],
-      "port": 3002
+      "name": "Сайт — посмотреть как выглядит",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd \"/Users/denisdaragan/Documents/Not0-Not1/2026/Product/A.LAB/A.LAB SYTE\" && npm run dev -- --port 5180"
+      ],
+      "port": 5180,
+      "autoPort": true
+    },
+    {
+      "name": "Редактор — менять проекты",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd \"/Users/denisdaragan/Documents/Not0-Not1/2026/Product/A.LAB/A.LAB SYTE\" && npm run editor"
+      ],
+      "port": 3001,
+      "autoPort": false
     }
   ]
 }
