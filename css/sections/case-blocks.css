@@ -1076,7 +1076,9 @@ body.has-case-card-lightbox {
 .case-block-quote.case-quote-metal {
     background: transparent;
     box-shadow: none;
-    padding: clamp(4rem, 8vw, 6rem) clamp(2.8rem, 6vw, 5rem);
+    /* Запас до кромки: волна края + фаска + скруглённые углы — текст
+       живёт глубоко внутри формы и не выползает на фаску */
+    padding: clamp(4.5rem, 9vw, 6.5rem) clamp(3.6rem, 9vw, 7rem);
 }
 
 .case-quote-metal::before {
@@ -1104,9 +1106,29 @@ body.has-case-card-lightbox {
     will-change: transform;
 }
 
-.case-quote-metal .case-quote-text,
+/* Гравировка: буквы — часть металла. Тёмно-стальной цвет вместо чёрного,
+   светлая кромка снизу и тень сверху — как выдавлено в поверхности. */
+.case-quote-metal .case-quote-text {
+    color: rgba(43, 46, 52, 0.94);
+    text-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.55),
+        0 -1px 1px rgba(29, 29, 31, 0.22);
+}
+
 .case-quote-metal .case-quote-author strong {
-    color: #101012;
+    color: rgba(38, 41, 46, 0.95);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.case-quote-metal .case-quote-role {
+    color: rgba(74, 78, 86, 0.9);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+@media (max-width: 768px) {
+    .case-block-quote.case-quote-metal {
+        padding: 3.4rem 2.2rem;
+    }
 }
 
 /* Без WebGL (is-flat) канвас прячем и возвращаем обычную плашку */
