@@ -86,24 +86,9 @@
         const dot = document.getElementById('pvDot');
         let mode = 'desktop';
 
-        // Тот же оживляющий скрипт, что и в панели редактора: reveal-блоки и
-        // ленивое видео (иначе opacity:0 без src осталось бы невидимым).
-        const HYDRATE = [
-            "var nodes=document.querySelectorAll('.case-block-reveal');",
-            "var show=function(el){el.classList.add('is-visible')};",
-            "if(window.IntersectionObserver){",
-            "var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)show(e.target)})},{threshold:0.12});",
-            "nodes.forEach(function(el){io.observe(el)});",
-            "setTimeout(function(){nodes.forEach(show)},1400);",
-            "}else{nodes.forEach(show)}",
-            "document.querySelectorAll('.case-video[data-src]').forEach(function(v){",
-            "v.src=v.dataset.src;var w=v.closest('.case-block-video');",
-            "v.addEventListener('playing',function(){if(w)w.classList.add('is-playing')});",
-            "v.addEventListener('loadeddata',function(){if(w)w.classList.add('is-playing')});",
-            "v.play().catch(function(){if(w)w.classList.add('is-playing')});});"
-        ].join('');
-        // Карусели оживляет боевой hydrateCaseSliders — тот же модуль, что на сайте
-        const SLIDER_SCRIPT = `<script type="module">import{hydrateCaseSliders,hydrateQuoteMetal}from'/site-js/sections/case-blocks.js';hydrateCaseSliders(document);hydrateQuoteMetal(document);<\/script>`;
+        // Оживляет документ один боевой hydratePreviewDocument (case-blocks.js):
+        // reveal-блоки, видео без viewport-гейтинга, карусели, «жидкий металл».
+        const HYDRATE_SCRIPT = `<script type="module">import{hydratePreviewDocument}from'/site-js/sections/case-blocks.js';hydratePreviewDocument(document);<\/script>`;
 
         const emptyDoc = (msg) => `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;font-family:'Roboto',sans-serif;background:#f5f5f7}</style></head><body><div style="padding:4rem 1.5rem;text-align:center;color:#6e6e73;font-size:0.95rem;line-height:1.6">${msg}</div></body></html>`;
 
@@ -120,7 +105,7 @@
                 + `<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">`
                 + `<link href="/site-css/sections/case-blocks.css" rel="stylesheet">`
                 + `<style>*{box-sizing:border-box;margin:0;padding:0}body{${accent}background:var(--case-bg,#f5f5f7);color:var(--case-text,#1d1d1f);font-family:'Roboto',sans-serif;padding:${pad}}</style>`
-                + `</head><body>${html}<script>${HYDRATE}<\/script>${SLIDER_SCRIPT}</body></html>`;
+                + `</head><body>${html}${HYDRATE_SCRIPT}</body></html>`;
         }
 
         function readProj() {

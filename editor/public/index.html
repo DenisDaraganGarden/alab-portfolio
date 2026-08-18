@@ -79,10 +79,6 @@
         .block-actions button:hover{background:#222;color:#eee}
 
         /* Preview */
-        .preview-wrap{margin-top:1rem}
-        .preview-label{font-size:0.75rem;color:#e67e22;font-weight:600;margin-bottom:0.5rem}
-        .preview-container{position:relative;width:100%;background:#0a0a0a;border:1px solid #333;border-radius:6px;overflow:hidden}
-        .preview-container iframe{width:1440px;height:900px;transform-origin:top left;border:none;display:block;pointer-events:none}
 
 
         /* Setup row: стиль+SEO слева, живое превью справа */
@@ -590,7 +586,7 @@
         .publish-warnings{width:100%;margin:0.15rem 0 0;padding:0.55rem 0 0;border-top:1px solid var(--cms-line)}
         .publish-warning{color:#8a5a00;font-size:0.72rem}
 
-        .seo-label,.preview-label,.live-preview-header{color:var(--cms-text)}
+        .seo-label,.live-preview-header{color:var(--cms-text)}
         .block-item{
             border-radius:22px;
             margin-bottom:0.9rem;
@@ -630,7 +626,6 @@
         .seo-section input[type=color]::-webkit-color-swatch-wrapper{padding:3px}
         .style-bar input[type=color]::-webkit-color-swatch,
         .seo-section input[type=color]::-webkit-color-swatch{border:0;border-radius:999px}
-        .preview-container{background:var(--cms-field);border-color:transparent}
         .live-preview{background:var(--cms-surface);border:0}
         .live-preview-header{border-bottom:0;background:rgba(247,247,248,0.72)}
         .live-preview-frame{
@@ -2044,33 +2039,16 @@
 
 
             // Документ предпросмотра: боевые стили блоков (файл самодостаточен,
-            // объявляет собственные --case-* переменные) плюс наблюдатель,
-            // который проявляет reveal-блоки — на сайте это делает portfolio.js.
-            const REVEAL_SCRIPT = [
-                "var nodes=document.querySelectorAll('.case-block-reveal');",
-                "var show=function(el){el.classList.add('is-visible')};",
-                "if(window.IntersectionObserver){",
-                "var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)show(e.target)})},{threshold:0.15});",
-                "nodes.forEach(function(el){io.observe(el)});",
-                "setTimeout(function(){nodes.forEach(show)},1500);",
-                "}else{nodes.forEach(show)}",
-                // Видео-блоки на сайте оживляет hydrateCaseMedia; в превью
-                // повторяем минимум: подключаем src и запускаем, иначе ленивое
-                // видео (opacity:0, без src) осталось бы невидимым в редакторе.
-                "document.querySelectorAll('.case-video[data-src]').forEach(function(v){",
-                "v.src=v.dataset.src;var w=v.closest('.case-block-video');",
-                "v.addEventListener('playing',function(){if(w)w.classList.add('is-playing')});",
-                "v.play().catch(function(){if(w)w.classList.add('is-playing')});});"
-            ].join('');
-            // Карусели оживляет боевой hydrateCaseSliders — тот же модуль, что на сайте
-            const SLIDER_SCRIPT = `<script type="module">import{hydrateCaseSliders,hydrateQuoteMetal}from'/site-js/sections/case-blocks.js';hydrateCaseSliders(document);hydrateQuoteMetal(document);<\/script>`;
+            // объявляет собственные --case-* переменные). Оживляет всё один
+            // боевой hydratePreviewDocument: reveal, видео, карусели, металл.
+            const HYDRATE_SCRIPT = `<script type="module">import{hydratePreviewDocument}from'/site-js/sections/case-blocks.js';hydratePreviewDocument(document);<\/script>`;
 
             const placeholder = rendererReady
                 ? '<div style="padding:8rem 5%;text-align:center;color:#999;font-family:sans-serif"><p>Добавьте блоки</p></div>'
                 : '<div style="padding:8rem 5%;text-align:center;color:#999;font-family:sans-serif"><p>Загружается модуль рендера…</p></div>';
 
             const accentVar = /^#[0-9a-fA-F]{3,8}$/.test(accent || '') ? `--case-accent-color:${accent};` : '';
-            const srcDoc = `<!DOCTYPE html><html><head><base href="${window.location.origin}/"/><link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"><link href="/site-css/sections/case-blocks.css" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}body{${accentVar}background:var(--case-bg,#f5f5f7);color:var(--case-text,#1d1d1f);font-family:'Roboto',sans-serif;padding:clamp(1.5rem,5vw,5rem) 0}</style></head><body>${html || placeholder}<script>${REVEAL_SCRIPT}<\/script>${SLIDER_SCRIPT}</body></html>`;
+            const srcDoc = `<!DOCTYPE html><html><head><base href="${window.location.origin}/"/><link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"><link href="/site-css/sections/case-blocks.css" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}body{${accentVar}background:var(--case-bg,#f5f5f7);color:var(--case-text,#1d1d1f);font-family:'Roboto',sans-serif;padding:clamp(1.5rem,5vw,5rem) 0}</style></head><body>${html || placeholder}${HYDRATE_SCRIPT}</body></html>`;
 
             return (
                 <div className="live-preview-frame" ref={ref} style={{height: viewportH * scale}}>

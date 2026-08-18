@@ -631,28 +631,8 @@ float sdRoundedBox(vec2 p, vec2 b, float r){
     vec2 q = abs(p) - b + r;
     return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
 }
-/* Высота поверхности: фаска у края + лёгкая рябь + вмятина под курсором */
-float surface(vec2 px){
-    vec2 c = u_res * 0.5;
-    vec2 p = px - c;
-    float t = u_time * 0.12;
-    /* морфинг контура: край гуляет шумом, у каждой точки — своя фаза */
-    float wob = (fbm(p * (0.0022 / u_dpr) + vec2(t, -t * 0.7)) - 0.5) * 28.0 * u_dpr * u_shape;
-    vec2 b = c - vec2(20.0 * u_dpr * u_shape);
-    /* радиус углов дышит, но ограничен в пикселях — на широких плашках
-       углы не срезают место под текст */
-    float r = min(min(b.x, b.y) * 0.75, (112.0 + 22.0 * sin(u_time * 0.07)) * u_dpr * u_shape);
-    float d = sdRoundedBox(p, b, r) + wob;
-    float bevel = 34.0 * u_dpr * u_shape;
-    /* косинусный профиль — фаска без «ступенек» */
-    float hgt = sin(clamp(-d / bevel, 0.0, 1.0) * 1.5708);
-    /* рябь поверхности */
-    hgt += (fbm(p * (0.004 / u_dpr) - vec2(t * 0.8, t * 0.5)) - 0.5) * 0.09;
-    /* ртутная вмятина под курсором */
-    float dm = length(px - u_mouse) / (150.0 * u_dpr);
-    hgt -= u_hover * 0.45 * exp(-dm * dm);
-    return hgt;
-}
+/* Контур формы: скруглённый бокс, кромка морфится шумом. Радиус углов
+   дышит, но ограничен в пикселях — на широких плашках не съедает текст. */
 float sdf(vec2 px){
     vec2 c = u_res * 0.5;
     vec2 p = px - c;
@@ -661,6 +641,21 @@ float sdf(vec2 px){
     vec2 b = c - vec2(20.0 * u_dpr * u_shape);
     float r = min(min(b.x, b.y) * 0.75, (112.0 + 22.0 * sin(u_time * 0.07)) * u_dpr * u_shape);
     return sdRoundedBox(p, b, r) + wob;
+}
+/* Высота поверхности: фаска у края + лёгкая рябь + вмятина под курсором */
+float surface(vec2 px){
+    float d = sdf(px);
+    float bevel = 34.0 * u_dpr * u_shape;
+    /* косинусный профиль — фаска без «ступенек» */
+    float hgt = sin(clamp(-d / bevel, 0.0, 1.0) * 1.5708);
+    /* рябь поверхности */
+    vec2 p = px - u_res * 0.5;
+    float t = u_time * 0.12;
+    hgt += (fbm(p * (0.004 / u_dpr) - vec2(t * 0.8, t * 0.5)) - 0.5) * 0.09;
+    /* ртутная вмятина под курсором */
+    float dm = length(px - u_mouse) / (150.0 * u_dpr);
+    hgt -= u_hover * 0.45 * exp(-dm * dm);
+    return hgt;
 }
 void main(){
     vec2 px = gl_FragCoord.xy;
@@ -798,6 +793,41 @@ export function hydrateQuoteMetal(root = document) {
         }
         window.addEventListener('resize', resize);
     });
+}
+
+/**
+ * Оживление документа ПРЕДПРОСМОТРА (iframe редактора и вкладка превью).
+ * Раньше редактор и preview.html держали по собственной строковой копии
+ * этого кода — теперь обе страницы импортируют одну функцию отсюда.
+ *
+ * Отличие от сайта: reveal-блоки проявляются с коротким страховочным
+ * таймером, а файловые видео подключаются сразу и играют без viewport-
+ * гейтинга — в превью важно увидеть всё, а не экономить трафик.
+ */
+export function hydratePreviewDocument(root = document) {
+    const nodes = root.querySelectorAll('.case-block-reveal');
+    const show = (el) => el.classList.add('is-visible');
+    if (typeof IntersectionObserver === 'function') {
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => { if (entry.isIntersecting) show(entry.target); });
+        }, { threshold: 0.12 });
+        nodes.forEach((el) => io.observe(el));
+        setTimeout(() => nodes.forEach(show), 1500);
+    } else {
+        nodes.forEach(show);
+    }
+
+    root.querySelectorAll('.case-video[data-src]').forEach((video) => {
+        video.src = video.dataset.src;
+        const wrap = video.closest('.case-block-video');
+        const reveal = () => wrap && wrap.classList.add('is-playing');
+        video.addEventListener('playing', reveal);
+        video.addEventListener('loadeddata', reveal);
+        video.play().catch(reveal);
+    });
+
+    hydrateCaseSliders(root);
+    hydrateQuoteMetal(root);
 }
 
 /**
