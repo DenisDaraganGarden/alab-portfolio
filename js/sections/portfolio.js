@@ -9,6 +9,7 @@ import {
     hydrateCompareBlocks,
     hydrateCaseMedia,
     hydrateCaseSliders,
+    hydrateQuoteMetal,
     teardownCaseMedia,
     parseVideoEmbed,
     escapeHtml,
@@ -534,6 +535,7 @@ export async function initPortfolio(container) {
         hydrateCompareBlocks(modalContent);
         hydrateCaseMedia(modalContent);
         hydrateCaseSliders(modalContent);
+        hydrateQuoteMetal(modalContent);
 
         if (!hasBlocks) {
             modalContent.innerHTML = `
