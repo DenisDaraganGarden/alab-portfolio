@@ -100,16 +100,10 @@
             "v.src=v.dataset.src;var w=v.closest('.case-block-video');",
             "v.addEventListener('playing',function(){if(w)w.classList.add('is-playing')});",
             "v.addEventListener('loadeddata',function(){if(w)w.classList.add('is-playing')});",
-            "v.play().catch(function(){if(w)w.classList.add('is-playing')});});",
-            // Карусели галерей — стрелки и гашение на краях, как hydrateCaseSliders на сайте
-            "document.querySelectorAll('.case-block-slider').forEach(function(el){",
-            "var t=el.querySelector('.case-slider-track');if(!t)return;",
-            "var step=function(){var s=t.querySelector('.case-slide');if(!s)return t.clientWidth*0.8;var g=parseFloat(getComputedStyle(t).columnGap)||16;return s.getBoundingClientRect().width+g};",
-            "var upd=function(){var m=t.scrollWidth-t.clientWidth;el.classList.toggle('is-start',t.scrollLeft<=4);el.classList.toggle('is-end',t.scrollLeft>=m-4)};",
-            "var p=el.querySelector('.case-slider-arrow--prev');if(p)p.addEventListener('click',function(){t.scrollBy({left:-step(),behavior:'smooth'})});",
-            "var n=el.querySelector('.case-slider-arrow--next');if(n)n.addEventListener('click',function(){t.scrollBy({left:step(),behavior:'smooth'})});",
-            "t.addEventListener('scroll',upd,{passive:true});upd();});"
+            "v.play().catch(function(){if(w)w.classList.add('is-playing')});});"
         ].join('');
+        // Карусели оживляет боевой hydrateCaseSliders — тот же модуль, что на сайте
+        const SLIDER_SCRIPT = `<script type="module">import{hydrateCaseSliders}from'/site-js/sections/case-blocks.js';hydrateCaseSliders(document);<\/script>`;
 
         const emptyDoc = (msg) => `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;font-family:'Roboto',sans-serif;background:#f5f5f7}</style></head><body><div style="padding:4rem 1.5rem;text-align:center;color:#6e6e73;font-size:0.95rem;line-height:1.6">${msg}</div></body></html>`;
 
@@ -125,7 +119,7 @@
                 + `<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">`
                 + `<link href="/site-css/sections/case-blocks.css" rel="stylesheet">`
                 + `<style>*{box-sizing:border-box;margin:0;padding:0}body{background:var(--case-bg,#f5f5f7);color:var(--case-text,#1d1d1f);font-family:'Roboto',sans-serif;padding:${pad}}</style>`
-                + `</head><body>${html}<script>${HYDRATE}<\/script></body></html>`;
+                + `</head><body>${html}<script>${HYDRATE}<\/script>${SLIDER_SCRIPT}</body></html>`;
         }
 
         function readProj() {

@@ -916,7 +916,7 @@
                 case 'quote': { const a = block.author || ''; const t = (block.text || '').trim(); return a && t ? `${a} — ${t}` : (a || t || 'пусто'); }
                 case 'image': return mediaFileName(block.content) || 'изображение не задано';
                 case 'video': return mediaFileName(block.content) || String(block.content || '').trim() || 'видео не задано';
-                case 'gallery': { const n = (block.images || []).length; const kind = block.layout === 'slider' ? ' · карусель' : ''; return n ? `${n} ${pluralRu(n, 'изображение', 'изображения', 'изображений')}${kind}` : 'пустая галерея'; }
+                case 'gallery': { const n = (block.images || []).length; const kind = block.layout === 'slider' ? (block.background === 'dark' ? ' · карусель на чёрном' : ' · карусель') : ''; return n ? `${n} ${pluralRu(n, 'изображение', 'изображения', 'изображений')}${kind}` : 'пустая галерея'; }
                 case 'compare': return block.before && block.after ? 'до и после заданы' : (block.before || block.after) ? 'задана одна сторона' : 'изображения не заданы';
                 case 'columns': { const n = (block.cols || []).length || 2; return `${n} ${pluralRu(n, 'колонка', 'колонки', 'колонок')}`; }
                 case 'spacer': return `${block.height || 80} px`;
@@ -2058,22 +2058,16 @@
                 "document.querySelectorAll('.case-video[data-src]').forEach(function(v){",
                 "v.src=v.dataset.src;var w=v.closest('.case-block-video');",
                 "v.addEventListener('playing',function(){if(w)w.classList.add('is-playing')});",
-                "v.play().catch(function(){if(w)w.classList.add('is-playing')});});",
-                // Карусели галерей: те же стрелки, что на сайте вешает hydrateCaseSliders
-                "document.querySelectorAll('.case-block-slider').forEach(function(el){",
-                "var t=el.querySelector('.case-slider-track');if(!t)return;",
-                "var step=function(){var s=t.querySelector('.case-slide');if(!s)return t.clientWidth*0.8;var g=parseFloat(getComputedStyle(t).columnGap)||16;return s.getBoundingClientRect().width+g};",
-                "var upd=function(){var m=t.scrollWidth-t.clientWidth;el.classList.toggle('is-start',t.scrollLeft<=4);el.classList.toggle('is-end',t.scrollLeft>=m-4)};",
-                "var p=el.querySelector('.case-slider-arrow--prev');if(p)p.addEventListener('click',function(){t.scrollBy({left:-step(),behavior:'smooth'})});",
-                "var n=el.querySelector('.case-slider-arrow--next');if(n)n.addEventListener('click',function(){t.scrollBy({left:step(),behavior:'smooth'})});",
-                "t.addEventListener('scroll',upd,{passive:true});upd();});"
+                "v.play().catch(function(){if(w)w.classList.add('is-playing')});});"
             ].join('');
+            // Карусели оживляет боевой hydrateCaseSliders — тот же модуль, что на сайте
+            const SLIDER_SCRIPT = `<script type="module">import{hydrateCaseSliders}from'/site-js/sections/case-blocks.js';hydrateCaseSliders(document);<\/script>`;
 
             const placeholder = rendererReady
                 ? '<div style="padding:8rem 5%;text-align:center;color:#999;font-family:sans-serif"><p>Добавьте блоки</p></div>'
                 : '<div style="padding:8rem 5%;text-align:center;color:#999;font-family:sans-serif"><p>Загружается модуль рендера…</p></div>';
 
-            const srcDoc = `<!DOCTYPE html><html><head><base href="${window.location.origin}/"/><link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"><link href="/site-css/sections/case-blocks.css" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}body{background:var(--case-bg,#f5f5f7);color:var(--case-text,#1d1d1f);font-family:'Roboto',sans-serif;padding:clamp(1.5rem,5vw,5rem) 0}</style></head><body>${html || placeholder}<script>${REVEAL_SCRIPT}<\/script></body></html>`;
+            const srcDoc = `<!DOCTYPE html><html><head><base href="${window.location.origin}/"/><link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"><link href="/site-css/sections/case-blocks.css" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}body{background:var(--case-bg,#f5f5f7);color:var(--case-text,#1d1d1f);font-family:'Roboto',sans-serif;padding:clamp(1.5rem,5vw,5rem) 0}</style></head><body>${html || placeholder}<script>${REVEAL_SCRIPT}<\/script>${SLIDER_SCRIPT}</body></html>`;
 
             return (
                 <div className="live-preview-frame" ref={ref} style={{height: viewportH * scale}}>
@@ -2093,9 +2087,12 @@
             if (block.type === 'text') return <RichEditor block={block} index={index} updateBlock={updateBlock} placeholder="Введите текст..."/>;
             if (block.type === 'image') return (<><div style={{display:'flex',gap:'0.5rem',flexWrap:'wrap'}}><input className="input" style={{flex:1,minWidth:200}} value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="Ссылка или Figma URL"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer',whiteSpace:'nowrap'}}><input type="file" style={{display:'none'}} onChange={e=>handleUpload(e,p=>updateBlock(index,'content',p))}/>Загрузить</label></div>{block.content && <img src={block.content} alt="" style={{maxWidth:'100%',maxHeight:200,marginTop:'0.5rem',borderRadius:6,objectFit:'contain',background:'#fff'}}/>}</>);
             if (block.type === 'video') return (<><div style={{display:'flex',gap:'0.5rem'}}><input className="input" value={block.content||''} onChange={e=>updateBlock(index,'content',e.target.value)} placeholder="Файл .mp4/.webm или ссылка VK Video / YouTube / Vimeo"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer',whiteSpace:'nowrap'}}><input type="file" style={{display:'none'}} accept="video/mp4,video/webm,video/quicktime" onChange={e=>handleUpload(e,p=>updateBlock(index,'content',p))}/>Загрузить</label></div><div style={{fontSize:'0.72rem',color:'#888',marginTop:'0.35rem'}}>Прямой файл проигрывается на сайте (плавный автоплей в кадре), ссылка на VK/YouTube/Vimeo встраивается плеером.</div></>);
-            if (block.type === 'gallery') { const imgs=block.images||[]; return (<><div style={{display:'flex',gap:'0.35rem',marginBottom:'0.6rem'}}>
+            if (block.type === 'gallery') { const imgs=block.images||[]; return (<><div style={{display:'flex',gap:'0.35rem',marginBottom:'0.6rem',flexWrap:'wrap',alignItems:'center'}}>
                 <button className={`btn btn-sm ${block.layout!=='slider'?'btn-blue':'btn-dark'}`} onClick={()=>updateBlock(index,'layout','grid')} title="Сетка из двух колонок">⊞ Сетка</button>
-                <button className={`btn btn-sm ${block.layout==='slider'?'btn-blue':'btn-dark'}`} onClick={()=>updateBlock(index,'layout','slider')} title="Горизонтальная лента фото-карточек без подписей — листается свайпом и стрелками">⇆ Карусель</button>
+                <button className={`btn btn-sm ${block.layout==='slider'?'btn-blue':'btn-dark'}`} onClick={()=>updateBlock(index,'layout','slider')} title="Горизонтальная лента фото-карточек без подписей — драг с инерцией, колесо, счётчик">⇆ Карусель</button>
+                {block.layout==='slider' && <span style={{width:1,alignSelf:'stretch',background:'var(--cms-line)',margin:'0 0.25rem'}}/>}
+                {block.layout==='slider' && <button className={`btn btn-sm ${block.background!=='dark'?'btn-blue':'btn-dark'}`} onClick={()=>updateBlock(index,'background','light')} title="Лента на фоне страницы">☀ Светлая</button>}
+                {block.layout==='slider' && <button className={`btn btn-sm ${block.background==='dark'?'btn-blue':'btn-dark'}`} onClick={()=>updateBlock(index,'background','dark')} title="Полноширинная чёрная полоса под лентой — как мудборд на чёрном">● Тёмная лента</button>}
             </div><div style={{display:'flex',flexWrap:'wrap',gap:'0.5rem',marginBottom:'0.5rem'}}>{imgs.map((img,gi)=><div key={gi} style={{position:'relative',width:80,height:80}}><img src={img} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:4}}/><button onClick={()=>{const n=[...imgs];n.splice(gi,1);updateBlock(index,'images',n);}} style={{position:'absolute',top:-4,right:-4,background:'#c0392b',color:'#fff',border:'none',borderRadius:'50%',width:18,height:18,fontSize:'0.6rem',cursor:'pointer',lineHeight:'18px'}}>✕</button></div>)}</div><label className="btn btn-dark btn-sm" style={{cursor:'pointer'}}><input type="file" style={{display:'none'}} multiple onChange={e=>{const files=Array.from(e.target.files);if(!files.length)return;e.target.value='';const failed=[];Promise.all(files.map(file=>{const fd=new FormData();fd.append('caseId',projId);fd.append('media',file);return fetch(`${API}/upload`,{method:'POST',body:fd,headers:{'X-CMS-Token':sessionStorage.getItem('cms_token')||''}}).then(r=>r.json().catch(()=>({})).then(j=>(r.ok&&j.path)?j.path:Promise.reject(new Error(j.error||'upload')))).catch(()=>{failed.push(file.name);return null;});})).then(paths=>{const ok=paths.filter(Boolean);if(ok.length)updateBlock(index,'images',[...(block.images||[]),...ok]);if(failed.length&&showToast)showToast(`Не загрузились: ${failed.join(', ')}`,false,5000);});}}/>+ Изображения</label></>); }
             if (block.type === 'links') {
                 const items = block.items || [];

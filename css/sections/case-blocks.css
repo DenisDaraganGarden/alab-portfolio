@@ -328,12 +328,12 @@ h3.case-block-heading {
 .case-block-slider {
     position: relative;
     margin: 2.5rem 0;
-}
-
-.case-slider-track {
     /* Отступ ленты = отступ контентной колонки — на широких экранах
        добавляется поле до сетки (100vw - max-width)/2 */
     --slider-inset: max(var(--case-padding), calc((100vw - var(--case-max-width)) / 2 + var(--case-padding)));
+}
+
+.case-slider-track {
     display: flex;
     gap: clamp(0.9rem, 1.6vw, 1.4rem);
     overflow-x: auto;
@@ -412,6 +412,111 @@ h3.case-block-heading {
     pointer-events: none;
 }
 
+/* ── Карусель: счётчик и линия прогресса ── */
+.case-slider-hud {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    padding: 0.7rem var(--slider-inset) 0;
+    color: rgba(29, 29, 31, 0.52);
+    font-family: var(--font-body, 'Roboto'), sans-serif;
+}
+
+.case-slider-count {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.case-slider-count b {
+    font-weight: 600;
+    color: var(--case-text);
+}
+
+.case-slider-progress {
+    flex: 0 1 220px;
+    height: 2px;
+    border-radius: 99px;
+    background: rgba(29, 29, 31, 0.12);
+    overflow: hidden;
+}
+
+.case-slider-progress i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--case-text);
+    transform: scaleX(0);
+    transform-origin: left;
+}
+
+/* ── Карусель: фокус-эффект и драг (включает hydrateCaseSliders на десктопе) ──
+   --slide-f: 0 у карточки в центре внимания, 1 у края экрана. */
+.case-block-slider.is-enhanced .case-slide {
+    will-change: transform, opacity;
+    transform: scale(calc(1 - var(--slide-f, 0) * 0.07));
+    opacity: calc(1 - var(--slide-f, 0) * 0.42);
+}
+
+.case-block-slider.is-enhanced .case-slider-track {
+    cursor: grab;
+    scroll-snap-type: x proximity;
+}
+
+.case-block-slider.is-dragging .case-slider-track {
+    cursor: grabbing;
+    scroll-snap-type: none;
+    user-select: none;
+}
+
+.case-slide img {
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+/* ── Карусель: тёмная лента ──
+   Полноширинная чёрная полоса — референс «мудборд на чёрном». */
+.case-block-slider--dark {
+    margin: clamp(2.5rem, 6vw, 4.5rem) 0;
+    padding: clamp(1.8rem, 3.6vw, 3rem) 0 clamp(1.2rem, 2.4vw, 2rem);
+    background: #0b0b0c;
+}
+
+.case-block-slider--dark .case-slide img {
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+}
+
+.case-block-slider--dark .case-slider-arrow {
+    border-color: rgba(255, 255, 255, 0.14);
+    background: rgba(24, 24, 26, 0.72);
+    color: #fff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+.case-block-slider--dark .case-slider-arrow:hover {
+    background: rgba(42, 42, 46, 0.92);
+}
+
+.case-block-slider--dark .case-slider-hud {
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.case-block-slider--dark .case-slider-count b {
+    color: #fff;
+}
+
+.case-block-slider--dark .case-slider-progress {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.case-block-slider--dark .case-slider-progress i {
+    background: #fff;
+}
+
 @media (max-width: 768px) {
     .case-slide img {
         height: clamp(300px, 52vh, 460px);
@@ -420,6 +525,9 @@ h3.case-block-heading {
     /* На таче листают пальцем — стрелки не нужны */
     .case-slider-arrow {
         display: none;
+    }
+    .case-slider-progress {
+        flex-basis: 140px;
     }
 }
 
