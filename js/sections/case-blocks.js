@@ -634,9 +634,11 @@ float surface(vec2 px){
     vec2 p = px - c;
     float t = u_time * 0.12;
     /* морфинг контура: край гуляет шумом, у каждой точки — своя фаза */
-    float wob = (fbm(p * (0.0022 / u_dpr) + vec2(t, -t * 0.7)) - 0.5) * 34.0 * u_dpr;
-    vec2 b = c - vec2(22.0 * u_dpr);
-    float r = min(b.x, b.y) * (0.66 + 0.22 * sin(u_time * 0.07));
+    float wob = (fbm(p * (0.0022 / u_dpr) + vec2(t, -t * 0.7)) - 0.5) * 28.0 * u_dpr;
+    vec2 b = c - vec2(20.0 * u_dpr);
+    /* радиус углов дышит, но ограничен в пикселях — на широких плашках
+       углы не срезают место под текст */
+    float r = min(min(b.x, b.y) * 0.75, (112.0 + 22.0 * sin(u_time * 0.07)) * u_dpr);
     float d = sdRoundedBox(p, b, r) + wob;
     float bevel = 34.0 * u_dpr;
     /* косинусный профиль — фаска без «ступенек» */
@@ -652,9 +654,9 @@ float sdf(vec2 px){
     vec2 c = u_res * 0.5;
     vec2 p = px - c;
     float t = u_time * 0.12;
-    float wob = (fbm(p * (0.0022 / u_dpr) + vec2(t, -t * 0.7)) - 0.5) * 34.0 * u_dpr;
-    vec2 b = c - vec2(22.0 * u_dpr);
-    float r = min(b.x, b.y) * (0.66 + 0.22 * sin(u_time * 0.07));
+    float wob = (fbm(p * (0.0022 / u_dpr) + vec2(t, -t * 0.7)) - 0.5) * 28.0 * u_dpr;
+    vec2 b = c - vec2(20.0 * u_dpr);
+    float r = min(min(b.x, b.y) * 0.75, (112.0 + 22.0 * sin(u_time * 0.07)) * u_dpr);
     return sdRoundedBox(p, b, r) + wob;
 }
 void main(){
