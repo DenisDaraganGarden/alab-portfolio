@@ -14,7 +14,7 @@
       "blocks": [
         {
           "type": "image",
-          "content": "/images/VERDETECH/hero.png",
+          "content": "/images/VERDETECH/hero.webp",
           "style": {
             "animation": "fade-in"
           }
@@ -69,7 +69,7 @@
         },
         {
           "type": "image",
-          "content": "/images/VERDETECH/product-text.png",
+          "content": "/images/VERDETECH/product-text.webp",
           "style": {
             "animation": "fade-up"
           }
@@ -98,24 +98,24 @@
           "layout": "slider",
           "background": "dark",
           "images": [
-            "/images/VERDETECH/mood-01.png",
-            "/images/VERDETECH/mood-02.png",
-            "/images/VERDETECH/mood-03.png",
-            "/images/VERDETECH/mood-04.png",
-            "/images/VERDETECH/mood-05.png",
-            "/images/VERDETECH/mood-06.png",
-            "/images/VERDETECH/mood-07.png",
-            "/images/VERDETECH/mood-08.png",
-            "/images/VERDETECH/mood-09.png",
-            "/images/VERDETECH/mood-10.png",
-            "/images/VERDETECH/mood-11.png",
-            "/images/VERDETECH/mood-12.png",
-            "/images/VERDETECH/mood-13.png",
-            "/images/VERDETECH/mood-14.png",
-            "/images/VERDETECH/mood-15.png",
-            "/images/VERDETECH/mood-16.png",
-            "/images/VERDETECH/mood-17.png",
-            "/images/VERDETECH/mood-18.png"
+            "/images/VERDETECH/mood-01.webp",
+            "/images/VERDETECH/mood-02.webp",
+            "/images/VERDETECH/mood-03.webp",
+            "/images/VERDETECH/mood-04.webp",
+            "/images/VERDETECH/mood-05.webp",
+            "/images/VERDETECH/mood-06.webp",
+            "/images/VERDETECH/mood-07.webp",
+            "/images/VERDETECH/mood-08.webp",
+            "/images/VERDETECH/mood-09.webp",
+            "/images/VERDETECH/mood-10.webp",
+            "/images/VERDETECH/mood-11.webp",
+            "/images/VERDETECH/mood-12.webp",
+            "/images/VERDETECH/mood-13.webp",
+            "/images/VERDETECH/mood-14.webp",
+            "/images/VERDETECH/mood-15.webp",
+            "/images/VERDETECH/mood-16.webp",
+            "/images/VERDETECH/mood-17.webp",
+            "/images/VERDETECH/mood-18.webp"
           ]
         },
         {
@@ -141,22 +141,22 @@
           "type": "columns",
           "cols": [
             {
-              "image": "/images/VERDETECH/product-1.png",
+              "image": "/images/VERDETECH/product-1.webp",
               "text": "Сырьё\nЖивые ингредиенты крупным планом — то, из чего складывается продукт."
             },
             {
-              "image": "/images/VERDETECH/product-2.png",
+              "image": "/images/VERDETECH/product-2.webp",
               "text": "Технология\nПроизводственный процесс — часть образа бренда, а не закулисье."
             },
             {
-              "image": "/images/VERDETECH/product-3.png",
+              "image": "/images/VERDETECH/product-3.webp",
               "text": "Производство\nЛюди и контроль качества на каждом этапе."
             }
           ]
         },
         {
           "type": "image",
-          "content": "/images/VERDETECH/packaging.png",
+          "content": "/images/VERDETECH/packaging.webp",
           "style": {
             "animation": "fade-up"
           }
@@ -175,14 +175,14 @@
         },
         {
           "type": "image",
-          "content": "/images/VERDETECH/city-banner.png",
+          "content": "/images/VERDETECH/city-banner.webp",
           "style": {
             "animation": "fade-up"
           }
         },
         {
           "type": "image",
-          "content": "/images/VERDETECH/palette.png",
+          "content": "/images/VERDETECH/palette.webp",
           "style": {
             "animation": "fade-up"
           }
@@ -213,7 +213,7 @@
       "accentColor": "#00c420",
       "seoTitle": "VERDETECH — брендинг производителя пищевых ингредиентов",
       "seoDesc": "Стратегия, айдентика, упаковка и коммуникация для современного производства пищевых ингредиентов VERDE®TECH.",
-      "ogImage": "/images/VERDETECH/hero.png",
+      "ogImage": "/images/VERDETECH/hero.webp",
       "externalUrl": "https://www.behance.net/gallery/247989821/brending-ajdentika-filosofija-VERDETECH",
       "tagline": "производитель пищевых ингредиентов",
       "hoverVideo": "/images/VERDETECH/video.mp4"
