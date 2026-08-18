@@ -331,8 +331,15 @@ export function renderCaseBlock(block) {
             return wrapReveal(block, `<div class="case-block-compare" id="${uid}"><img src="${escapeAttr(block.after)}" class="cmp-after" alt=""/><div class="cmp-before"><img src="${escapeAttr(block.before)}" class="cmp-before-img" alt=""/></div><div class="cmp-line"></div><span class="cmp-label cmp-label--before">ДО</span><span class="cmp-label cmp-label--after">ПОСЛЕ</span></div>`);
         }
 
-        case 'quote':
-            return wrapReveal(block, `<blockquote class="case-block-quote"><p class="case-quote-text">${escapeHtml(block.text || '')}</p><div class="case-quote-author">${block.photo ? `<img class="case-quote-photo" src="${escapeAttr(block.photo)}" alt=""/>` : ''}<div><strong>${escapeHtml(block.author || '')}</strong>${block.role ? `<br><span class="case-quote-role">${escapeHtml(block.role)}</span>` : ''}</div></div></blockquote>`);
+        case 'quote': {
+            const inner = `<p class="case-quote-text">${escapeHtml(block.text || '')}</p><div class="case-quote-author">${block.photo ? `<img class="case-quote-photo" src="${escapeAttr(block.photo)}" alt=""/>` : ''}<div><strong>${escapeHtml(block.author || '')}</strong>${block.role ? `<br><span class="case-quote-role">${escapeHtml(block.role)}</span>` : ''}</div></div>`;
+            // «Жидкий металл»: вместо плашки — WebGL-ртуть (hydrateQuoteMetal).
+            // Canvas рисует форму, текст остаётся обычным HTML поверх.
+            if (block.look === 'metal') {
+                return wrapReveal(block, `<blockquote class="case-block-quote case-quote-metal"><canvas class="case-quote-metal-canvas" aria-hidden="true"></canvas><div class="case-quote-metal-inner">${inner}</div></blockquote>`);
+            }
+            return wrapReveal(block, `<blockquote class="case-block-quote">${inner}</blockquote>`);
+        }
 
         case 'metrics':
             return wrapReveal(block, `<div class="case-block-metrics">${(block.items || []).map(m => `<div class="case-metric"><div class="case-metric-value">${escapeHtml(m.value || '')}</div><div class="case-metric-label">${escapeHtml(m.label || '')}</div></div>`).join('')}</div>`);
@@ -586,6 +593,203 @@ export function hydrateCaseSliders(root = document) {
             e.preventDefault();
             track.scrollLeft += delta;
         }, { passive: false });
+    });
+}
+
+/**
+ * «Жидкий металл» для цитат (.case-quote-metal): WebGL-шейдер рисует
+ * ртутную плашку — округлая форма с фасками и хром-отражениями медленно
+ * морфится шумом, курсор вдавливает поверхность и слегка сдвигает форму
+ * (параллакс). Текст — обычный HTML поверх канваса. Без WebGL или при
+ * prefers-reduced-motion остаётся спокойная версия: класс is-flat
+ * возвращает обычную плашку (CSS), либо рендерится один статичный кадр.
+ */
+const QUOTE_METAL_FRAG = `
+precision highp float;
+uniform vec2 u_res;
+uniform float u_time;
+uniform vec2 u_mouse;
+uniform float u_hover;
+uniform float u_dpr;
+
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
+float noise(vec2 p){
+    vec2 i = floor(p), f = fract(p);
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),
+               mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
+}
+float fbm(vec2 p){
+    float v = 0.0, a = 0.5;
+    for (int i = 0; i < 3; i++) { v += a * noise(p); p = p * 2.03 + 17.1; a *= 0.5; }
+    return v;
+}
+float sdRoundedBox(vec2 p, vec2 b, float r){
+    vec2 q = abs(p) - b + r;
+    return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
+}
+/* Высота поверхности: фаска у края + лёгкая рябь + вмятина под курсором */
+float surface(vec2 px){
+    vec2 c = u_res * 0.5;
+    vec2 p = px - c;
+    float t = u_time * 0.12;
+    /* морфинг контура: край гуляет шумом, у каждой точки — своя фаза */
+    float wob = (fbm(p * (0.0022 / u_dpr) + vec2(t, -t * 0.7)) - 0.5) * 34.0 * u_dpr;
+    vec2 b = c - vec2(22.0 * u_dpr);
+    float r = min(b.x, b.y) * (0.66 + 0.22 * sin(u_time * 0.07));
+    float d = sdRoundedBox(p, b, r) + wob;
+    float bevel = 34.0 * u_dpr;
+    /* косинусный профиль — фаска без «ступенек» */
+    float hgt = sin(clamp(-d / bevel, 0.0, 1.0) * 1.5708);
+    /* рябь поверхности */
+    hgt += (fbm(p * (0.004 / u_dpr) - vec2(t * 0.8, t * 0.5)) - 0.5) * 0.09;
+    /* ртутная вмятина под курсором */
+    float dm = length(px - u_mouse) / (150.0 * u_dpr);
+    hgt -= u_hover * 0.45 * exp(-dm * dm);
+    return hgt;
+}
+float sdf(vec2 px){
+    vec2 c = u_res * 0.5;
+    vec2 p = px - c;
+    float t = u_time * 0.12;
+    float wob = (fbm(p * (0.0022 / u_dpr) + vec2(t, -t * 0.7)) - 0.5) * 34.0 * u_dpr;
+    vec2 b = c - vec2(22.0 * u_dpr);
+    float r = min(b.x, b.y) * (0.66 + 0.22 * sin(u_time * 0.07));
+    return sdRoundedBox(p, b, r) + wob;
+}
+void main(){
+    vec2 px = gl_FragCoord.xy;
+    px.y = u_res.y - px.y;
+    float d = sdf(px);
+    float aa = 1.6 * u_dpr;
+    float alpha = smoothstep(aa, -aa, d);
+    if (alpha <= 0.001) { gl_FragColor = vec4(0.0); return; }
+
+    float e = 2.0 * u_dpr;
+    float hC = surface(px);
+    float hX = surface(px + vec2(e, 0.0));
+    float hY = surface(px + vec2(0.0, e));
+    float depth = 26.0 * u_dpr;
+    vec3 n = normalize(vec3((hC - hX) * depth / e, (hC - hY) * depth / e, 1.0));
+
+    vec3 l = normalize(vec3(-0.38 + 0.1 * sin(u_time * 0.2), -0.62, 0.72));
+    float diff = 0.5 + 0.5 * dot(n, l);
+
+    /* хром: вертикальный градиент неба + мягкие полосы отражений */
+    float sky = clamp(0.5 - n.y * 0.75, 0.0, 1.0);
+    vec3 env = mix(vec3(0.56, 0.575, 0.615), vec3(0.97, 0.975, 0.985), sky);
+    /* хром-полосы только на плоскости — на фаске от них рябь */
+    float streak = sin((n.x * 2.4 + n.y * 4.2 + px.y * 0.0016 / u_dpr + u_time * 0.05) * 6.2831);
+    env += streak * 0.07 * smoothstep(0.75, 1.0, hC);
+
+    vec3 v = vec3(0.0, 0.0, 1.0);
+    vec3 rl = reflect(-l, n);
+    float spec = pow(max(dot(rl, v), 0.0), 64.0) * 0.85;
+    float fres = pow(1.0 - max(n.z, 0.0), 2.6);
+
+    vec3 col = env * mix(0.82, 1.12, diff);
+    col += spec;
+    col += fres * vec3(0.10, 0.105, 0.115);
+    /* затемнение фаски — объём по краю */
+    col *= mix(0.68, 1.0, smoothstep(0.0, 0.55, hC));
+
+    gl_FragColor = vec4(col * alpha, alpha);
+}`;
+
+export function hydrateQuoteMetal(root = document) {
+    const reduceMotion = typeof matchMedia === 'function'
+        && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    root.querySelectorAll('.case-quote-metal').forEach((quote) => {
+        if (quote.dataset.metalReady === '1') return;
+        quote.dataset.metalReady = '1';
+
+        const canvas = quote.querySelector('.case-quote-metal-canvas');
+        const gl = canvas && (canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: false })
+            || canvas.getContext('experimental-webgl', { alpha: true, premultipliedAlpha: true }));
+        if (!gl) { quote.classList.add('is-flat'); return; }
+
+        const compile = (type, src) => {
+            const sh = gl.createShader(type);
+            gl.shaderSource(sh, src);
+            gl.compileShader(sh);
+            return gl.getShaderParameter(sh, gl.COMPILE_STATUS) ? sh : null;
+        };
+        const vs = compile(gl.VERTEX_SHADER, 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}');
+        const fs = compile(gl.FRAGMENT_SHADER, QUOTE_METAL_FRAG);
+        if (!vs || !fs) { quote.classList.add('is-flat'); return; }
+        const prog = gl.createProgram();
+        gl.attachShader(prog, vs);
+        gl.attachShader(prog, fs);
+        gl.linkProgram(prog);
+        if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { quote.classList.add('is-flat'); return; }
+        gl.useProgram(prog);
+        gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+        const loc = gl.getAttribLocation(prog, 'a');
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+        const U = (name) => gl.getUniformLocation(prog, name);
+        const uRes = U('u_res'), uTime = U('u_time'), uMouse = U('u_mouse'), uHover = U('u_hover'), uDpr = U('u_dpr');
+
+        let dpr = 1;
+        const resize = () => {
+            dpr = Math.min(window.devicePixelRatio || 1, 2);
+            const w = Math.max(1, Math.round(quote.clientWidth * dpr));
+            const h = Math.max(1, Math.round(quote.clientHeight * dpr));
+            if (canvas.width !== w || canvas.height !== h) {
+                canvas.width = w;
+                canvas.height = h;
+                gl.viewport(0, 0, w, h);
+            }
+        };
+
+        /* курсор: сглаженное следование + лёгкий параллакс всей формы */
+        let mx = 0.5, my = 0.5, tx = 0.5, ty = 0.5, hover = 0, hoverT = 0;
+        quote.addEventListener('pointermove', (e) => {
+            const r = quote.getBoundingClientRect();
+            tx = (e.clientX - r.left) / Math.max(1, r.width);
+            ty = (e.clientY - r.top) / Math.max(1, r.height);
+        });
+        quote.addEventListener('pointerenter', () => { hoverT = 1; });
+        quote.addEventListener('pointerleave', () => { hoverT = 0; tx = 0.5; ty = 0.5; });
+
+        const t0 = performance.now();
+        const frame = () => {
+            resize();
+            mx += (tx - mx) * 0.08;
+            my += (ty - my) * 0.08;
+            hover += (hoverT - hover) * 0.06;
+            gl.uniform2f(uRes, canvas.width, canvas.height);
+            gl.uniform1f(uTime, (performance.now() - t0) / 1000);
+            gl.uniform2f(uMouse, mx * canvas.width, my * canvas.height);
+            gl.uniform1f(uHover, hover);
+            gl.uniform1f(uDpr, dpr);
+            gl.drawArrays(gl.TRIANGLES, 0, 3);
+            /* параллакс: форма чуть тянется к курсору, текст — отстаёт */
+            const ox = (mx - 0.5) * hover, oy = (my - 0.5) * hover;
+            canvas.style.transform = `translate3d(${ox * 10}px, ${oy * 10}px, 0)`;
+            const inner = quote.querySelector('.case-quote-metal-inner');
+            if (inner) inner.style.transform = `translate3d(${ox * 4}px, ${oy * 4}px, 0)`;
+        };
+
+        if (reduceMotion) { frame(); return; }
+
+        let raf = 0;
+        const loop = () => { frame(); raf = requestAnimationFrame(loop); };
+        if (typeof IntersectionObserver === 'function') {
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) { if (!raf) raf = requestAnimationFrame(loop); }
+                    else if (raf) { cancelAnimationFrame(raf); raf = 0; }
+                });
+            }, { rootMargin: '80px' });
+            io.observe(quote);
+            canvas._metalIO = io;
+        } else {
+            raf = requestAnimationFrame(loop);
+        }
+        window.addEventListener('resize', resize);
     });
 }
 
