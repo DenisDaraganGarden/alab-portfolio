@@ -1308,6 +1308,16 @@
   text-align: center;
 }
 
+/* Строка бренда с кириллическими написаниями («А.ЛАБ», «алабспейс») —
+   видимый текст, по которому поисковики связывают русские запросы с сайтом */
+.footer-brand {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: rgba(29, 29, 31, 0.55);
+}
+
 .footer-credit {
   margin: 0;
   font-family: var(--font-body);
