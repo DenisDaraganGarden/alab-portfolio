@@ -611,6 +611,9 @@ uniform float u_time;
 uniform vec2 u_mouse;
 uniform float u_hover;
 uniform float u_dpr;
+/* Масштаб геометрии формы: на маленьком канвасе (мобайл) фаска, волна
+   кромки и радиус углов ужимаются, оставляя место тексту */
+uniform float u_shape;
 
 float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
 float noise(vec2 p){
@@ -634,13 +637,13 @@ float surface(vec2 px){
     vec2 p = px - c;
     float t = u_time * 0.12;
     /* морфинг контура: край гуляет шумом, у каждой точки — своя фаза */
-    float wob = (fbm(p * (0.0022 / u_dpr) + vec2(t, -t * 0.7)) - 0.5) * 28.0 * u_dpr;
-    vec2 b = c - vec2(20.0 * u_dpr);
+    float wob = (fbm(p * (0.0022 / u_dpr) + vec2(t, -t * 0.7)) - 0.5) * 28.0 * u_dpr * u_shape;
+    vec2 b = c - vec2(20.0 * u_dpr * u_shape);
     /* радиус углов дышит, но ограничен в пикселях — на широких плашках
        углы не срезают место под текст */
-    float r = min(min(b.x, b.y) * 0.75, (112.0 + 22.0 * sin(u_time * 0.07)) * u_dpr);
+    float r = min(min(b.x, b.y) * 0.75, (112.0 + 22.0 * sin(u_time * 0.07)) * u_dpr * u_shape);
     float d = sdRoundedBox(p, b, r) + wob;
-    float bevel = 34.0 * u_dpr;
+    float bevel = 34.0 * u_dpr * u_shape;
     /* косинусный профиль — фаска без «ступенек» */
     float hgt = sin(clamp(-d / bevel, 0.0, 1.0) * 1.5708);
     /* рябь поверхности */
@@ -654,9 +657,9 @@ float sdf(vec2 px){
     vec2 c = u_res * 0.5;
     vec2 p = px - c;
     float t = u_time * 0.12;
-    float wob = (fbm(p * (0.0022 / u_dpr) + vec2(t, -t * 0.7)) - 0.5) * 28.0 * u_dpr;
-    vec2 b = c - vec2(20.0 * u_dpr);
-    float r = min(min(b.x, b.y) * 0.75, (112.0 + 22.0 * sin(u_time * 0.07)) * u_dpr);
+    float wob = (fbm(p * (0.0022 / u_dpr) + vec2(t, -t * 0.7)) - 0.5) * 28.0 * u_dpr * u_shape;
+    vec2 b = c - vec2(20.0 * u_dpr * u_shape);
+    float r = min(min(b.x, b.y) * 0.75, (112.0 + 22.0 * sin(u_time * 0.07)) * u_dpr * u_shape);
     return sdRoundedBox(p, b, r) + wob;
 }
 void main(){
@@ -732,7 +735,7 @@ export function hydrateQuoteMetal(root = document) {
         gl.enableVertexAttribArray(loc);
         gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
         const U = (name) => gl.getUniformLocation(prog, name);
-        const uRes = U('u_res'), uTime = U('u_time'), uMouse = U('u_mouse'), uHover = U('u_hover'), uDpr = U('u_dpr');
+        const uRes = U('u_res'), uTime = U('u_time'), uMouse = U('u_mouse'), uHover = U('u_hover'), uDpr = U('u_dpr'), uShape = U('u_shape');
 
         let dpr = 1;
         const resize = () => {
@@ -767,6 +770,8 @@ export function hydrateQuoteMetal(root = document) {
             gl.uniform2f(uMouse, mx * canvas.width, my * canvas.height);
             gl.uniform1f(uHover, hover);
             gl.uniform1f(uDpr, dpr);
+            /* на узком/низком канвасе геометрия формы ужимается */
+            gl.uniform1f(uShape, Math.min(1, Math.max(0.55, Math.min(quote.clientWidth, quote.clientHeight) / 560)));
             gl.drawArrays(gl.TRIANGLES, 0, 3);
             /* параллакс: форма чуть тянется к курсору, текст — отстаёт */
             const ox = (mx - 0.5) * hover, oy = (my - 0.5) * hover;
