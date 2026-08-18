@@ -889,6 +889,7 @@
             { type: 'heading', label: 'Заголовок', icon: 'H', group: 'content' },
             { type: 'text', label: 'Текст', icon: '¶', group: 'content' },
             { type: 'quote', label: 'Цитата', icon: '❝', group: 'content' },
+            { type: 'process', label: 'Процесс', icon: '➤', group: 'content' },
             { type: 'image', label: 'Изображение', icon: '🖼', group: 'media' },
             { type: 'video', label: 'Видео', icon: '▶', group: 'media' },
             { type: 'gallery', label: 'Галерея', icon: '⊞', group: 'media' },
@@ -924,6 +925,7 @@
                 case 'metrics': { const n = (block.items || []).length; return n ? `${n} ${pluralRu(n, 'показатель', 'показателя', 'показателей')}` : 'нет показателей'; }
                 case 'links': { const n = (block.items || []).length; return `${block.title || 'Ссылки'} · ${n}`; }
                 case 'masked_image': return mediaFileName(block.content) || 'изображение не задано';
+                case 'process': { const s = (block.steps || []); const t = s.map(x => (x.title || '').trim()).filter(Boolean).join(' → '); return t || (s.length ? `${s.length} ${pluralRu(s.length, 'шаг', 'шага', 'шагов')}` : 'нет шагов'); }
                 default: return '';
             }
         }
@@ -1618,7 +1620,7 @@
             const update = (k, v) => { setProj(p => ({ ...p, [k]: v })); setDirty(true); };
             const updateBlock = (i, k, v) => { const b = [...proj.blocks]; b[i] = { ...b[i], [k]: v }; update('blocks', b); };
             const addBlock = (type) => {
-                const defs = { heading:{level:'h2',content:''}, text:{content:''}, image:{content:'',caption:''}, video:{content:''}, gallery:{images:[]}, links:{title:'Материалы проекта',layout:'cards',items:[{platform:'website',label:'Сайт проекта',url:''}]}, spacer:{height:80}, raw_html:{content:''}, columns:{cols:[{text:'',image:''},{text:'',image:''}]}, compare:{before:'',after:''}, quote:{text:'',author:'',role:'',photo:''}, metrics:{items:[{value:'',label:''},{value:'',label:''},{value:'',label:''}]} };
+                const defs = { heading:{level:'h2',content:''}, text:{content:''}, image:{content:'',caption:''}, video:{content:''}, gallery:{images:[]}, links:{title:'Материалы проекта',layout:'cards',items:[{platform:'website',label:'Сайт проекта',url:''}]}, spacer:{height:80}, raw_html:{content:''}, columns:{cols:[{text:'',image:''},{text:'',image:''}]}, compare:{before:'',after:''}, quote:{text:'',author:'',role:'',photo:''}, metrics:{items:[{value:'',label:''},{value:'',label:''},{value:'',label:''}]}, process:{steps:[{title:'диагностика',text:'### контекст\nОбычный текст — серым.\n**Жирное** — тёмным, ==акцент== — цветом кейса.'},{title:'проектирование',text:''}]} };
                 // Новый блок не попадает в set свёрнутых — открывается сразу для заполнения
                 update('blocks', [...(proj.blocks||[]), { type, _uid: nextBlockUid(), ...defs[type] }]);
             };
@@ -1767,7 +1769,7 @@
                                         <span className="live-preview-hint">{(proj.blocks||[]).filter(b=>b.enabled!==false).length} вкл.</span>
                                     </div>
                                 </div>
-                                <LivePreview blocks={proj.blocks||[]} title={proj.title} mode={previewMode} seed={previewSeed}/>
+                                <LivePreview blocks={proj.blocks||[]} title={proj.title} mode={previewMode} seed={previewSeed} accent={proj.accentColor||""}/>
                             </div>
                         )}
                     </div>
@@ -1865,7 +1867,7 @@
 	                                </div>
 	                            </div>
 	                            <div className="preview-fullscreen-body">
-	                                <LivePreview blocks={proj.blocks||[]} title={proj.title} mode={previewMode} seed={previewSeed} fullscreen />
+	                                <LivePreview blocks={proj.blocks||[]} title={proj.title} mode={previewMode} seed={previewSeed} accent={proj.accentColor||""} fullscreen />
 	                            </div>
 	                        </div>
 	                    )}
@@ -2001,7 +2003,7 @@
         }
 
         // ─── LivePreview ───
-        function LivePreview({ blocks, title, mode = 'desktop', seed = 0, fullscreen = false }) {
+        function LivePreview({ blocks, title, mode = 'desktop', seed = 0, fullscreen = false, accent = '' }) {
             const isMobile = mode === 'mobile';
             const ref = useRef(null);
             const iframeRef = useRef(null);
@@ -2067,7 +2069,8 @@
                 ? '<div style="padding:8rem 5%;text-align:center;color:#999;font-family:sans-serif"><p>Добавьте блоки</p></div>'
                 : '<div style="padding:8rem 5%;text-align:center;color:#999;font-family:sans-serif"><p>Загружается модуль рендера…</p></div>';
 
-            const srcDoc = `<!DOCTYPE html><html><head><base href="${window.location.origin}/"/><link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"><link href="/site-css/sections/case-blocks.css" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}body{background:var(--case-bg,#f5f5f7);color:var(--case-text,#1d1d1f);font-family:'Roboto',sans-serif;padding:clamp(1.5rem,5vw,5rem) 0}</style></head><body>${html || placeholder}<script>${REVEAL_SCRIPT}<\/script>${SLIDER_SCRIPT}</body></html>`;
+            const accentVar = /^#[0-9a-fA-F]{3,8}$/.test(accent || '') ? `--case-accent-color:${accent};` : '';
+            const srcDoc = `<!DOCTYPE html><html><head><base href="${window.location.origin}/"/><link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"><link href="/site-css/sections/case-blocks.css" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}body{${accentVar}background:var(--case-bg,#f5f5f7);color:var(--case-text,#1d1d1f);font-family:'Roboto',sans-serif;padding:clamp(1.5rem,5vw,5rem) 0}</style></head><body>${html || placeholder}<script>${REVEAL_SCRIPT}<\/script>${SLIDER_SCRIPT}</body></html>`;
 
             return (
                 <div className="live-preview-frame" ref={ref} style={{height: viewportH * scale}}>
@@ -2183,6 +2186,25 @@
                         <input className="input" style={{fontSize:'0.8rem',textAlign:'center'}} value={m.label||''} onChange={e=>{const ni=[...items];ni[mi]={...ni[mi],label:e.target.value};updateBlock(index,'items',ni)}} placeholder="конверсия"/>
                     </div>)}</div>
                     <div style={{marginTop:'0.5rem',display:'flex',gap:'0.3rem'}}><button className="btn btn-dark btn-sm" onClick={()=>updateBlock(index,'items',[...items,{value:'',label:''}])}>+ Метрика</button>{items.length>1&&<button className="btn btn-dark btn-sm" onClick={()=>updateBlock(index,'items',items.slice(0,-1))}>− Убрать</button>}</div>
+                </div>);
+            }
+            if (block.type === 'process') {
+                const steps = block.steps || [];
+                const upStep = (si, k, v) => { const ns = [...steps]; ns[si] = { ...ns[si], [k]: v }; updateBlock(index, 'steps', ns); };
+                return (<div style={{display:'flex',flexDirection:'column',gap:'0.6rem'}}>
+                    <div className="link-editor-note">Шаги показываются в ряд со стрелками (на мобиле — в столбик). Разметка текста: <b>### подзаголовок</b>, <b>**жирный**</b>, <b>==акцент цветом кейса==</b>, пустая строка — новый абзац.</div>
+                    <div style={{display:'grid',gridTemplateColumns:`repeat(${Math.min(Math.max(steps.length,1),4)},minmax(0,1fr))`,gap:'0.6rem'}}>
+                        {steps.map((s,si)=>(
+                            <div key={si} className="column-editor-card">
+                                <div style={{display:'flex',gap:'0.35rem',alignItems:'center'}}>
+                                    <input className="input" value={s.title||''} onChange={e=>upStep(si,'title',e.target.value)} placeholder={`Шаг ${si+1}`}/>
+                                    <button className="btn btn-dark btn-sm" title="Убрать шаг" onClick={()=>updateBlock(index,'steps',steps.filter((_,i)=>i!==si))}>✕</button>
+                                </div>
+                                <textarea className="input" style={{minHeight:150,fontFamily:'monospace',fontSize:'0.76rem'}} value={s.text||''} onChange={e=>upStep(si,'text',e.target.value)} placeholder={'### подзаголовок\nтекст серым\n**важное тёмным**\n==акцент цветом=='}/>
+                            </div>
+                        ))}
+                    </div>
+                    {steps.length<6 && <button className="btn btn-dark btn-sm" style={{alignSelf:'flex-start'}} onClick={()=>updateBlock(index,'steps',[...steps,{title:'',text:''}])}>+ Добавить шаг</button>}
                 </div>);
             }
             return <p style={{color:'#666'}}>Неизвестный тип: {block.type}</p>;

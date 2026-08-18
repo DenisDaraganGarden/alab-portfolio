@@ -200,6 +200,43 @@ const renderColumnsBlock = (block) => {
     return `<div class="case-block-columns" data-cols="${columnCount}">${cards}</div>`;
 };
 
+/**
+ * Блок «Процесс» — методология проекта живым текстом вместо картинки.
+ * Разметка внутри текста шага:
+ *   ### подзаголовок   — заголовок смысловой группы
+ *   **жирный**         — важное, тёмным
+ *   ==акцент==         — ключевая мысль цветом кейса (маркерная подсветка)
+ *   пустая строка      — новый абзац
+ * Обычный текст — приглушённый серый, как в первоисточнике.
+ */
+const renderProcessRich = (value = '') => escapeHtml(value)
+    .replace(/==([^=\n]+)==/g, '<mark class="case-process-accent">$1</mark>')
+    .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+
+const renderProcessStep = (step, index) => {
+    const lines = String(step.text || '').split(/\n/);
+    const parts = [];
+    let paragraph = [];
+    let itemIndex = 0;
+    const flush = () => {
+        if (!paragraph.length) return;
+        parts.push(`<p class="case-process-p" style="--item-i:${itemIndex++}">${paragraph.join('<br>')}</p>`);
+        paragraph = [];
+    };
+    for (const raw of lines) {
+        const line = raw.trim();
+        if (!line) { flush(); continue; }
+        if (/^#{2,4}\s*/.test(line)) {
+            flush();
+            parts.push(`<h4 class="case-process-h" style="--item-i:${itemIndex++}">${renderProcessRich(line.replace(/^#{2,4}\s*/, ''))}</h4>`);
+            continue;
+        }
+        paragraph.push(renderProcessRich(line));
+    }
+    flush();
+    return `<div class="case-process-step" style="--step-i:${index}"><h3 class="case-process-title">${renderProcessRich(step.title || '')}</h3>${parts.join('')}</div>`;
+};
+
 let compareSeq = 0;
 const nextCompareId = () => `cmp-${(compareSeq += 1).toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 
@@ -273,6 +310,20 @@ export function renderCaseBlock(block) {
 
         case 'columns':
             return wrapReveal(block, renderColumnsBlock(block));
+
+        case 'process': {
+            const steps = (block.steps || []).filter(s => String(s?.title || '').trim() || String(s?.text || '').trim());
+            if (!steps.length) return '';
+            const arrowSvg = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.8 17.4 12 7 19.2z"/></svg>';
+            const parts = [];
+            steps.forEach((step, index) => {
+                if (index) parts.push(`<span class="case-process-arrow" style="--step-i:${index}" aria-hidden="true">${arrowSvg}</span>`);
+                parts.push(renderProcessStep(step, index));
+            });
+            // Блок всегда анимирован: шаги и стрелки проявляются каскадом,
+            // акценты подсвечиваются «маркером» после появления шага.
+            return `<div class="case-block-reveal" data-animation="process"><section class="case-block-process">${parts.join('')}</section></div>`;
+        }
 
         case 'compare': {
             if (!block.before || !block.after) return '';

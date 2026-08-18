@@ -515,6 +515,10 @@ export async function initPortfolio(container) {
 
         modalContent.innerHTML = '';
 
+        // Акцент кейса (Accent в редакторе) доступен блокам как CSS-переменная:
+        // блок «Процесс» красит им ключевые фразы.
+        modalContent.style.setProperty('--case-accent-color', proj.accentColor || '#1d1d1f');
+
         // Разметка собирается общим модулем и вставляется ОДНИМ присваиванием.
         const html = renderCaseBlocks(proj.blocks);
 
