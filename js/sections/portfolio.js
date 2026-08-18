@@ -8,6 +8,7 @@ import {
     renderCaseBlocks,
     hydrateCompareBlocks,
     hydrateCaseMedia,
+    hydrateCaseSliders,
     teardownCaseMedia,
     parseVideoEmbed,
     escapeHtml,
@@ -528,6 +529,7 @@ export async function initPortfolio(container) {
         initCaseBlockAnimations();
         hydrateCompareBlocks(modalContent);
         hydrateCaseMedia(modalContent);
+        hydrateCaseSliders(modalContent);
 
         if (!hasBlocks) {
             modalContent.innerHTML = `

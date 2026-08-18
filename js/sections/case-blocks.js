@@ -244,7 +244,16 @@ export function renderCaseBlock(block) {
         }
 
         case 'gallery': {
-            const imgs = (block.images || []).map(src => `<img src="${escapeAttr(src)}" alt=""/>`).join('');
+            const images = block.images || [];
+            if (!images.length) return '';
+            // «Карусель»: лента фото-карточек без подписей и рамок — мудборды,
+            // слайды, серии. Листается свайпом/скроллом, стрелки вешает
+            // hydrateCaseSliders.
+            if (block.layout === 'slider') {
+                const slides = images.map(src => `<div class="case-slide"><img src="${escapeAttr(src)}" alt="" loading="lazy"/></div>`).join('');
+                return wrapReveal(block, `<div class="case-block-slider"><div class="case-slider-track" tabindex="0" role="region" aria-label="Галерея, листается горизонтально">${slides}</div><button class="case-slider-arrow case-slider-arrow--prev" type="button" aria-label="Назад">←</button><button class="case-slider-arrow case-slider-arrow--next" type="button" aria-label="Вперёд">→</button></div>`);
+            }
+            const imgs = images.map(src => `<img src="${escapeAttr(src)}" alt=""/>`).join('');
             return wrapReveal(block, `<div class="case-block-gallery">${imgs}</div>`);
         }
 
@@ -392,6 +401,43 @@ export function hydrateCaseMedia(root = document) {
         }, { threshold: 0.25 });
         io.observe(video);
         video._mediaIO = io;  // чтобы teardownCaseMedia мог отключить наблюдатель
+    });
+}
+
+/**
+ * Стрелки и состояние краёв у каруселей галерей (.case-block-slider).
+ * Сам скролл нативный (scroll-snap); стрелки — прогрессивное улучшение,
+ * поэтому без hydrate карусель всё равно листается свайпом и колесом.
+ */
+export function hydrateCaseSliders(root = document) {
+    root.querySelectorAll('.case-block-slider').forEach((el) => {
+        if (el.dataset.sliderReady === '1') return;
+        el.dataset.sliderReady = '1';
+
+        const track = el.querySelector('.case-slider-track');
+        if (!track) return;
+
+        const slideStep = () => {
+            const slide = track.querySelector('.case-slide');
+            if (!slide) return track.clientWidth * 0.8;
+            const gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap) || 16;
+            return slide.getBoundingClientRect().width + gap;
+        };
+
+        const updateEdges = () => {
+            const maxScroll = track.scrollWidth - track.clientWidth;
+            el.classList.toggle('is-start', track.scrollLeft <= 4);
+            el.classList.toggle('is-end', track.scrollLeft >= maxScroll - 4);
+        };
+
+        el.querySelector('.case-slider-arrow--prev')?.addEventListener('click', () => {
+            track.scrollBy({ left: -slideStep(), behavior: 'smooth' });
+        });
+        el.querySelector('.case-slider-arrow--next')?.addEventListener('click', () => {
+            track.scrollBy({ left: slideStep(), behavior: 'smooth' });
+        });
+        track.addEventListener('scroll', updateEdges, { passive: true });
+        updateEdges();
     });
 }
 
