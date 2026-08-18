@@ -74,26 +74,9 @@
         /* Blocks */
         .block-item{background:#111;border:1px solid #222;border-radius:8px;padding:1rem;margin-bottom:0.75rem}
         .block-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem}
-        .block-type{
-            display:inline-flex;
-            align-items:center;
-            gap:0.32rem;
-            padding:0.28rem 0.62rem;
-            border:1px solid var(--block-accent-line,rgba(29,29,31,0.12));
-            border-radius:999px;
-            background:var(--block-accent-bg,rgba(255,255,255,0.52));
-            color:var(--block-accent-text,var(--cms-text,#1d1d1f));
-            font-size:0.68rem;
-            font-weight:800;
-            text-transform:uppercase;
-            letter-spacing:0.045em;
-            box-shadow:inset 0 1px 0 rgba(255,255,255,0.46);
-        }
         .block-actions{display:flex;gap:0.3rem}
         .block-actions button{background:none;border:none;color:#666;cursor:pointer;font-size:0.85rem;padding:2px 6px;border-radius:4px}
         .block-actions button:hover{background:#222;color:#eee}
-
-        .add-bar{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1rem;padding-top:1rem;border-top:1px solid #1a1a1a}
 
         /* Preview */
         .preview-wrap{margin-top:1rem}
@@ -102,14 +85,30 @@
         .preview-container iframe{width:1440px;height:900px;transform-origin:top left;border:none;display:block;pointer-events:none}
 
 
-        /* Split layout */
-        .editor-split{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start}
-        .editor-panel{min-width:0}
+        /* Setup row: стиль+SEO слева, живое превью справа */
+        .case-setup-grid{display:grid;grid-template-columns:minmax(0,0.95fr) minmax(0,1.05fr);gap:1rem;align-items:start;margin-top:1rem}
+        .case-setup-col{display:grid;gap:1rem;align-content:start;min-width:0}
+        .case-setup-grid.external,.case-setup-grid.pip-on{grid-template-columns:1fr}
+        .case-setup-grid.external .case-setup-col,.case-setup-grid.pip-on .case-setup-col{grid-template-columns:1fr 1fr}
         .live-preview{background:#111;border:1px solid #222;border-radius:8px;overflow:hidden}
-        .live-preview-header{padding:0.5rem 0.75rem;font-size:0.75rem;font-weight:600;color:#e67e22;border-bottom:1px solid #222;display:flex;justify-content:space-between;align-items:center}
+        .live-preview-header{padding:0.5rem 0.75rem;font-size:0.75rem;font-weight:600;color:#e67e22;border-bottom:1px solid #222;display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap}
         .live-preview-frame{position:relative;width:100%;overflow:hidden}
         .live-preview-frame iframe{width:1440px;transform-origin:top left;border:none;display:block;pointer-events:none}
-        @media(max-width:900px){.editor-split{grid-template-columns:1fr}.live-preview{position:static}}
+        .live-preview-pip{
+            position:fixed;
+            top:auto;
+            right:1.1rem;
+            bottom:1.1rem;
+            width:min(440px,calc(100vw - 2.2rem));
+            z-index:9500;
+            box-shadow:0 30px 90px rgba(29,29,31,0.3), inset 0 0 0 1px rgba(255,255,255,0.6);
+        }
+        @media(max-width:900px){
+            .case-setup-grid,.case-setup-grid.external .case-setup-col,.case-setup-grid.pip-on .case-setup-col{grid-template-columns:1fr}
+            /* На узком экране плавающее превью закрыло бы весь контент — режим выключен вместе с кнопкой */
+            .live-preview-pip{position:static;top:auto;right:auto;bottom:auto;width:auto;box-shadow:none;z-index:auto}
+            .pip-toggle-btn{display:none}
+        }
 
 
         /* Style toolbar */
@@ -480,19 +479,65 @@
             border:1px solid rgba(255,255,255,0.42);
             background:linear-gradient(145deg, rgba(229,229,233,0.98), rgba(211,212,217,0.88));
         }
-        .block-item[data-block-type="heading"]{--block-accent-bg:rgba(207,216,255,0.68);--block-accent-line:rgba(90,111,190,0.26);--block-accent-text:#2f3a74}
-        .block-item[data-block-type="text"]{--block-accent-bg:rgba(240,232,214,0.76);--block-accent-line:rgba(161,118,42,0.24);--block-accent-text:#66512b}
-        .block-item[data-block-type="image"],
-        .block-item[data-block-type="gallery"],
-        .block-item[data-block-type="masked_image"]{--block-accent-bg:rgba(213,231,241,0.72);--block-accent-line:rgba(61,110,139,0.23);--block-accent-text:#2d5267}
-        .block-item[data-block-type="video"]{--block-accent-bg:rgba(226,218,241,0.74);--block-accent-line:rgba(105,75,143,0.22);--block-accent-text:#53406a}
-        .block-item[data-block-type="links"]{--block-accent-bg:rgba(225,235,214,0.78);--block-accent-line:rgba(93,132,55,0.23);--block-accent-text:#415b2c}
-        .block-item[data-block-type="spacer"]{--block-accent-bg:rgba(229,229,231,0.9);--block-accent-line:rgba(29,29,31,0.12);--block-accent-text:#66666b}
-        .block-item[data-block-type="columns"]{--block-accent-bg:rgba(232,223,214,0.78);--block-accent-line:rgba(140,97,56,0.2);--block-accent-text:#65482f}
-        .block-item[data-block-type="compare"],
-        .block-item[data-block-type="metrics"]{--block-accent-bg:rgba(218,235,232,0.76);--block-accent-line:rgba(48,126,113,0.21);--block-accent-text:#315f58}
-        .block-item[data-block-type="quote"]{--block-accent-bg:rgba(241,220,229,0.74);--block-accent-line:rgba(154,78,109,0.2);--block-accent-text:#6d3f52}
-        .block-item[data-block-type="raw_html"]{--block-accent-bg:rgba(226,226,226,0.9);--block-accent-line:rgba(29,29,31,0.16);--block-accent-text:#343437}
+
+        /* ── Функциональные группы блоков: единая цветовая кодировка ── */
+        [data-group="content"]{--g:#3d5fd0;--g-bg:rgba(61,95,208,0.11);--g-line:rgba(61,95,208,0.32)}
+        [data-group="media"]{--g:#2f9464;--g-bg:rgba(47,148,100,0.12);--g-line:rgba(47,148,100,0.32)}
+        [data-group="layout"]{--g:#c07a17;--g-bg:rgba(192,122,23,0.13);--g-line:rgba(192,122,23,0.32)}
+        [data-group="data"]{--g:#7d4fc9;--g-bg:rgba(125,79,201,0.11);--g-line:rgba(125,79,201,0.3)}
+
+        /* Рабочая область блоков — на всю ширину, две колонки */
+        .cms-wrap-editor{max-width:1500px}
+        .blocks-workspace{margin-top:1.4rem}
+        .blocks-toolbar{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:0.85rem}
+        .blocks-title{font-family:'Unbounded',sans-serif;font-size:0.95rem;font-weight:700;letter-spacing:-0.05em;color:var(--cms-text)}
+        .blocks-legend{display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;margin-right:auto}
+        .legend-item{display:inline-flex;align-items:center;gap:0.34rem;font-size:0.68rem;font-weight:700;color:var(--cms-muted)}
+        .legend-item i{width:8px;height:8px;border-radius:50%;background:var(--g)}
+        .blocks-toolbar-actions{display:flex;gap:0.25rem;align-items:center}
+        .blocks-canvas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0.9rem 1rem;align-items:start}
+        .blocks-canvas>.block-item{margin-bottom:0}
+        @media(max-width:1100px){.blocks-canvas{grid-template-columns:1fr}}
+
+        /* Карточка блока */
+        .block-item{position:relative;overflow:hidden}
+        .block-item::after{content:"";position:absolute;left:0;top:16%;bottom:16%;width:4px;border-radius:0 99px 99px 0;background:var(--g,#9a9aa0);opacity:0.78}
+        .block-head{display:flex;align-items:center;gap:0.5rem;min-width:0;cursor:pointer}
+        .block-item.is-collapsed{padding-top:0.62rem;padding-bottom:0.62rem}
+        .block-item.is-collapsed .block-head{margin-bottom:0}
+        .block-item.is-off{opacity:0.55}
+        .block-item.is-off .blk-icon{filter:grayscale(1)}
+        .blk-num{font-family:'Unbounded',sans-serif;font-size:0.6rem;font-weight:700;color:var(--cms-faint);flex-shrink:0;min-width:1.35em;text-align:center}
+        .blk-icon{flex-shrink:0;width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:var(--g-bg,var(--cms-field));color:var(--g,var(--cms-text));font-size:0.78rem;font-weight:800;box-shadow:inset 0 0 0 1px var(--g-line,var(--cms-line))}
+        .blk-label{font-size:0.74rem;font-weight:800;color:var(--cms-text);white-space:nowrap;flex-shrink:0}
+        .blk-thumb{width:30px;height:30px;border-radius:8px;object-fit:cover;flex-shrink:0;background:#fff;box-shadow:inset 0 0 0 1px rgba(29,29,31,0.08)}
+        .blk-summary{flex:1;min-width:0;font-size:0.73rem;color:var(--cms-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .blk-chevron{flex-shrink:0;background:transparent;border:0;color:var(--cms-muted);width:26px;height:26px;border-radius:50%;cursor:pointer;display:grid;place-items:center;font-size:0.8rem;transition:transform 0.2s,background 0.2s}
+        .blk-chevron.open{transform:rotate(180deg)}
+        .blk-chevron:hover{background:var(--cms-control);color:var(--cms-text)}
+        .block-body{margin-top:0.7rem}
+
+        /* Тумблер вкл/выкл в цвете группы */
+        .blk-switch-wrap{flex-shrink:0;display:inline-flex;align-items:center;cursor:pointer}
+        .blk-switch{position:relative;width:34px;height:20px;border-radius:999px;background:rgba(29,29,31,0.16);transition:background 0.2s;display:inline-block}
+        .blk-switch input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+        .blk-switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.28);transition:left 0.2s;pointer-events:none}
+        .blk-switch.on{background:var(--g,#1d1d1f)}
+        .blk-switch.on::after{left:16px}
+
+        /* Палитра добавления блоков — сгруппирована по функциям */
+        .add-palette{margin-top:1.1rem;padding:1.05rem 1.15rem 1.2rem;border-radius:22px;background:linear-gradient(145deg, rgba(234,234,237,0.96), rgba(218,219,223,0.86));box-shadow:var(--cms-shadow)}
+        .add-palette-title{font-family:'Unbounded',sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:-0.05em;color:var(--cms-text);margin-bottom:0.8rem}
+        .add-palette-groups{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0.9rem}
+        .palette-group{min-width:0}
+        .palette-group-label{display:flex;align-items:center;gap:0.4rem;font-size:0.66rem;font-weight:800;text-transform:uppercase;letter-spacing:0.09em;color:var(--g);margin-bottom:0.5rem}
+        .palette-group-label i{width:8px;height:8px;border-radius:50%;background:var(--g);flex-shrink:0}
+        .palette-group-btns{display:flex;flex-direction:column;gap:0.4rem}
+        .palette-btn{display:flex;align-items:center;gap:0.5rem;padding:0.28rem 0.6rem 0.28rem 0.28rem;border:0;border-radius:999px;background:rgba(255,255,255,0.56);box-shadow:inset 0 0 0 1px rgba(29,29,31,0.05);color:var(--cms-text);font-size:0.77rem;font-weight:600;font-family:'Roboto',sans-serif;cursor:pointer;transition:box-shadow 0.2s,transform 0.15s;text-align:left}
+        .palette-btn:hover{box-shadow:inset 0 0 0 1px var(--g-line),0 8px 20px rgba(29,29,31,0.07);transform:translateY(-1px)}
+        .palette-btn .blk-icon{width:26px;height:26px;border-radius:9px;font-size:0.7rem}
+        @media(max-width:1000px){.add-palette-groups{grid-template-columns:repeat(2,minmax(0,1fr))}}
+        @media(max-width:560px){.add-palette-groups{grid-template-columns:1fr}}
 
         .cat-section[data-category="development"] .cat-label{color:rgba(30,64,175,0.72)}
         .cat-section[data-category="services"] .cat-label{color:rgba(145,113,0,0.78)}
@@ -545,7 +590,7 @@
         .publish-warnings{width:100%;margin:0.15rem 0 0;padding:0.55rem 0 0;border-top:1px solid var(--cms-line)}
         .publish-warning{color:#8a5a00;font-size:0.72rem}
 
-        .block-type,.seo-label,.preview-label,.live-preview-header{color:var(--cms-text)}
+        .seo-label,.preview-label,.live-preview-header{color:var(--cms-text)}
         .block-item{
             border-radius:22px;
             margin-bottom:0.9rem;
@@ -585,7 +630,6 @@
         .seo-section input[type=color]::-webkit-color-swatch-wrapper{padding:3px}
         .style-bar input[type=color]::-webkit-color-swatch,
         .seo-section input[type=color]::-webkit-color-swatch{border:0;border-radius:999px}
-        .add-bar{border-top-color:var(--cms-line)}
         .preview-container{background:var(--cms-field);border-color:transparent}
         .live-preview{background:var(--cms-surface);border:0}
         .live-preview-header{border-bottom:0;background:rgba(247,247,248,0.72)}
@@ -700,6 +744,10 @@
             .proj-card-actions{grid-column:auto;justify-self:end;margin-top:0}
             .proj-card-actions .btn-ghost{min-width:26px;height:24px;font-size:0.62rem;padding:0 0.35rem}
             .field-row{grid-template-columns:1fr}
+            /* Шапка карточки блока: убираем необязательное, чтобы кнопки не обрезались */
+            .block-head{gap:0.35rem}
+            .blk-num,.blk-thumb{display:none}
+            .blk-label{flex-shrink:1;overflow:hidden;text-overflow:ellipsis;min-width:3ch}
         }
         @media(max-width:560px){
             .proj-grid{grid-template-columns:1fr}
@@ -830,20 +878,73 @@
             { id: 'diamond', label: 'Ромб', clip: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' },
             { id: 'wave', label: 'Волна', clip: 'polygon(0% 15%, 15% 0%, 50% 10%, 85% 0%, 100% 15%, 100% 100%, 0% 100%)' },
         ];
+        // Функциональные группы блоков: цвет — общий язык карточек, легенды и палитры
+        const BLOCK_GROUPS = {
+            content: { label: 'Текст' },
+            media:   { label: 'Медиа' },
+            layout:  { label: 'Структура' },
+            data:    { label: 'Данные' },
+        };
         const BLOCK_TYPES = [
-            { type: 'heading', label: 'Заголовок', icon: 'H' },
-            { type: 'text', label: 'Текст', icon: '¶' },
-            { type: 'image', label: 'Изображение', icon: '🖼' },
-            { type: 'video', label: 'Видео', icon: '▶' },
-            { type: 'gallery', label: 'Галерея', icon: '⊞' },
-            { type: 'links', label: 'Ссылки', icon: '↗' },
-            { type: 'spacer', label: 'Отступ', icon: '↕' },
-            { type: 'raw_html', label: 'HTML', icon: '</>' },
-            { type: 'columns', label: 'Колонки', icon: '▥' },
-            { type: 'compare', label: 'До/После', icon: '⇔' },
-            { type: 'quote', label: 'Цитата', icon: '❝' },
-            { type: 'metrics', label: 'Метрики', icon: '📊' },
+            { type: 'heading', label: 'Заголовок', icon: 'H', group: 'content' },
+            { type: 'text', label: 'Текст', icon: '¶', group: 'content' },
+            { type: 'quote', label: 'Цитата', icon: '❝', group: 'content' },
+            { type: 'image', label: 'Изображение', icon: '🖼', group: 'media' },
+            { type: 'video', label: 'Видео', icon: '▶', group: 'media' },
+            { type: 'gallery', label: 'Галерея', icon: '⊞', group: 'media' },
+            { type: 'compare', label: 'До/После', icon: '⇔', group: 'media' },
+            { type: 'columns', label: 'Колонки', icon: '▥', group: 'layout' },
+            { type: 'spacer', label: 'Отступ', icon: '↕', group: 'layout' },
+            { type: 'raw_html', label: 'HTML', icon: '</>', group: 'layout' },
+            { type: 'metrics', label: 'Метрики', icon: '📊', group: 'data' },
+            { type: 'links', label: 'Ссылки', icon: '↗', group: 'data' },
         ];
+        // masked_image остался в старых кейсах, в палитре его нет
+        const blockGroupOf = (type) => (BLOCK_TYPES.find(b => b.type === type) || {}).group || (type === 'masked_image' ? 'media' : 'layout');
+
+        // ── Сводка содержимого для свёрнутой карточки блока ──
+        // DOMParser: его документ неактивен, разметка из контента не загружает
+        // ресурсы и не запускает обработчики (в отличие от innerHTML на div)
+        const stripHtmlText = (html) => ((new DOMParser().parseFromString(String(html || ''), 'text/html').body.textContent) || '').replace(/\s+/g, ' ').trim();
+        // Пользователь набирает путь по буквам: незавершённый %-код не должен ронять рендер
+        const mediaFileName = (p) => { const s = String(p || '').split(/[?#]/)[0]; const seg = s.split('/').filter(Boolean).pop() || ''; try { return decodeURIComponent(seg); } catch { return seg; } };
+        const pluralRu = (n, one, few, many) => { const m = Math.abs(n) % 100, d = m % 10; if (m > 10 && m < 20) return many; if (d === 1) return one; if (d >= 2 && d <= 4) return few; return many; };
+        function blockSummary(block) {
+            switch (block.type) {
+                case 'heading': { const t = stripHtmlText(block.content); return `${(block.level || 'h2').toUpperCase()}${t ? ' · ' + t : ' · пусто'}`; }
+                case 'text': return stripHtmlText(block.content) || 'пусто';
+                case 'quote': { const a = block.author || ''; const t = (block.text || '').trim(); return a && t ? `${a} — ${t}` : (a || t || 'пусто'); }
+                case 'image': return mediaFileName(block.content) || 'изображение не задано';
+                case 'video': return mediaFileName(block.content) || String(block.content || '').trim() || 'видео не задано';
+                case 'gallery': { const n = (block.images || []).length; return n ? `${n} ${pluralRu(n, 'изображение', 'изображения', 'изображений')}` : 'пустая галерея'; }
+                case 'compare': return block.before && block.after ? 'до и после заданы' : (block.before || block.after) ? 'задана одна сторона' : 'изображения не заданы';
+                case 'columns': { const n = (block.cols || []).length || 2; return `${n} ${pluralRu(n, 'колонка', 'колонки', 'колонок')}`; }
+                case 'spacer': return `${block.height || 80} px`;
+                case 'raw_html': { const t = String(block.content || '').replace(/\s+/g, ' ').trim(); return t || 'пустой код'; }
+                case 'metrics': { const n = (block.items || []).length; return n ? `${n} ${pluralRu(n, 'показатель', 'показателя', 'показателей')}` : 'нет показателей'; }
+                case 'links': { const n = (block.items || []).length; return `${block.title || 'Ссылки'} · ${n}`; }
+                case 'masked_image': return mediaFileName(block.content) || 'изображение не задано';
+                default: return '';
+            }
+        }
+        function blockThumb(block) {
+            switch (block.type) {
+                case 'image': case 'masked_image': return block.content || '';
+                case 'gallery': return (block.images || [])[0] || '';
+                case 'compare': return block.before || block.after || '';
+                case 'columns': return ((block.cols || []).find(c => c.image) || {}).image || '';
+                case 'quote': return block.photo || '';
+                default: return '';
+            }
+        }
+
+        // Стабильные клиентские id блоков: держат состояние свёрнутости при
+        // перестановках и служат React-ключами. Перед сохранением вычищаются.
+        let __blockUid = 0;
+        const nextBlockUid = () => `b${++__blockUid}`;
+        // Кейс без поля blocks (внешняя ссылка) остаётся без него и после обработки
+        const withBlockUids = (p) => p.blocks ? { ...p, blocks: p.blocks.map(b => b._uid ? b : { ...b, _uid: nextBlockUid() }) } : p;
+        const stripBlockUids = (p) => p.blocks ? { ...p, blocks: p.blocks.map(({ _uid, ...b }) => b) } : p;
 
         function apiFetch(url, opts = {}) {
             const token = sessionStorage.getItem('cms_token');
@@ -1487,7 +1588,8 @@
 
         // ─── Editor ───
         function Editor({ project, categories, onSave, onDelete, onClose }) {
-            const [proj, setProj, history] = useHistory({ ...project });
+            const [initialProj] = useState(() => withBlockUids({ ...project }));
+            const [proj, setProj, history] = useHistory(initialProj);
             const [uploading, setUploading] = useState(false);
             const [toast, setToast] = useState(null);
             const [dirty, setDirty] = useState(false);
@@ -1495,15 +1597,30 @@
             const [previewMode, setPreviewMode] = useState('desktop');
             const [previewFullscreen, setPreviewFullscreen] = useState(false);
             const [previewSeed, setPreviewSeed] = useState(0);
+            const [previewPip, setPreviewPip] = useState(false);
+            // Кейс открывается со свёрнутыми блоками: видно всю структуру сразу
+            const [collapsed, setCollapsed] = useState(() => new Set((initialProj.blocks || []).map(b => b._uid)));
             const dragItem = useRef(null);
             const dragOver = useRef(null);
             const autoSaveTimer = useRef(null);
+
+            // _uid — служебное поле интерфейса, наружу не уходит
+            const saveProj = (p) => onSave(stripBlockUids(p));
+            const toggleCollapse = (uid) => setCollapsed(prev => { const n = new Set(prev); if (n.has(uid)) n.delete(uid); else n.add(uid); return n; });
+            const collapseAll = () => setCollapsed(new Set((proj.blocks || []).map(b => b._uid)));
+            const expandAll = () => setCollapsed(new Set());
+            const togglePip = () => {
+                setPreviewPip(v => !v);
+                // Ширина панели меняется — просим LivePreview пересчитать масштаб
+                setTimeout(() => window.dispatchEvent(new Event('resize')), 60);
+            };
 
             const update = (k, v) => { setProj(p => ({ ...p, [k]: v })); setDirty(true); };
             const updateBlock = (i, k, v) => { const b = [...proj.blocks]; b[i] = { ...b[i], [k]: v }; update('blocks', b); };
             const addBlock = (type) => {
                 const defs = { heading:{level:'h2',content:''}, text:{content:''}, image:{content:'',caption:''}, video:{content:''}, gallery:{images:[]}, links:{title:'Материалы проекта',layout:'cards',items:[{platform:'website',label:'Сайт проекта',url:''}]}, spacer:{height:80}, raw_html:{content:''}, columns:{cols:[{text:'',image:''},{text:'',image:''}]}, compare:{before:'',after:''}, quote:{text:'',author:'',role:'',photo:''}, metrics:{items:[{value:'',label:''},{value:'',label:''},{value:'',label:''}]} };
-                update('blocks', [...(proj.blocks||[]), { type, ...defs[type] }]);
+                // Новый блок не попадает в set свёрнутых — открывается сразу для заполнения
+                update('blocks', [...(proj.blocks||[]), { type, _uid: nextBlockUid(), ...defs[type] }]);
             };
             const removeBlock = (i) => { const b = [...proj.blocks]; b.splice(i,1); update('blocks', b); };
             const moveBlock = (i, d) => { const b = [...proj.blocks]; const t = i+d; if(t<0||t>=b.length) return; [b[i],b[t]]=[b[t],b[i]]; update('blocks', b); };
@@ -1527,7 +1644,7 @@
                     clearTimeout(autoSaveTimer.current);
                     autoSaveTimer.current = setTimeout(() => {
                         setSaving(true);
-                        onSave(proj);
+                        saveProj(proj);
                         setDirty(false);
                         setSaving(false);
                     }, 30000);
@@ -1539,7 +1656,7 @@
             useEffect(() => {
                 const handler = (e) => {
                     if (previewFullscreen && e.key === 'Escape') { e.preventDefault(); setPreviewFullscreen(false); return; }
-                    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); onSave(proj); setDirty(false); }
+                    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveProj(proj); setDirty(false); }
                     if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); history.undo(); }
                     if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); history.redo(); }
                 };
@@ -1556,11 +1673,11 @@
             // кладём его в localStorage. Открытая вкладка preview.html ловит
             // событие storage и перерисовывается — видно ещё до сохранения.
             useEffect(() => {
-                try { localStorage.setItem('alab_preview_case', JSON.stringify(proj)); } catch {}
+                try { localStorage.setItem('alab_preview_case', JSON.stringify(stripBlockUids(proj))); } catch {}
             }, [proj]);
 
             const openPreview = () => {
-                try { localStorage.setItem('alab_preview_case', JSON.stringify(proj)); } catch {}
+                try { localStorage.setItem('alab_preview_case', JSON.stringify(stripBlockUids(proj))); } catch {}
                 // Именованная цель — повторный клик обновляет ту же вкладку, а не плодит новые
                 window.open(`${CMS_BASE_PATH}/preview.html`, 'alab-preview');
             };
@@ -1581,7 +1698,7 @@
             };
 
             return (
-                <div className="cms-wrap">
+                <div className="cms-wrap cms-wrap-editor">
                     <div className="editor-top">
                         <div style={{display:'flex',gap:'0.5rem',alignItems:'center'}}>
                             <button className="btn btn-dark btn-sm" onClick={onClose}>← Назад</button>
@@ -1605,7 +1722,7 @@
                                     if (emptyImgs) warnings.push(emptyImgs + ' пустых изображений');
                                 }
                                 if (warnings.length && !confirm('⚠ Предупреждения:\n• ' + warnings.join('\n• ') + '\n\nСохранить всё равно?')) return;
-                                onSave(proj); setDirty(false);
+                                saveProj(proj); setDirty(false);
                             }}>Сохранить</button>
                         </div>
                     </div>
@@ -1621,75 +1738,121 @@
                     <div style={{marginBottom:'1rem'}}><label className="field-label">Превью карточки — зацикленное видео при наведении (mp4/webm)</label><div style={{display:'flex',gap:'0.5rem'}}><input className="input" value={proj.hoverVideo||''} onChange={e=>update('hoverVideo',e.target.value)} placeholder="Путь к ролику-превью или пусто"/><label className="btn btn-dark btn-sm" style={{cursor:'pointer',whiteSpace:'nowrap'}}><input type="file" style={{display:'none'}} accept="video/mp4,video/webm,video/quicktime" onChange={e=>handleUpload(e,p=>update('hoverVideo',p))}/>Файл</label>{proj.hoverVideo && <button className="btn btn-dark btn-sm" onClick={()=>update('hoverVideo','')} title="Убрать превью">✕</button>}</div><div style={{fontSize:'0.72rem',color:'#888',marginTop:'0.35rem'}}>Короткий немой ролик 2–6 с. На десктопе играет при наведении, на мобиле — когда карточка в кадре. Логотип остаётся поверх.</div>{proj.hoverVideo && <video src={proj.hoverVideo} muted loop autoPlay playsInline style={{marginTop:'0.5rem',width:180,borderRadius:8,display:'block',background:'#eee'}}/>}</div>
                     <div style={{marginBottom:'1rem'}}><label style={{display:'flex',alignItems:'center',gap:'0.5rem',fontSize:'0.85rem',color:'#999'}}><input type="checkbox" checked={proj.isExternal||false} onChange={e=>update('isExternal',e.target.checked)}/>Внешняя ссылка</label>
                     {proj.isExternal && <input className="input" style={{marginTop:'0.5rem'}} value={proj.externalUrl||''} onChange={e=>update('externalUrl',e.target.value)} placeholder="https://behance.net/..."/>}</div>
-                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem',marginTop:'1rem'}}>
-                        <div className="seo-section" style={{marginTop:0}}>
-                            <div className="seo-label">🎨 Стиль кейса</div>
-                            <div style={{display:'flex',gap:'0.5rem',marginBottom:'0.5rem'}}>{['light','dark'].map(t=><button key={t} className={`btn btn-sm ${(proj.theme||'light')===t?'btn-blue':'btn-dark'}`} onClick={()=>update('theme',t)}>{t==='light'?'☀ Светлый':'🌙 Тёмный'}</button>)}</div>
-                            <div style={{display:'flex',gap:'0.5rem',alignItems:'center'}}><span className="field-label" style={{margin:0}}>Accent:</span><input type="color" value={proj.accentColor||'#6b6b6b'} onChange={e=>update('accentColor',e.target.value)} style={{width:32,height:32,border:'1px solid #333',borderRadius:4,background:'none',cursor:'pointer'}}/><span style={{fontSize:'0.75rem',color:'#555'}}>{proj.accentColor||'#6b6b6b'}</span></div>
+                    <div className={'case-setup-grid' + (proj.isExternal ? ' external' : '') + (previewPip ? ' pip-on' : '')}>
+                        <div className="case-setup-col">
+                            <div className="seo-section" style={{marginTop:0}}>
+                                <div className="seo-label">🎨 Стиль кейса</div>
+                                <div style={{display:'flex',gap:'0.5rem',marginBottom:'0.5rem'}}>{['light','dark'].map(t=><button key={t} className={`btn btn-sm ${(proj.theme||'light')===t?'btn-blue':'btn-dark'}`} onClick={()=>update('theme',t)}>{t==='light'?'☀ Светлый':'🌙 Тёмный'}</button>)}</div>
+                                <div style={{display:'flex',gap:'0.5rem',alignItems:'center'}}><span className="field-label" style={{margin:0}}>Accent:</span><input type="color" value={proj.accentColor||'#6b6b6b'} onChange={e=>update('accentColor',e.target.value)} style={{width:32,height:32,border:'1px solid #333',borderRadius:4,background:'none',cursor:'pointer'}}/><span style={{fontSize:'0.75rem',color:'#555'}}>{proj.accentColor||'#6b6b6b'}</span></div>
+                            </div>
+                            <div className="seo-section" style={{marginTop:0}}>
+                                <div className="seo-label">🔍 SEO</div>
+                            <div className="field-row">
+                                <div><label className="field-label">Title (для поиска)</label><input className="input" value={proj.seoTitle||''} onChange={e=>update('seoTitle',e.target.value)} placeholder={proj.title}/></div>
+                                <div><label className="field-label">OG Image</label><input className="input" value={proj.ogImage||''} onChange={e=>update('ogImage',e.target.value)} placeholder="URL обложки для шеринга"/></div>
+                            </div>
+                            <div><label className="field-label">Description (для поиска)</label><textarea className="input" style={{minHeight:50}} value={proj.seoDesc||''} onChange={e=>update('seoDesc',e.target.value)} placeholder="Краткое описание проекта для Google и соцсетей"/></div>
+                            </div>
                         </div>
-                        <div className="seo-section" style={{marginTop:0}}>
-                            <div className="seo-label">🔍 SEO</div>
-                        <div className="field-row">
-                            <div><label className="field-label">Title (для поиска)</label><input className="input" value={proj.seoTitle||''} onChange={e=>update('seoTitle',e.target.value)} placeholder={proj.title}/></div>
-                            <div><label className="field-label">OG Image</label><input className="input" value={proj.ogImage||''} onChange={e=>update('ogImage',e.target.value)} placeholder="URL обложки для шеринга"/></div>
-                        </div>
-                        <div><label className="field-label">Description (для поиска)</label><textarea className="input" style={{minHeight:50}} value={proj.seoDesc||''} onChange={e=>update('seoDesc',e.target.value)} placeholder="Краткое описание проекта для Google и соцсетей"/></div>
-                        </div>
+                        {!proj.isExternal && (
+                            <div className={'live-preview' + (previewPip ? ' live-preview-pip' : '')}>
+                                <div className="live-preview-header">
+                                    <span>Предпросмотр</span>
+                                    <div style={{display:'flex',gap:'0.3rem',alignItems:'center',flexWrap:'wrap'}}>
+                                        <button className={`preview-mode-btn ${previewMode==='desktop'?'active':''}`} onClick={()=>setPreviewMode('desktop')}>🖥</button>
+                                        <button className={`preview-mode-btn ${previewMode==='mobile'?'active':''}`} onClick={()=>setPreviewMode('mobile')}>📱</button>
+                                        <button className="preview-mode-btn" onClick={restartPreview} title="Перезапустить анимации">↻ Анимации</button>
+                                        <button className="preview-mode-btn" onClick={()=>setPreviewFullscreen(true)} title="Открыть предпросмотр на весь экран">⛶ На весь экран</button>
+                                        <button className={`preview-mode-btn pip-toggle-btn ${previewPip?'active':''}`} onClick={togglePip} title="Плавающее окно предпросмотра: остаётся на экране, пока листаете блоки">{previewPip?'✕ Открепить':'📌 Закрепить'}</button>
+                                        <span className="live-preview-hint">{(proj.blocks||[]).filter(b=>b.enabled!==false).length} вкл.</span>
+                                    </div>
+                                </div>
+                                <LivePreview blocks={proj.blocks||[]} title={proj.title} mode={previewMode} seed={previewSeed}/>
+                            </div>
+                        )}
                     </div>
 
                     {!proj.isExternal && (
-                        <div className="editor-split">
-                        <div className="editor-panel">
-                            <h3 style={{fontSize:'1rem',fontWeight:700,marginBottom:'0.5rem',marginTop:'0.5rem'}}>Блоки ({(proj.blocks||[]).length})</h3>
+                        <div className="blocks-workspace">
+                            <div className="blocks-toolbar">
+                                <h3 className="blocks-title">Блоки ({(proj.blocks||[]).length})</h3>
+                                <div className="blocks-legend">
+                                    {Object.entries(BLOCK_GROUPS).map(([key,g]) => <span key={key} className="legend-item" data-group={key}><i/>{g.label}</span>)}
+                                </div>
+                                <div className="blocks-toolbar-actions">
+                                    <button className="btn btn-ghost btn-sm" onClick={collapseAll} title="Свернуть все блоки — видна вся структура кейса">⌃ Свернуть всё</button>
+                                    <button className="btn btn-ghost btn-sm" onClick={expandAll} title="Развернуть все блоки для редактирования">⌄ Развернуть всё</button>
+                                </div>
+                            </div>
+                            <div className="blocks-canvas">
                             {(proj.blocks||[]).map((block,i)=>{
                                 const blockMeta = BLOCK_TYPES.find(b=>b.type===block.type) || { icon:'•', label:block.type };
+                                const grp = blockMeta.group || blockGroupOf(block.type);
+                                const uid = block._uid || `i${i}`;
+                                const isCollapsed = collapsed.has(uid);
+                                const enabled = block.enabled !== false;
+                                const thumb = blockThumb(block);
                                 return (
-                                <div key={i} className="block-item" data-block-type={block.type} style={block.enabled===false?{opacity:0.4}:{}}
+                                <div key={uid} className={'block-item'+(isCollapsed?' is-collapsed':'')+(enabled?'':' is-off')} data-block-type={block.type} data-group={grp}
                                     draggable onDragStart={()=>onDragStart(i)} onDragEnter={()=>onDragEnter(i)} onDragEnd={onDragEnd} onDragOver={e=>e.preventDefault()}>
-                                    <div className="block-head">
-                                        <div style={{display:'flex',alignItems:'center',gap:'0.4rem'}}>
-                                            <span className="drag-handle" title="Перетащить">⠿</span>
-                                            <label style={{display:'flex',alignItems:'center',gap:'0.4rem',cursor:'pointer'}}><input type="checkbox" checked={block.enabled!==false} onChange={e=>updateBlock(i,'enabled',e.target.checked)} style={{accentColor:'#1d1d1f'}}/><span className="block-type">{blockMeta.icon} {blockMeta.label}</span></label>
+                                    <div className="block-head" onClick={()=>toggleCollapse(uid)}>
+                                        <span className="drag-handle" title="Перетащить" onClick={e=>e.stopPropagation()}>⠿</span>
+                                        <span className="blk-num">{String(i+1).padStart(2,'0')}</span>
+                                        <span className="blk-icon">{blockMeta.icon}</span>
+                                        <span className="blk-label">{blockMeta.label}</span>
+                                        {thumb ? <img className="blk-thumb" src={thumb} alt="" loading="lazy"/> : null}
+                                        <span className="blk-summary">{blockSummary(block)}</span>
+                                        <label className="blk-switch-wrap" onClick={e=>e.stopPropagation()} title={enabled?'Блок показывается на сайте — щёлкните, чтобы скрыть':'Блок скрыт на сайте — щёлкните, чтобы показать'}>
+                                            <span className={'blk-switch'+(enabled?' on':'')}><input type="checkbox" checked={enabled} onChange={e=>updateBlock(i,'enabled',e.target.checked)}/></span>
+                                        </label>
+                                        <div className="block-actions" onClick={e=>e.stopPropagation()}>
+                                            <button onClick={()=>moveBlock(i,-1)} title="Переместить выше">↑</button>
+                                            <button onClick={()=>moveBlock(i,1)} title="Переместить ниже">↓</button>
+                                            <button style={{color:'#c0392b'}} onClick={()=>removeBlock(i)} title="Удалить блок">✕</button>
                                         </div>
-                                        <div className="block-actions"><button onClick={()=>moveBlock(i,-1)}>↑</button><button onClick={()=>moveBlock(i,1)}>↓</button><button style={{color:'#c0392b'}} onClick={()=>removeBlock(i)}>✕</button></div>
+                                        <button className={'blk-chevron'+(isCollapsed?'':' open')} onClick={e=>{e.stopPropagation();toggleCollapse(uid)}} title={isCollapsed?'Развернуть':'Свернуть'}>⌄</button>
                                     </div>
-                                    <BlockEditor block={block} index={i} projId={proj.id} updateBlock={updateBlock} handleUpload={handleUpload} showToast={showToast}/>
+                                    {!isCollapsed && <div className="block-body">
+                                        <BlockEditor block={block} index={i} projId={proj.id} updateBlock={updateBlock} handleUpload={handleUpload} showToast={showToast}/>
+                                    </div>}
                                 </div>
                                 );
                             })}
-                            <div className="add-bar">{BLOCK_TYPES.map(bt=><button key={bt.type} className="btn btn-dark btn-sm" onClick={()=>addBlock(bt.type)}>{bt.icon} {bt.label}</button>)}
-                                <label className="btn btn-blue btn-sm" style={{cursor:'pointer'}}><input type="file" accept="image/*" multiple style={{display:'none'}} onChange={e=>{
-                                    const files = Array.from(e.target.files); if(!files.length) return;
-                                    e.target.value = '';
-                                    const failed = [];
-                                    Promise.all(files.map(file=>{
-                                        const fd=new FormData();fd.append('caseId',proj.id);fd.append('media',file);
-                                        return fetch(`${API}/upload`,{method:'POST',body:fd,headers:{'X-CMS-Token':sessionStorage.getItem('cms_token')||''}})
-                                            .then(r=>r.json().catch(()=>({})).then(j=>(r.ok&&j.path)?j.path:Promise.reject(new Error(j.error||'upload'))))
-                                            .catch(()=>{failed.push(file.name);return null;});
-                                    })).then(paths=>{
-                                        const images = paths.filter(Boolean);
-                                        if(images.length) update('blocks',[...(proj.blocks||[]),{type:'gallery',images}]);
-                                        if(failed.length) showToast(`Не загрузились: ${failed.join(', ')}`, false, 5000);
-                                    });
-                                }}/>📁 Массовая загрузка → Галерея</label>
+                            </div>
+                            <div className="add-palette">
+                                <div className="add-palette-title">Добавить блок</div>
+                                <div className="add-palette-groups">
+                                    {Object.entries(BLOCK_GROUPS).map(([key,g]) => (
+                                        <div className="palette-group" data-group={key} key={key}>
+                                            <div className="palette-group-label"><i/>{g.label}</div>
+                                            <div className="palette-group-btns">
+                                                {BLOCK_TYPES.filter(bt=>bt.group===key).map(bt=>(
+                                                    <button key={bt.type} className="palette-btn" onClick={()=>addBlock(bt.type)}><span className="blk-icon">{bt.icon}</span>{bt.label}</button>
+                                                ))}
+                                                {key==='media' && (
+                                                    <label className="palette-btn" style={{cursor:'pointer'}}><input type="file" accept="image/*" multiple style={{display:'none'}} onChange={e=>{
+                                                        const files = Array.from(e.target.files); if(!files.length) return;
+                                                        e.target.value = '';
+                                                        const failed = [];
+                                                        Promise.all(files.map(file=>{
+                                                            const fd=new FormData();fd.append('caseId',proj.id);fd.append('media',file);
+                                                            return fetch(`${API}/upload`,{method:'POST',body:fd,headers:{'X-CMS-Token':sessionStorage.getItem('cms_token')||''}})
+                                                                .then(r=>r.json().catch(()=>({})).then(j=>(r.ok&&j.path)?j.path:Promise.reject(new Error(j.error||'upload'))))
+                                                                .catch(()=>{failed.push(file.name);return null;});
+                                                        })).then(paths=>{
+                                                            const images = paths.filter(Boolean);
+                                                            if(images.length) update('blocks',[...(proj.blocks||[]),{type:'gallery',_uid:nextBlockUid(),images}]);
+                                                            if(failed.length) showToast(`Не загрузились: ${failed.join(', ')}`, false, 5000);
+                                                        });
+                                                    }}/><span className="blk-icon">📁</span>Массовая загрузка → Галерея</label>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                        <div className="live-preview">
-	                            <div className="live-preview-header">
-	                                <span>Предпросмотр</span>
-	                                <div style={{display:'flex',gap:'0.3rem',alignItems:'center'}}>
-	                                    <button className={`preview-mode-btn ${previewMode==='desktop'?'active':''}`} onClick={()=>setPreviewMode('desktop')}>🖥</button>
-	                                    <button className={`preview-mode-btn ${previewMode==='mobile'?'active':''}`} onClick={()=>setPreviewMode('mobile')}>📱</button>
-	                                    <button className="preview-mode-btn" onClick={restartPreview} title="Перезапустить анимации">↻ Анимации</button>
-	                                    <button className="preview-mode-btn" onClick={()=>setPreviewFullscreen(true)} title="Открыть предпросмотр на весь экран">⛶ На весь экран</button>
-	                                    <span className="live-preview-hint">{(proj.blocks||[]).filter(b=>b.enabled!==false).length} вкл.</span>
-	                                </div>
-	                            </div>
-	                            <LivePreview blocks={proj.blocks||[]} title={proj.title} mode={previewMode} seed={previewSeed}/>
-	                        </div>
-	                        </div>
-	                    )}
+                    )}
 	                    {previewFullscreen && (
 	                        <div className="preview-fullscreen-overlay">
 	                            <div className="preview-fullscreen-bar">
