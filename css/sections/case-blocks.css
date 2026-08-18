@@ -321,6 +321,216 @@ h3.case-block-heading {
         height: 280px;
     }}
 
+/* ── Gallery: карусель ──
+   Лента фото-карточек без подписей и рамок: фото от края до края карточки,
+   высота общая, ширина каждой — по пропорциям кадра. Первый слайд встаёт на
+   сетку контента, дальше лента уходит под правый край окна. */
+.case-block-slider {
+    position: relative;
+    margin: 2.5rem 0;
+    /* Отступ ленты = отступ контентной колонки — на широких экранах
+       добавляется поле до сетки (100vw - max-width)/2 */
+    --slider-inset: max(var(--case-padding), calc((100vw - var(--case-max-width)) / 2 + var(--case-padding)));
+}
+
+.case-slider-track {
+    display: flex;
+    gap: clamp(0.9rem, 1.6vw, 1.4rem);
+    overflow-x: auto;
+    padding: 0.5rem var(--slider-inset) 1rem;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: var(--slider-inset);
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.case-slider-track::-webkit-scrollbar {
+    display: none;
+}
+
+.case-slide {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+}
+
+.case-slide img {
+    height: clamp(340px, 56vh, 600px);
+    width: auto;
+    max-width: min(82vw, 900px);
+    object-fit: cover;
+    display: block;
+    border-radius: var(--case-radius);
+    box-shadow: var(--case-shadow);
+}
+
+.case-slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(29, 29, 31, 0.1);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.82);
+    color: var(--case-text);
+    font-size: 1.05rem;
+    line-height: 1;
+    cursor: pointer;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 10px 30px rgba(29, 29, 31, 0.12);
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease, background 0.25s ease;
+}
+
+.case-block-slider:hover .case-slider-arrow,
+.case-slider-track:focus-visible ~ .case-slider-arrow {
+    opacity: 1;
+}
+
+.case-slider-arrow:hover {
+    background: #fff;
+    transform: translateY(-50%) scale(1.06);
+}
+
+.case-slider-arrow--prev {
+    left: clamp(0.9rem, 2vw, 1.6rem);
+}
+
+.case-slider-arrow--next {
+    right: clamp(0.9rem, 2vw, 1.6rem);
+}
+
+/* На краях ленты соответствующая стрелка гаснет */
+.case-block-slider.is-start .case-slider-arrow--prev,
+.case-block-slider.is-end .case-slider-arrow--next {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ── Карусель: счётчик и линия прогресса ── */
+.case-slider-hud {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    padding: 0.7rem var(--slider-inset) 0;
+    color: rgba(29, 29, 31, 0.52);
+    font-family: var(--font-body, 'Roboto'), sans-serif;
+}
+
+.case-slider-count {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.case-slider-count b {
+    font-weight: 600;
+    color: var(--case-text);
+}
+
+.case-slider-progress {
+    flex: 0 1 220px;
+    height: 2px;
+    border-radius: 99px;
+    background: rgba(29, 29, 31, 0.12);
+    overflow: hidden;
+}
+
+.case-slider-progress i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--case-text);
+    transform: scaleX(0);
+    transform-origin: left;
+}
+
+/* ── Карусель: фокус-эффект и драг (включает hydrateCaseSliders на десктопе) ──
+   --slide-f: 0 у карточки в центре внимания, 1 у края экрана. */
+.case-block-slider.is-enhanced .case-slide {
+    will-change: transform, opacity;
+    transform: scale(calc(1 - var(--slide-f, 0) * 0.07));
+    opacity: calc(1 - var(--slide-f, 0) * 0.42);
+}
+
+.case-block-slider.is-enhanced .case-slider-track {
+    cursor: grab;
+    scroll-snap-type: x proximity;
+}
+
+.case-block-slider.is-dragging .case-slider-track {
+    cursor: grabbing;
+    scroll-snap-type: none;
+    user-select: none;
+}
+
+.case-slide img {
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+/* ── Карусель: тёмная лента ──
+   Полноширинная чёрная полоса — референс «мудборд на чёрном». */
+.case-block-slider--dark {
+    margin: clamp(2.5rem, 6vw, 4.5rem) 0;
+    padding: clamp(1.8rem, 3.6vw, 3rem) 0 clamp(1.2rem, 2.4vw, 2rem);
+    background: #0b0b0c;
+}
+
+.case-block-slider--dark .case-slide img {
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+}
+
+.case-block-slider--dark .case-slider-arrow {
+    border-color: rgba(255, 255, 255, 0.14);
+    background: rgba(24, 24, 26, 0.72);
+    color: #fff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+.case-block-slider--dark .case-slider-arrow:hover {
+    background: rgba(42, 42, 46, 0.92);
+}
+
+.case-block-slider--dark .case-slider-hud {
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.case-block-slider--dark .case-slider-count b {
+    color: #fff;
+}
+
+.case-block-slider--dark .case-slider-progress {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.case-block-slider--dark .case-slider-progress i {
+    background: #fff;
+}
+
+@media (max-width: 768px) {
+    .case-slide img {
+        height: clamp(300px, 52vh, 460px);
+        max-width: 86vw;
+    }
+    /* На таче листают пальцем — стрелки не нужны */
+    .case-slider-arrow {
+        display: none;
+    }
+    .case-slider-progress {
+        flex-basis: 140px;
+    }
+}
+
 /* ── Columns ── */
 .case-block-columns {
     max-width: var(--case-max-width);
@@ -338,36 +548,23 @@ h3.case-block-heading {
     grid-template-columns: repeat(3, 1fr);
 }
 
+/* Карточка без «паспарту»: фото лежит от края до края, рамок и полей
+   вокруг изображения нет — только скругление и мягкая тень самой карточки. */
 .case-col {
     position: relative;
     display: flex;
     flex-direction: column;
     min-height: clamp(300px, 36vw, 480px);
-    padding: clamp(0.7rem, 1.4vw, 1rem);
     overflow: hidden;
     isolation: isolate;
-    border: 1px solid rgba(29, 29, 31, 0.09);
     border-radius: clamp(22px, 3vw, 34px);
-    background:
-        linear-gradient(145deg, rgba(255, 255, 255, 0.86), rgba(236, 236, 238, 0.68)),
-        var(--case-bg);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.86), rgba(236, 236, 238, 0.68)), var(--case-bg);
     box-shadow: 0 28px 70px rgba(29, 29, 31, 0.09), 0 10px 24px rgba(29, 29, 31, 0.04);
     opacity: 0;
     transform: translate3d(0, 34px, 0) scale(0.98);
     animation: caseColumnCardIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     animation-delay: calc(var(--card-i, 0) * 90ms);
-    transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.55s ease, border-color 0.35s ease;
-}
-
-.case-col::before {
-    content: "";
-    position: absolute;
-    inset: 0.65rem;
-    z-index: -1;
-    border-radius: inherit;
-    background: radial-gradient(circle at 28% 18%, rgba(255, 255, 255, 0.9), transparent 34%);
-    opacity: 0.8;
-    pointer-events: none;
+    transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.55s ease;
 }
 
 .case-col--expandable {
@@ -381,7 +578,6 @@ h3.case-block-heading {
 
 .case-col--expandable:hover {
     z-index: 2;
-    border-color: rgba(29, 29, 31, 0.18);
     box-shadow: 0 40px 90px rgba(29, 29, 31, 0.14), 0 16px 34px rgba(29, 29, 31, 0.06);
     transform: translate3d(0, -12px, 0) scale(1.015);
 }
@@ -391,17 +587,6 @@ h3.case-block-heading {
     flex: 1 1 auto;
     min-height: 180px;
     overflow: hidden;
-    border-radius: calc(clamp(22px, 3vw, 34px) - 8px);
-    background: rgba(255, 255, 255, 0.58);
-    box-shadow: inset 0 0 0 1px rgba(29, 29, 31, 0.05);
-}
-
-.case-col-media::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 55%, rgba(245, 245, 247, 0.72));
-    pointer-events: none;
 }
 
 .case-col img {
@@ -409,7 +594,6 @@ h3.case-block-heading {
     height: 100%;
     min-height: 230px;
     object-fit: cover;
-    border-radius: inherit;
     display: block;
     filter: saturate(0.94) contrast(1.02);
     transform: scale(1.01);
@@ -422,7 +606,7 @@ h3.case-block-heading {
 }
 
 .case-col-copy {
-    padding: clamp(1rem, 2vw, 1.3rem) clamp(0.15rem, 1vw, 0.45rem) 0.15rem;
+    padding: clamp(1rem, 2vw, 1.3rem) clamp(1rem, 2.2vw, 1.5rem) clamp(1.1rem, 2.2vw, 1.5rem);
 }
 
 .case-col-title {

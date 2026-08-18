@@ -244,7 +244,18 @@ export function renderCaseBlock(block) {
         }
 
         case 'gallery': {
-            const imgs = (block.images || []).map(src => `<img src="${escapeAttr(src)}" alt=""/>`).join('');
+            const images = block.images || [];
+            if (!images.length) return '';
+            // «Карусель»: лента фото-карточек без подписей и рамок — мудборды,
+            // слайды, серии. Листается свайпом/скроллом, стрелки вешает
+            // hydrateCaseSliders.
+            if (block.layout === 'slider') {
+                const dark = block.background === 'dark';
+                const slides = images.map(src => `<div class="case-slide"><img src="${escapeAttr(src)}" alt="" loading="lazy"/></div>`).join('');
+                const total = String(images.length).padStart(2, '0');
+                return wrapReveal(block, `<div class="case-block-slider${dark ? ' case-block-slider--dark' : ''}"><div class="case-slider-track" tabindex="0" role="region" aria-label="Галерея, листается горизонтально">${slides}</div><button class="case-slider-arrow case-slider-arrow--prev" type="button" aria-label="Назад">←</button><button class="case-slider-arrow case-slider-arrow--next" type="button" aria-label="Вперёд">→</button><div class="case-slider-hud"><span class="case-slider-count"><b>01</b><span>/ ${total}</span></span><span class="case-slider-progress"><i></i></span></div></div>`);
+            }
+            const imgs = images.map(src => `<img src="${escapeAttr(src)}" alt=""/>`).join('');
             return wrapReveal(block, `<div class="case-block-gallery">${imgs}</div>`);
         }
 
@@ -392,6 +403,138 @@ export function hydrateCaseMedia(root = document) {
         }, { threshold: 0.25 });
         io.observe(video);
         video._mediaIO = io;  // чтобы teardownCaseMedia мог отключить наблюдатель
+    });
+}
+
+/**
+ * Оживление каруселей галерей (.case-block-slider). Базовый слой — нативный
+ * scroll-snap, поэтому без hydrate карусель всё равно листается свайпом.
+ * Hydrate добавляет:
+ *  • стрелки с гашением на краях;
+ *  • счётчик «01 / N» и линию прогресса;
+ *  • фокус-эффект — карточки у краёв экрана мягко уменьшаются и тускнеют;
+ *  • на десктопе (hover+мышь): драг с инерцией — «флик» доводит до карточки,
+ *    и вертикальное колесо листает ленту (на краях отдаёт скролл странице).
+ */
+export function hydrateCaseSliders(root = document) {
+    root.querySelectorAll('.case-block-slider').forEach((el) => {
+        if (el.dataset.sliderReady === '1') return;
+        el.dataset.sliderReady = '1';
+
+        const track = el.querySelector('.case-slider-track');
+        if (!track) return;
+        const slides = Array.from(track.querySelectorAll('.case-slide'));
+        if (!slides.length) return;
+        const counterEl = el.querySelector('.case-slider-count b');
+        const progressEl = el.querySelector('.case-slider-progress i');
+
+        const maxScroll = () => Math.max(0, track.scrollWidth - track.clientWidth);
+        const padLeft = () => parseFloat(getComputedStyle(track).paddingLeft) || 0;
+        // Позиции, в которых слайд встаёт на сетку контента. Ширины слайдов
+        // разные (по пропорциям кадра), поэтому шаг не фиксированный.
+        const anchors = () => slides.map(s => Math.min(Math.max(0, s.offsetLeft - padLeft()), maxScroll()));
+
+        // Фокус-эффект, счётчик, прогресс и края — одним проходом в rAF
+        let raf = 0;
+        const paint = () => {
+            raf = 0;
+            const r = track.getBoundingClientRect();
+            const cx = r.left + r.width / 2;
+            let active = 0;
+            let bestDist = Infinity;
+            slides.forEach((s, i) => {
+                const sr = s.getBoundingClientRect();
+                const dist = Math.abs(sr.left + sr.width / 2 - cx);
+                s.style.setProperty('--slide-f', Math.min(1, dist / (r.width * 0.62)).toFixed(3));
+                if (dist < bestDist) { bestDist = dist; active = i; }
+            });
+            if (counterEl) counterEl.textContent = String(active + 1).padStart(2, '0');
+            const m = maxScroll();
+            if (progressEl) progressEl.style.transform = `scaleX(${m > 0 ? (track.scrollLeft / m).toFixed(4) : 1})`;
+            el.classList.toggle('is-start', track.scrollLeft <= 4);
+            el.classList.toggle('is-end', track.scrollLeft >= m - 4);
+        };
+        const schedule = () => { if (!raf) raf = requestAnimationFrame(paint); };
+
+        const goTo = (left) => track.scrollTo({ left, behavior: 'smooth' });
+        el.querySelector('.case-slider-arrow--prev')?.addEventListener('click', () => {
+            const pts = anchors();
+            const before = pts.filter(a => a < track.scrollLeft - 4);
+            goTo(before.length ? before[before.length - 1] : 0);
+        });
+        el.querySelector('.case-slider-arrow--next')?.addEventListener('click', () => {
+            const next = anchors().find(a => a > track.scrollLeft + 4);
+            goTo(next != null ? next : maxScroll());
+        });
+
+        track.addEventListener('scroll', schedule, { passive: true });
+        track.addEventListener('load', schedule, true); // картинки догрузились — ширины изменились
+        window.addEventListener('resize', schedule);
+        schedule();
+
+        // Дальше — только десктоп с мышью: драг и колесо. На таче нативный
+        // свайп с mandatory-снапом лучше любых обработчиков.
+        if (!(typeof matchMedia === 'function' && matchMedia('(hover: hover) and (pointer: fine)').matches)) return;
+        el.classList.add('is-enhanced');
+
+        let dragging = false;
+        let dragMoved = false;
+        let startX = 0;
+        let startLeft = 0;
+        let lastX = 0;
+        let lastT = 0;
+        let velocity = 0; // px/ms, знак — направление движения курсора
+
+        track.addEventListener('pointerdown', (e) => {
+            if (e.pointerType !== 'mouse' || e.button !== 0) return;
+            dragging = true;
+            dragMoved = false;
+            startX = lastX = e.clientX;
+            startLeft = track.scrollLeft;
+            lastT = performance.now();
+            velocity = 0;
+            el.classList.add('is-dragging');
+            track.setPointerCapture(e.pointerId);
+        });
+        track.addEventListener('pointermove', (e) => {
+            if (!dragging) return;
+            const now = performance.now();
+            velocity = (e.clientX - lastX) / Math.max(1, now - lastT);
+            lastX = e.clientX;
+            lastT = now;
+            if (Math.abs(e.clientX - startX) > 4) dragMoved = true;
+            track.scrollLeft = startLeft - (e.clientX - startX);
+        });
+        const endDrag = () => {
+            if (!dragging) return;
+            dragging = false;
+            el.classList.remove('is-dragging');
+            // Инерция флика: проецируем скорость вперёд и доводим до ближайшей
+            // карточки — отпустил с разгоном, и лента сама долистнула.
+            const projected = track.scrollLeft - velocity * 260;
+            let target = 0;
+            let best = Infinity;
+            anchors().forEach((a) => {
+                const d = Math.abs(a - projected);
+                if (d < best) { best = d; target = a; }
+            });
+            goTo(target);
+        };
+        track.addEventListener('pointerup', endDrag);
+        track.addEventListener('pointercancel', endDrag);
+        // После драга «клик» по карточке — случайность, гасим
+        track.addEventListener('click', (e) => {
+            if (dragMoved) { e.preventDefault(); e.stopPropagation(); dragMoved = false; }
+        }, true);
+
+        // Вертикальное колесо листает ленту; на краях — отдаём скролл странице
+        track.addEventListener('wheel', (e) => {
+            const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+            const m = maxScroll();
+            if ((delta < 0 && track.scrollLeft <= 0) || (delta > 0 && track.scrollLeft >= m - 1)) return;
+            e.preventDefault();
+            track.scrollLeft += delta;
+        }, { passive: false });
     });
 }
 
