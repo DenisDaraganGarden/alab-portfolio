@@ -1,5 +1,7 @@
 # A.LAB — сайт alabspace.com
 
+> Передача проекта студии — что где живёт, что ещё чинить: [docs/handover.md](docs/handover.md)
+
 Живой сайт: **https://alabspace.com**. Всё, что попадает в ветку `main`, автоматически
 собирается и выкладывается на сайт (GitHub Actions → GitHub Pages), обычно за 1–2 минуты.
 
