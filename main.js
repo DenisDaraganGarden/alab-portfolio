@@ -2,6 +2,7 @@ import './css/preloader.css';
 import './css/base.css';
 import './css/layout.css';
 import './css/components/header.css';
+import './css/components/cookie-consent.css';
 import './css/sections/hero.css';
 import './css/sections/manifesto.css';
 import './css/sections/profile.css';
@@ -25,9 +26,26 @@ import { initViewportMetrics } from './js/utils/viewport.js';
 import { initIridescentTrail } from './js/effects/iridescent-trail.js';
 import { initWaterRipple } from './js/effects/water-ripple.js';
 import { initAnalytics } from './js/utils/analytics.js';
+import { initCookieConsent, hasAnalyticsConsent } from './js/utils/cookie-consent.js';
+import { initMetricaGoals } from './js/utils/metrica-goals.js';
 import { gate, runPreloader, refreshScrollScenes } from './js/boot/preloader.js';
 
 export { refreshScrollScenes };
+
+initCookieConsent();
+initMetricaGoals();
+
+let siteRevealed = false;
+let analyticsStarted = false;
+const startConsentedAnalytics = () => {
+    if (!siteRevealed || analyticsStarted || !hasAnalyticsConsent()) return;
+    analyticsStarted = true;
+    initAnalytics();
+};
+
+document.addEventListener('alab:cookie-consent', (event) => {
+    if (event.detail?.status === 'accepted') startConsentedAnalytics();
+});
 
 /**
  * [A.LAB] Main Initialization Script
@@ -82,6 +100,7 @@ const initHeaderAnchorNavigation = () => {
  * вёрстку. Ни один из них не создаёт ScrollTrigger.
  */
 const initDeferredEffects = () => {
+    siteRevealed = true;
     // Жидкостный след работает и на тач-устройствах. Прежний запрет стоял
     // из-за canvas-фильтра, который iOS Safari не поддерживал: эффект там
     // распадался на пиксельные пятна. Фильтра в эффекте больше нет, размытие
@@ -100,7 +119,7 @@ const initDeferredEffects = () => {
     } catch (error) {
         console.error('[A.LAB] Ошибка инициализации water-ripple:', error);
     }
-    initAnalytics();
+    startConsentedAnalytics();
 };
 
 document.addEventListener('alab:reveal', initDeferredEffects, { once: true });

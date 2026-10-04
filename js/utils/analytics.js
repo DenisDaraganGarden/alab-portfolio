@@ -45,7 +45,7 @@ const detectEndpoint = () => {
     if ((hostname === 'localhost' || hostname === '127.0.0.1') && port === '5173') {
         return 'http://localhost:3001/api/analytics/collect';
     }
-    return '/api/analytics/collect';
+    return null;
 };
 
 const detectDevice = () => {
@@ -88,6 +88,9 @@ export const initAnalytics = () => {
     if (navigator.doNotTrack === '1' || window.doNotTrack === '1') return;
 
     const endpoint = detectEndpoint();
+    // Публичный сайт размещён на GitHub Pages, где /api/analytics/collect
+    // отсутствует. Не создаём visitor/session ID и не отправляем 404-запросы.
+    if (!endpoint) return;
     const visitorId = getVisitorId();
     const sessionId = getSessionId();
     const startedAt = Date.now();

@@ -229,6 +229,7 @@
     }
 
     .mirror-form .form-group-wide,
+    .mirror-form .form-consent,
     .mirror-form .submit-btn {
         grid-column: 1 / -1;
     }
@@ -321,6 +322,63 @@
 .submit-btn:hover {
     transform: scale(1.05);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.form-consent a:focus-visible,
+.form-consent input:focus-visible {
+    outline: 3px solid #b9a2cf;
+    outline-offset: 3px;
+}
+
+.form-consent {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    color: rgba(29, 29, 31, 0.78);
+    font-size: clamp(0.76rem, 0.9vw, 0.86rem);
+    line-height: 1.45;
+}
+
+.form-consent__control {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr);
+    gap: 0.7rem;
+    align-items: start;
+}
+
+.form-consent input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    border: 1.5px solid rgba(29, 29, 31, 0.48);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+}
+
+.form-consent input[type="checkbox"]:checked {
+    border-color: #1d1d1f;
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='m3 8 3 3 7-7'/%3E%3C/svg%3E") center / 15px 15px no-repeat,
+      #1d1d1f;
+}
+
+.form-consent label {
+    cursor: pointer;
+    user-select: text;
+}
+
+.form-consent a {
+    color: inherit;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+}
+
+.form-consent__policy {
+    width: fit-content;
+    margin-left: calc(22px + 0.7rem);
 }
 
 .btn-shimmer {
@@ -1014,6 +1072,10 @@
     overflow: visible;
   }
 
+  .form-consent {
+    font-size: 0.82rem;
+  }
+
   .contacts-heading-group,
   .contacts-form-wrapper {
     min-width: 0;
@@ -1318,7 +1380,8 @@
   color: rgba(29, 29, 31, 0.55);
 }
 
-.footer-credit {
+.footer-credit,
+.footer-legal {
   margin: 0;
   font-family: var(--font-body);
   font-size: 0.78rem;
@@ -1327,15 +1390,41 @@
 }
 
 .footer-credit a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   color: rgba(29, 29, 31, 0.6);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(29, 29, 31, 0.18);
-  transition: color 0.25s ease, border-color 0.25s ease;
+  text-decoration: underline;
+  text-decoration-color: rgba(29, 29, 31, 0.18);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: color 0.25s ease, text-decoration-color 0.25s ease;
+}
+
+.footer-legal {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.55rem;
+  margin-top: 0.45rem;
+}
+
+.footer-legal a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: rgba(29, 29, 31, 0.62);
+  text-underline-offset: 0.2em;
+}
+
+.footer-legal a:focus-visible {
+  outline: 3px solid #b9a2cf;
+  outline-offset: 3px;
 }
 
 .footer-credit a:hover {
   color: rgba(29, 29, 31, 0.85);
-  border-bottom-color: rgba(29, 29, 31, 0.4);
+  text-decoration-color: rgba(29, 29, 31, 0.4);
 }
 
 /* Невысокие десктопные экраны: ужимаем карточку брифа, чтобы секция влезала в один экран */
