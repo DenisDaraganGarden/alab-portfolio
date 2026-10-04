@@ -173,6 +173,7 @@ export async function initPortfolio(container) {
         const badge = proj.isExternal && proj.externalUrl
             ? '<span class="project-external-badge">Behance ↗</span>'
             : '';
+        if (badge) card.classList.add('is-external');
         card.innerHTML = `
             ${hoverVideo ? `<video class="project-hover-video" muted loop playsinline preload="none" data-src="${escText(hoverVideo)}" aria-hidden="true"></video>` : ''}
             ${proj.logo ? `<div class="project-logo-wrapper"><img src="${escText(proj.logo)}" class="project-logo" alt="${escText(proj.title)} logo"></div>` : `<div class="project-logo-fallback">${escText(proj.title)}</div>`}

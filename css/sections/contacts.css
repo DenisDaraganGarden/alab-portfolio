@@ -1405,6 +1405,10 @@
   padding: 1.4rem;
 }
 
+.industry-projects .portfolio-project-card.is-external {
+  padding-top: 3.55rem;
+}
+
 .industry-projects .project-logo-wrapper,
 .industry-projects .project-logo-fallback {
   left: 1.4rem;
@@ -1424,15 +1428,36 @@
   font-size: 1.4rem;
 }
 
-/* Подпись под логотипом на карточке проекта: логотип и текст в потоке, прижаты к низу */
-.industry-projects .portfolio-project-card.has-tagline {
+/* Логотип / текстовое название занимают единую растягиваемую зону.
+   Одинаковая высота карточек в grid-строке синхронизирует эту зону без JS,
+   а длинный fallback свободно переносится и увеличивает строку целиком. */
+.industry-projects .portfolio-project-card:not(.project-more-card) {
   justify-content: flex-end;
+}
+
+.industry-projects .portfolio-project-card:not(.project-more-card) .project-logo-wrapper,
+.industry-projects .portfolio-project-card:not(.project-more-card) .project-logo-fallback {
+  position: static;
+  display: flex;
+  align-items: flex-end;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.industry-projects .portfolio-project-card.has-tagline {
   min-height: clamp(158px, 22vh, 208px);
 }
 
-.industry-projects .portfolio-project-card.has-tagline .project-logo-wrapper,
-.industry-projects .portfolio-project-card.has-tagline .project-logo-fallback {
-  position: static;
+.industry-projects .portfolio-project-card:not(.has-tagline):not(.project-more-card)::after {
+  content: "";
+  flex: 0 0 2.7em;
+  margin-top: 0.55rem;
+  font-size: 0.8rem;
+}
+
+.industry-projects .project-logo-fallback {
+  overflow-wrap: anywhere;
 }
 
 .project-tagline {
@@ -1567,7 +1592,7 @@
 
 @media (max-width: 900px) {
   .industry-projects {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(144px, 1fr));
     gap: 0.8rem;
   }
 
@@ -1577,6 +1602,10 @@
     padding: 1.1rem;
   }
 
+  .industry-projects .portfolio-project-card.is-external {
+    padding-top: 3.1rem;
+  }
+
   .industry-projects .project-logo-wrapper,
   .industry-projects .project-logo-fallback {
     left: 1.1rem;
@@ -1584,9 +1613,9 @@
   }
 
   .industry-projects .project-logo {
-    height: 13px;
+    height: clamp(16px, 4.2vw, 18px);
     width: auto;
-    max-width: min(70%, 130px);
+    max-width: min(76%, 138px);
   }
 
   .industry-projects .portfolio-project-card.has-tagline {
@@ -1594,6 +1623,11 @@
   }
 
   .project-tagline {
+    margin-top: 0.4rem;
+    font-size: 0.72rem;
+  }
+
+  .industry-projects .portfolio-project-card:not(.has-tagline):not(.project-more-card)::after {
     margin-top: 0.4rem;
     font-size: 0.72rem;
   }
