@@ -1,3 +1,11 @@
+import {
+    buildContactPayload,
+    createContactSubmissionController,
+    isValidPhone,
+    SUBMISSION_STATUS
+} from '../utils/contact-form.js';
+import { METRICA_GOALS, trackMetricaGoal } from '../utils/metrica-goals.js';
+
 /**
  * Contacts Section Module
  * Implements a reactive concave mirror form with "liquid" borders.
@@ -15,6 +23,80 @@ export const initContacts = (container) => {
     const morphBox = container.querySelector('.morph-box');
 
     const canAnimate = typeof gsap !== 'undefined';
+    const form = container.querySelector('#contact-form');
+    const consentCheckbox = form?.querySelector('#personal-data-consent');
+    const submitButton = form?.querySelector('.submit-btn');
+    const submitLabel = submitButton?.querySelector('span');
+    const formStatus = form?.querySelector('[data-form-status]');
+    const emailInput = form?.querySelector('#email');
+    const phoneInput = form?.querySelector('#phone');
+
+    const hasContact = () => Boolean(emailInput?.value.trim() || phoneInput?.value.trim());
+
+    const syncContactValidity = () => {
+        emailInput?.setCustomValidity(hasContact() ? '' : 'Укажите телефон или email.');
+        const phone = phoneInput?.value.trim() || '';
+        phoneInput?.setCustomValidity(phone && !isValidPhone(phone) ? 'Проверьте номер телефона.' : '');
+    };
+
+    const setStatusMessage = (message, type = '') => {
+        if (!formStatus) return;
+        formStatus.textContent = message;
+        formStatus.dataset.state = type;
+    };
+
+    let submissionController;
+
+    const syncConsentState = () => {
+        syncContactValidity();
+        if (!submitButton || !form) return;
+        const isSending = submissionController?.getStatus() === SUBMISSION_STATUS.SENDING;
+        submitButton.disabled = isSending || !form.checkValidity();
+    };
+
+    const updateSubmissionUi = (status) => {
+        if (!submitButton || !submitLabel) return;
+        submitButton.dataset.state = status;
+        if (status === SUBMISSION_STATUS.SENDING) {
+            submitButton.disabled = true;
+            submitLabel.textContent = 'ОТПРАВЛЯЕМ…';
+            setStatusMessage('Идёт отправка заявки.', 'sending');
+            return;
+        }
+        submitLabel.textContent = 'ОТПРАВИТЬ';
+        syncConsentState();
+    };
+
+    submissionController = createContactSubmissionController({ onStateChange: updateSubmissionUi });
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        syncContactValidity();
+        if (!form?.checkValidity()) {
+            form?.reportValidity();
+            return;
+        }
+
+        const result = await submissionController.submit(buildContactPayload(new FormData(form)));
+        if (result.status === SUBMISSION_STATUS.SUCCESS && result.accepted === true) {
+            trackMetricaGoal(METRICA_GOALS.FORM_SUCCESS);
+            form.reset();
+            setStatusMessage('Спасибо! Заявка принята.', 'success');
+            syncConsentState();
+            return;
+        }
+
+        const message = result.code === 'ENDPOINT_MISSING'
+            ? 'Отправка пока недоступна. Попробуйте позже.'
+            : 'Не удалось отправить заявку. Проверьте соединение и попробуйте ещё раз.';
+        setStatusMessage(message, 'failure');
+        syncConsentState();
+    };
+
+    consentCheckbox?.addEventListener('change', syncConsentState);
+    form?.addEventListener('input', syncConsentState);
+    form?.addEventListener('submit', handleSubmit);
+    syncConsentState();
 
     if (canAnimate && morphLayer && morphBox && contactsCard) {
         // Initial setup for morph sequence
@@ -136,21 +218,6 @@ export const initContacts = (container) => {
     setGlassState(neutralGlassState);
 
     if (!supportsFinePointer || !canAnimate) {
-        const form = container.querySelector('#contact-form');
-        if (form) {
-            form.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const btn = form.querySelector('.submit-btn span');
-                if (btn) btn.textContent = 'ОТПРАВЛЕНО';
-                if (canAnimate) {
-                    gsap.to(form, { opacity: 0.5, pointerEvents: 'none', duration: 0.4 });
-                } else {
-                    form.style.opacity = '0.5';
-                    form.style.pointerEvents = 'none';
-                }
-                form.reset();
-            });
-        }
         return;
     }
 
@@ -189,15 +256,4 @@ export const initContacts = (container) => {
     formContainer.addEventListener('pointercancel', handlePointerLeave);
     formContainer.addEventListener('pointerup', handlePointerLeave);
     
-    // Simple Form Submission Feedback
-    const form = container.querySelector('#contact-form');
-    if (form) {
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const btn = form.querySelector('.submit-btn span');
-            if (btn) btn.textContent = 'ОТПРАВЛЕНО';
-            gsap.to(form, { opacity: 0.5, pointerEvents: 'none', duration: 0.4 });
-            form.reset();
-        });
-    }
 };

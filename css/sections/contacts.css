@@ -324,6 +324,46 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
+.submit-btn:disabled,
+.submit-btn:disabled:hover {
+    transform: none;
+    box-shadow: none;
+    cursor: not-allowed;
+    border: 1px solid rgba(29, 29, 31, 0.16);
+    background: rgba(29, 29, 31, 0.1);
+    color: rgba(29, 29, 31, 0.62);
+    opacity: 1;
+}
+
+.submit-btn:disabled .btn-shimmer {
+    display: none;
+}
+
+.submit-btn[data-state="sending"] {
+    cursor: wait;
+}
+
+.form-status {
+    min-height: 1.45em;
+    margin: 0;
+    color: rgba(29, 29, 31, 0.72);
+    font-size: 0.86rem;
+    line-height: 1.45;
+}
+
+.form-status:empty {
+    min-height: 0;
+}
+
+.form-status[data-state="success"] {
+    color: #275e45;
+}
+
+.form-status[data-state="failure"] {
+    color: #8b2f2f;
+}
+
+.submit-btn:focus-visible,
 .form-consent a:focus-visible,
 .form-consent input:focus-visible {
     outline: 3px solid #b9a2cf;

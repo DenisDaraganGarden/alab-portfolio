@@ -1067,11 +1067,11 @@
                                     <div class="input-bevel"></div>
                                 </div>
                                 <div class="form-group">
-                                    <input type="email" id="email" name="email" class="ym-disable-keys ym-hide-content" placeholder="Email" required>
+                                    <input type="email" id="email" name="email" class="ym-disable-keys ym-hide-content" placeholder="Email" autocomplete="email">
                                     <div class="input-bevel"></div>
                                 </div>
                                 <div class="form-group">
-                                    <input type="tel" id="phone" name="phone" class="ym-disable-keys ym-hide-content" placeholder="Телефон">
+                                    <input type="tel" id="phone" name="phone" class="ym-disable-keys ym-hide-content" placeholder="Телефон" autocomplete="tel" inputmode="tel">
                                     <div class="input-bevel"></div>
                                 </div>
                                 <div class="form-group">
@@ -1093,10 +1093,11 @@
                                     </div>
                                     <a class="form-consent__policy" href="/privacy-policy/" target="_blank" rel="noopener noreferrer">Политика обработки персональных данных</a>
                                 </div>
-                                <button type="submit" class="submit-btn">
+                                <button type="submit" class="submit-btn" disabled>
                                     <span>Отправить</span>
                                     <div class="btn-shimmer"></div>
                                 </button>
+                                <p class="form-status form-group-wide" data-form-status role="status" aria-live="polite"></p>
                             </form>
 
                             <div class="contacts-card-details">

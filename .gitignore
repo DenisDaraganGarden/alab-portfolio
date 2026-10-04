@@ -2,6 +2,8 @@ node_modules
 dist
 .DS_Store
 .env
+.env.*
+!.env.example
 .pen
 # Decomposition folders if needed
 PDF_Breakdown
