@@ -582,7 +582,7 @@
           </div>
           <div class="doc-meta">
             Инструкция по сайту, редактору и дальнейшей поддержке<br>
-            Версия документа: 15 мая 2026
+            Версия документа: 4 октября 2026
           </div>
         </div>
 
@@ -607,7 +607,7 @@
           </div>
           <div class="stat">
             <strong>deploy</strong>
-            <span>Публичный сайт деплоится как статическая сборка, редактор требует отдельного backend.</span>
+            <span>Публичный сайт деплоится как статическая сборка; форма ожидает отдельный Yandex Cloud Function URL.</span>
           </div>
           <div class="stat">
             <strong>agents</strong>
@@ -677,6 +677,12 @@
         <div class="note">
           Важная логика публикации: проект появляется на сайте только если в редакторе у него статус
           <strong>“Опубликован”</strong>. Черновики можно готовить спокойно, не показывая их посетителям.
+        </div>
+        <div class="note">
+          Локальная готовность на 4 октября 2026 года: backend формы проверен на Node.js v22.23.3
+          (85 PASS / 0 FAIL), frontend contact-form suite — 9 PASS / 0 FAIL. Frontend не имитирует успешную отправку и ожидает
+          <code>VITE_FORM_ENDPOINT</code>. Deployment, реальные SMTP/Telegram, создание целей Метрики
+          в кабинете и production smoke test остаются pending. GitHub transfer и ownership бота не подтверждены.
         </div>
       </section>
 
