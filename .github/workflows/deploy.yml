@@ -27,6 +27,8 @@ jobs:
         run: npm install
 
       - name: Build
+        env:
+          VITE_FORM_ENDPOINT: ${{ vars.VITE_FORM_ENDPOINT }}
         run: npm run build
 
       - name: Setup Pages

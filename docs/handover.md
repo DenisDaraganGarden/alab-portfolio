@@ -56,13 +56,16 @@ DNS-записи для подрядчика (подтверждения, DKIM �
 
 ## Текущий статус формы
 
+- Основное русскоязычное написание бренда подтверждено: «алаб».
 - Локальный backend готов и проверен под Node.js `v22.23.3`: `85 PASS / 0 FAIL`.
 - Frontend contact-form suite проверен: `9 PASS / 0 FAIL`.
 - Frontend больше не показывает fake success: успешное состояние возможно только после
   ответа backend с `accepted: true`.
+- GitHub Actions подготовлен к передаче repository variable `VITE_FORM_ENDPOINT` в Vite build.
 - Production deployment pending: нужны Yandex Cloud, реальные SMTP/Telegram credentials и
   production Function URL для `VITE_FORM_ENDPOINT`.
 - Решение по `messenger` / `industry` отсутствует; поля не входят в backend payload.
+- Почтовый адрес и подтверждение контактного текста остаются pending.
 - Собственный сбор статистики в редакторе на боевом сайте не работает: фронтенд шлёт события
   в `/api/analytics/collect`, а GitHub Pages — статика. Рабочая аналитика — только Метрика.
 

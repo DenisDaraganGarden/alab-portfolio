@@ -7,11 +7,14 @@
 
 ## Статус локальной интеграции формы
 
+- Основное русскоязычное написание бренда подтверждено: «алаб».
 - Backend формы локально готов и проверен под exact Node.js `v22.23.3`: `85 PASS / 0 FAIL`.
 - Frontend contact-form suite проверен: `9 PASS / 0 FAIL`.
 - Frontend использует состояния `idle / sending / success / failure` и не имитирует успех.
 - URL обработчика задаётся только через `VITE_FORM_ENDPOINT`; до получения production Function URL отправка корректно остаётся недоступной и введённые данные не очищаются.
+- GitHub Actions передаёт в Vite build repository variable `VITE_FORM_ENDPOINT`; сам production Function URL и его значение в GitHub всё ещё pending.
 - Поля `messenger` и `industry` остаются в интерфейсе, но не отправляются в production-approved payload до решения Заказчика.
+- Почтовый адрес и подтверждение контактного текста остаются pending.
 - Код целей Яндекс.Метрики подготовлен локально; сами цели ещё нужно создать в кабинете счётчика `108408263` после получения доступа.
 - Deployment Yandex Cloud, реальные SMTP/Telegram и production smoke test не выполнялись.
 
