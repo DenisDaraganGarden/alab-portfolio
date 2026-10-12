@@ -1078,63 +1078,69 @@
                                     <input type="text" id="messenger" name="messenger" class="ym-disable-keys ym-hide-content" placeholder="Мессенджер">
                                     <div class="input-bevel"></div>
                                 </div>
-                                <div class="form-group form-group-wide">
-                                    <input type="text" id="industry" name="industry" class="ym-disable-keys ym-hide-content" placeholder="Сфера деятельности" aria-describedby="industry-sensitive-data-warning">
-                                    <div class="input-bevel"></div>
+                                <div class="form-field-stack">
+                                    <div class="form-group">
+                                        <input type="text" id="industry" name="industry" class="ym-disable-keys ym-hide-content" placeholder="Сфера деятельности" aria-describedby="industry-sensitive-data-warning">
+                                        <div class="input-bevel"></div>
+                                    </div>
+                                    <p id="industry-sensitive-data-warning" class="form-field-hint">Не указывайте сведения о здоровье, религиозных и политических взглядах, национальной принадлежности и другие специальные категории персональных данных</p>
                                 </div>
-                                <p id="industry-sensitive-data-warning" class="form-field-hint form-group-wide">Не указывайте сведения о здоровье, религиозных и политических взглядах, национальной принадлежности и другие специальные категории персональных данных</p>
-                                <div class="form-group form-group-wide">
-                                    <textarea id="message" name="message" class="ym-disable-keys ym-hide-content" placeholder="Какие задачи хотим решить?" rows="3" aria-describedby="message-sensitive-data-warning" required></textarea>
-                                    <div class="input-bevel"></div>
+                                <div class="form-field-stack">
+                                    <div class="form-group">
+                                        <textarea id="message" name="message" class="ym-disable-keys ym-hide-content" placeholder="Какие задачи хотим решить?" rows="3" aria-describedby="message-sensitive-data-warning" required></textarea>
+                                        <div class="input-bevel"></div>
+                                    </div>
+                                    <p id="message-sensitive-data-warning" class="form-field-hint">Не указывайте сведения о здоровье, религиозных и политических взглядах, национальной принадлежности и другие специальные категории персональных данных</p>
                                 </div>
-                                <p id="message-sensitive-data-warning" class="form-field-hint form-group-wide">Не указывайте сведения о здоровье, религиозных и политических взглядах, национальной принадлежности и другие специальные категории персональных данных</p>
                                 <div class="form-consent form-group-wide">
                                     <div class="form-consent__control">
                                         <input type="checkbox" id="personal-data-consent" name="personalDataConsent" required>
                                         <label for="personal-data-consent">Я даю ИП Ларихиной Александре Юрьевне (ИНН 110213505809) согласие на обработку моих персональных данных (имя, e-mail, телефон, мессенджер, сфера деятельности, текст обращения, IP-адрес) в целях рассмотрения моего обращения, направления ответа и подтверждения факта согласия на условиях <a href="/consent/" target="_blank" rel="noopener noreferrer">Согласия на обработку персональных данных</a>.</label>
                                     </div>
-                                    <a class="form-consent__policy" href="/privacy-policy/" target="_blank" rel="noopener noreferrer">Политика обработки персональных данных</a>
+                                    <div class="form-consent__actions">
+                                        <a class="form-consent__policy" href="/privacy-policy/" target="_blank" rel="noopener noreferrer">Политика обработки персональных данных</a>
+                                        <button type="submit" class="submit-btn" disabled>
+                                            <span>Отправить</span>
+                                            <div class="btn-shimmer"></div>
+                                        </button>
+                                    </div>
                                 </div>
-                                <button type="submit" class="submit-btn" disabled>
-                                    <span>Отправить</span>
-                                    <div class="btn-shimmer"></div>
-                                </button>
                                 <p class="form-status form-group-wide" data-form-status role="status" aria-live="polite"></p>
                             </form>
 
                             <div class="contacts-card-details">
                                 <div class="contacts-divider" aria-hidden="true"></div>
-
-                                <span class="contacts-meta contacts-details-label">контакты</span>
-                                <div class="contacts-links-grid">
-                                    <a class="contacts-line" href="tel:+79818343286">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                                        <span>+7 (981) 834-32-86</span>
-                                    </a>
-                                    <a class="contacts-line" href="mailto:work@alabspace.ru">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                                        <span>work@alabspace.ru</span>
-                                    </a>
-                                    <a class="contacts-line" href="https://t.me/ALEXANDRALARI" target="_blank" rel="noreferrer">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-                                        <span>alabspace</span>
-                                    </a>
-                                </div>
-
-                                <div class="contacts-divider" aria-hidden="true"></div>
-
-                                <div class="contacts-final-row">
-                                    <div class="contacts-qr-block">
-                                        <span class="contacts-meta">Телеграм канал<br>Вкус есть</span>
-                                        <a href="https://t.me/ALEXANDRALARI" target="_blank" rel="noreferrer" class="contacts-qr-link" aria-label="Телеграм-канал «Вкус есть»">
-                                            <img src="/images/qr-alexandra-lari.svg" alt="QR код телеграм-канала «Вкус есть»" class="contacts-qr contacts-qr--panel">
-                                        </a>
+                                <div class="contacts-details-layout">
+                                    <div class="contacts-details-contact">
+                                        <span class="contacts-meta contacts-details-label">контакты</span>
+                                        <div class="contacts-links-grid">
+                                            <a class="contacts-line" href="tel:+79818343286">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                                                <span>+7 (981) 834-32-86</span>
+                                            </a>
+                                            <a class="contacts-line" href="mailto:work@alabspace.ru">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                                                <span>work@alabspace.ru</span>
+                                            </a>
+                                            <a class="contacts-line" href="https://t.me/ALEXANDRALARI" target="_blank" rel="noreferrer">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                                                <span>alabspace</span>
+                                            </a>
+                                        </div>
                                     </div>
-                                    <div class="contacts-qr-block">
-                                        <span class="contacts-meta">Дзен</span>
-                                        <a href="https://dzen.ru/id/6557c9648a74061665302db5" target="_blank" rel="noreferrer" class="contacts-qr-link" aria-label="Канал на Дзене">
-                                            <img src="/images/qr-dzen.svg" alt="QR код канала на Дзене" class="contacts-qr contacts-qr--panel">
-                                        </a>
+                                    <div class="contacts-final-row">
+                                        <div class="contacts-qr-block">
+                                            <span class="contacts-meta">Телеграм канал<br>Вкус есть</span>
+                                            <a href="https://t.me/ALEXANDRALARI" target="_blank" rel="noreferrer" class="contacts-qr-link" aria-label="Телеграм-канал «Вкус есть»">
+                                                <img src="/images/qr-alexandra-lari.svg" alt="QR код телеграм-канала «Вкус есть»" class="contacts-qr contacts-qr--panel">
+                                            </a>
+                                        </div>
+                                        <div class="contacts-qr-block">
+                                            <span class="contacts-meta">Дзен</span>
+                                            <a href="https://dzen.ru/id/6557c9648a74061665302db5" target="_blank" rel="noreferrer" class="contacts-qr-link" aria-label="Канал на Дзене">
+                                                <img src="/images/qr-dzen.svg" alt="QR код канала на Дзене" class="contacts-qr contacts-qr--panel">
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
