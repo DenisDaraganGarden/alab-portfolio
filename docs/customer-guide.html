@@ -679,10 +679,11 @@
           <strong>“Опубликован”</strong>. Черновики можно готовить спокойно, не показывая их посетителям.
         </div>
         <div class="note">
-          Локальная готовность на 4 октября 2026 года: backend формы проверен на Node.js v22.23.3
-          (85 PASS / 0 FAIL), frontend contact-form suite — 9 PASS / 0 FAIL. Frontend не имитирует успешную отправку и ожидает
-          <code>VITE_FORM_ENDPOINT</code>. Deployment, реальные SMTP/Telegram, создание целей Метрики
-          в кабинете и production smoke test остаются pending. GitHub transfer и ownership бота не подтверждены.
+          Локальная готовность на 12 октября 2026 года: backend формы — 86 PASS / 0 FAIL,
+          frontend contact-form/consent suite — 13 PASS / 0 FAIL. Frontend не имитирует успешную отправку;
+          текущая production-сборка принудительно оставляет <code>VITE_FORM_DELIVERY_ENABLED=false</code>
+          и <code>VITE_YANDEX_METRIKA_ENABLED=false</code>. Deployment, реальные SMTP/Telegram,
+          включение Метрики и production smoke test остаются pending. GitHub transfer и ownership бота не подтверждены.
         </div>
       </section>
 

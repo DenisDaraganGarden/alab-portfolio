@@ -1,7 +1,7 @@
 'use strict';
 
 const PRODUCTION_ORIGIN = 'https://alabspace.com';
-const CONSENT_REVISION = '25.09.2026';
+const CONSENT_REVISION = '12.10.2026';
 const FORM_NAME = 'contact';
 const FORM_LABEL = 'Форма обратной связи';
 const MAIL_SUBJECT = 'Новая заявка с сайта A.LAB';
@@ -14,8 +14,7 @@ const SMTP_TIMEOUTS = Object.freeze({
   socketTimeout: 10000,
 });
 
-// Единственная точка изменения production-схемы после решения клиента.
-const USER_FIELDS = Object.freeze(['name', 'email', 'phone', 'message']);
+const USER_FIELDS = Object.freeze(['name', 'email', 'phone', 'messenger', 'industry', 'message']);
 const META_FIELDS = Object.freeze(['consent', 'consentRevision', 'formName']);
 const ALLOWED_PAYLOAD_FIELDS = Object.freeze([...USER_FIELDS, ...META_FIELDS]);
 
@@ -23,6 +22,8 @@ const FIELD_LIMITS = Object.freeze({
   name: 120,
   email: 254,
   phone: 40,
+  messenger: 120,
+  industry: 200,
   message: 5000,
 });
 

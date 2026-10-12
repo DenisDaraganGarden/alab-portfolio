@@ -28,7 +28,8 @@ jobs:
 
       - name: Build
         env:
-          VITE_FORM_ENDPOINT: ${{ vars.VITE_FORM_ENDPOINT }}
+          VITE_FORM_DELIVERY_ENABLED: 'false'
+          VITE_YANDEX_METRIKA_ENABLED: 'false'
         run: npm run build
 
       - name: Setup Pages

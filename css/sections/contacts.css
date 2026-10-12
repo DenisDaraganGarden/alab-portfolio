@@ -363,6 +363,13 @@
     color: #8b2f2f;
 }
 
+.form-field-hint {
+    margin: -0.45rem 0 0;
+    color: rgba(29, 29, 31, 0.66);
+    font-size: clamp(0.72rem, 0.82vw, 0.8rem);
+    line-height: 1.4;
+}
+
 .submit-btn:focus-visible,
 .form-consent a:focus-visible,
 .form-consent input:focus-visible {

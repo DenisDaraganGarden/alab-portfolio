@@ -48,24 +48,27 @@ DNS-записи для подрядчика (подтверждения, DKIM �
   `yandex-verification` в `<head>` `index.html`. Старый тег после этого можно удалить.
 - **Google Search Console** — ресурс «Префикс URL» `https://alabspace.com/`, подтверждение
   «Тег HTML» в `<head>` `index.html`. Старое подтверждение уже снято.
-- **Яндекс.Метрика** — frontend использует счётчик `108408263` только после cookie consent.
+- **Яндекс.Метрика** — frontend содержит consent-gated загрузку счётчика `108408263`, но
+  текущая production-сборка принудительно оставляет `VITE_YANDEX_METRIKA_ENABLED=false`.
   Локально подготовлены цели `form_success`, `telegram_click`, `phone_click`, `email_click`,
-  `external_link_click`; создать их в кабинете можно только после получения доступа.
+  `external_link_click`; включение счётчика и создание целей выполняются отдельным этапом.
 - **Yandex Cloud** для обработчика формы — на Яндекс ID студии; подрядчику роль `admin`
   на отдельный каталог. Форма укладывается в бесплатный лимит Cloud Functions.
 
 ## Текущий статус формы
 
 - Основное русскоязычное написание бренда подтверждено: «алаб».
-- Локальный backend готов и проверен под Node.js `v22.23.3`: `85 PASS / 0 FAIL`.
-- Frontend contact-form suite проверен: `9 PASS / 0 FAIL`.
+- Локальный backend готов и проверен: `86 PASS / 0 FAIL`.
+- Frontend contact-form/consent suite проверен: `13 PASS / 0 FAIL`.
 - Frontend больше не показывает fake success: успешное состояние возможно только после
   ответа backend с `accepted: true`.
-- GitHub Actions подготовлен к передаче repository variable `VITE_FORM_ENDPOINT` в Vite build.
-- Production deployment pending: нужны Yandex Cloud, реальные SMTP/Telegram credentials и
-  production Function URL для `VITE_FORM_ENDPOINT`.
-- Решение по `messenger` / `industry` отсутствует; поля не входят в backend payload.
-- Почтовый адрес и подтверждение контактного текста остаются pending.
+- GitHub Actions в текущем релизе принудительно задаёт `VITE_FORM_DELIVERY_ENABLED=false` и
+  `VITE_YANDEX_METRIKA_ENABLED=false`; endpoint в production-сборку не передаётся.
+- Production deployment pending: нужны Yandex Cloud, реальные SMTP/Telegram credentials,
+  production Function URL и отдельное включение `VITE_FORM_DELIVERY_ENABLED=true`.
+- Подтверждённые поля `messenger` / `industry` входят в подготовленный backend payload и email,
+  но не передаются с опубликованного сайта до штатного запуска backend.
+- Юридические тексты и серверная редакция согласия обновлены на `12.10.2026`.
 - Собственный сбор статистики в редакторе на боевом сайте не работает: фронтенд шлёт события
   в `/api/analytics/collect`, а GitHub Pages — статика. Рабочая аналитика — только Метрика.
 

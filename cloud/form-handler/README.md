@@ -32,7 +32,7 @@ npm test
 ```
 
 Тесты используют `node:test`; все внешние вызовы замоканы и не отправляют email или Telegram-сообщения.
-4 октября 2026 года exact-прогон выполнен под Node.js `v22.23.3`: `85 PASS / 0 FAIL`.
+12 октября 2026 года локальный прогон выполнен: `86 PASS / 0 FAIL`.
 
 ## Предполагаемая настройка Yandex Cloud Function
 
@@ -41,9 +41,9 @@ npm test
 3. Загрузить содержимое этого каталога вместе с production dependencies.
 4. Указать entry point `index.handler`.
 5. Добавить переменные окружения/секреты и разрешить HTTP-вызов по согласованной схеме доступа.
-6. После получения URL задать frontend-переменную `VITE_FORM_ENDPOINT` и выполнить production smoke test.
+6. После получения URL задать frontend-переменные `VITE_FORM_ENDPOINT` и `VITE_FORM_DELIVERY_ENABLED=true`, затем выполнить production smoke test.
 
-Deployment пока не выполнялся. Frontend архитектурно готов к реальному endpoint, но URL намеренно не задан: ожидаются реальные секреты, доступ к Yandex Cloud и production Function URL. `messenger`/`industry` централизованно исключены из текущего payload до решения клиента.
+Deployment пока не выполнялся. Frontend архитектурно готов к реальному endpoint, но текущая production-сборка принудительно оставляет `VITE_FORM_DELIVERY_ENABLED=false`: ожидаются реальные секреты, доступ к Yandex Cloud и production Function URL. Поля `messenger` и `industry` подтверждены Заказчиком и подготовлены для передачи в полный email после штатного запуска backend.
 
 ## Защита и ограничения
 
@@ -53,9 +53,9 @@ Deployment пока не выполнялся. Frontend архитектурно
 - Размер сырого `event.body` проверяется до удаления whitespace, base64 decode и
   `JSON.parse`. Для обычного body лимит равен 16 KiB, для base64 transport — 21 848
   байт с учётом base64 overhead. После decode полезный JSON повторно ограничен 16 KiB.
-- Production-поля пользователя централизованы в `lib/config.js`: `name`, `email`, `phone`, `message`. Для контакта обязателен хотя бы один из `phone` или `email`; `Reply-To` не устанавливается у phone-only заявки.
-- `messenger` и `industry` отклоняются до отдельного решения клиента.
-- Согласие проверяется по редакции `25.09.2026`; время и IP берутся только из серверного event.
+- Production-поля пользователя централизованы в `lib/config.js`: `name`, `email`, `phone`, `messenger`, `industry`, `message`. Для контакта обязателен хотя бы один из `phone` или `email`; `Reply-To` не устанавливается у phone-only заявки.
+- `messenger` и `industry` включаются только в email; Telegram получает лишь технический текст и request ID.
+- Согласие проверяется по редакции `12.10.2026`; время и IP берутся только из серверного event.
 - В логи попадают только request ID, технический результат и длительность; содержимое формы, IP и секреты не логируются.
 - SMTP использует централизованные таймауты: connection 5 s, greeting 5 s и socket
   10 s. Ошибка или timeout email возвращает `503 DELIVERY_FAILED`, `accepted:false`
@@ -70,8 +70,6 @@ Backend остаётся stateless: отдельный повторный POST �
 
 ## Открытые блокеры клиента
 
-- финальное решение по полям `messenger` / `industry`;
-- полный почтовый адрес для юридических текстов;
 - реальные SMTP credentials;
 - Telegram bot token и chat ID;
 - доступ и folder в Yandex Cloud;

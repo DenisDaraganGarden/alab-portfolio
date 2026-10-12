@@ -1079,17 +1079,19 @@
                                     <div class="input-bevel"></div>
                                 </div>
                                 <div class="form-group form-group-wide">
-                                    <input type="text" id="industry" name="industry" class="ym-disable-keys ym-hide-content" placeholder="Сфера деятельности">
+                                    <input type="text" id="industry" name="industry" class="ym-disable-keys ym-hide-content" placeholder="Сфера деятельности" aria-describedby="industry-sensitive-data-warning">
                                     <div class="input-bevel"></div>
                                 </div>
+                                <p id="industry-sensitive-data-warning" class="form-field-hint form-group-wide">Не указывайте сведения о здоровье, религиозных и политических взглядах, национальной принадлежности и другие специальные категории персональных данных</p>
                                 <div class="form-group form-group-wide">
-                                    <textarea id="message" name="message" class="ym-disable-keys ym-hide-content" placeholder="Какие задачи хотим решить?" rows="3" required></textarea>
+                                    <textarea id="message" name="message" class="ym-disable-keys ym-hide-content" placeholder="Какие задачи хотим решить?" rows="3" aria-describedby="message-sensitive-data-warning" required></textarea>
                                     <div class="input-bevel"></div>
                                 </div>
+                                <p id="message-sensitive-data-warning" class="form-field-hint form-group-wide">Не указывайте сведения о здоровье, религиозных и политических взглядах, национальной принадлежности и другие специальные категории персональных данных</p>
                                 <div class="form-consent form-group-wide">
                                     <div class="form-consent__control">
                                         <input type="checkbox" id="personal-data-consent" name="personalDataConsent" required>
-                                        <label for="personal-data-consent">Я даю ИП Ларихиной Александре Юрьевне (ИНН 110213505809) согласие на обработку моих персональных данных (имя, телефон или e-mail, текст обращения) в целях рассмотрения моего обращения и направления ответа на условиях <a href="/consent/" target="_blank" rel="noopener noreferrer">Согласия на обработку персональных данных</a>.</label>
+                                        <label for="personal-data-consent">Я даю ИП Ларихиной Александре Юрьевне (ИНН 110213505809) согласие на обработку моих персональных данных (имя, e-mail, телефон, мессенджер, сфера деятельности, текст обращения, IP-адрес) в целях рассмотрения моего обращения, направления ответа и подтверждения факта согласия на условиях <a href="/consent/" target="_blank" rel="noopener noreferrer">Согласия на обработку персональных данных</a>.</label>
                                     </div>
                                     <a class="form-consent__policy" href="/privacy-policy/" target="_blank" rel="noopener noreferrer">Политика обработки персональных данных</a>
                                 </div>

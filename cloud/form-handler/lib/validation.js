@@ -91,6 +91,12 @@ function validatePayload(payload) {
   const phone = payload.phone === undefined || payload.phone === ''
     ? ''
     : normalizeString(payload.phone, { required: false, maxLength: FIELD_LIMITS.phone });
+  const messenger = payload.messenger === undefined || payload.messenger === ''
+    ? ''
+    : normalizeString(payload.messenger, { required: false, maxLength: FIELD_LIMITS.messenger });
+  const industry = payload.industry === undefined || payload.industry === ''
+    ? ''
+    : normalizeString(payload.industry, { required: false, maxLength: FIELD_LIMITS.industry });
   const message = normalizeString(payload.message, { required: true, maxLength: FIELD_LIMITS.message });
 
   if (
@@ -99,6 +105,8 @@ function validatePayload(payload) {
     || (email !== '' && (email !== payload.email || !isValidEmail(email)))
     || phone === null
     || (phone !== '' && (phone !== payload.phone || !isValidPhone(phone)))
+    || messenger === null
+    || industry === null
     || (email === '' && phone === '')
     || message === null
     || payload.consent !== true
@@ -108,7 +116,7 @@ function validatePayload(payload) {
     throw new RequestError('VALIDATION_ERROR', 400);
   }
 
-  return Object.freeze({ name, email, phone, message });
+  return Object.freeze({ name, email, phone, messenger, industry, message });
 }
 
 module.exports = { RequestError, decodeBody, isValidEmail, isValidPhone, validatePayload };

@@ -25,6 +25,8 @@ function validPayload(overrides = {}) {
     name: 'Иван',
     email: 'person@example.test',
     phone: '+7 000 000-00-00',
+    messenger: '@person',
+    industry: 'Дизайн',
     message: 'Тестовая заявка',
     consent: true,
     consentRevision: CONSENT_REVISION,
@@ -207,9 +209,18 @@ test('object вместо ожидаемой строки отклоняется
   assert.equal(response.statusCode, 400);
 });
 
-test('неожиданные поля, включая messenger/industry, отклоняются', async () => {
+test('messenger и industry принимаются и передаются только в email', async () => {
+  const { handler, calls } = harness();
+  const response = await handler(eventFor());
+  assert.equal(response.statusCode, 200);
+  assert.equal(calls.email[0].fields.messenger, '@person');
+  assert.equal(calls.email[0].fields.industry, 'Дизайн');
+  assert.deepEqual(Object.keys(calls.telegram[0]).sort(), ['config', 'requestId']);
+});
+
+test('неожиданные поля отклоняются', async () => {
   const { handler } = harness();
-  const response = await handler(eventFor(validPayload({ messenger: 'telegram' })));
+  const response = await handler(eventFor(validPayload({ unexpected: 'value' })));
   assert.equal(response.statusCode, 400);
 });
 
@@ -299,7 +310,7 @@ test('IP берётся из server event, а не из пользователь
 test('timestamp создаётся на сервере в однозначном UTC-формате', async () => {
   const { handler, calls } = harness();
   await handler(eventFor());
-  assert.equal(calls.email[0].evidence.serverTimestamp, '2026-10-04 12:34:56 UTC');
+  assert.equal(calls.email[0].evidence.serverTimestamp, '2026-10-04 12:34:56');
   assert.equal(calls.email[0].evidence.timezone, 'UTC');
 });
 
@@ -323,7 +334,7 @@ test('Nodemailer получает фиксированные headers и plain te
       message: 'Тестовая заявка',
     },
     evidence: {
-      serverTimestamp: '2026-10-04 12:34:56 UTC',
+      serverTimestamp: '2026-10-04 12:34:56',
       timezone: 'UTC',
       sourceIp: '203.0.113.10',
       consentRevision: CONSENT_REVISION,
@@ -352,7 +363,7 @@ test('phone-only заявка не устанавливает Reply-To', async (
   await sendEmail({
     fields: { name: 'Иван', email: '', phone: '+7 (981) 834-32-86', message: 'Тест' },
     evidence: {
-      serverTimestamp: '2026-10-04 12:34:56 UTC',
+      serverTimestamp: '2026-10-04 12:34:56',
       timezone: 'UTC',
       sourceIp: '203.0.113.10',
       consentRevision: CONSENT_REVISION,
@@ -373,7 +384,7 @@ test('ошибка Nodemailer пробрасывается в email-first орк
     sendEmail({
       fields: { name: 'Иван', email: 'person@example.test', phone: '', message: 'Сообщение' },
       evidence: {
-        serverTimestamp: '2026-10-04 12:34:56 UTC',
+        serverTimestamp: '2026-10-04 12:34:56',
         timezone: 'UTC',
         sourceIp: '203.0.113.10',
         consentRevision: CONSENT_REVISION,
@@ -461,11 +472,18 @@ test('Telegram payload содержит только техническое ув
   assert.equal(outgoing.options.signal instanceof AbortSignal, true);
 });
 
-test('plain text email включает evidence и только production-поля', () => {
+test('plain text email включает evidence и все подтверждённые поля', () => {
   const text = buildPlainText(
-    { name: 'Иван', email: 'person@example.test', phone: '', message: 'Тестовая заявка' },
     {
-      serverTimestamp: '2026-10-04 12:34:56 UTC',
+      name: 'Иван',
+      email: 'person@example.test',
+      phone: '',
+      messenger: '@person',
+      industry: 'Дизайн',
+      message: 'Тестовая заявка',
+    },
+    {
+      serverTimestamp: '2026-10-04 12:34:56',
       timezone: 'UTC',
       sourceIp: '203.0.113.10',
       consentRevision: CONSENT_REVISION,
@@ -473,8 +491,10 @@ test('plain text email включает evidence и только production-по
     },
   );
   assert.match(text, /Пользователь выразил согласие/);
-  assert.match(text, /25\.09\.2026/);
-  assert.doesNotMatch(text, /messenger|industry/i);
+  assert.match(text, /12\.10\.2026/);
+  assert.match(text, /Мессенджер:\n@person/);
+  assert.match(text, /Сфера деятельности:\nДизайн/);
+  assert.match(text, /Дата и время отправки \(серверное\): \(2026-10-04 12:34:56\) \(UTC\)/);
 });
 
 test('ответы не отражают персональные данные', async () => {
@@ -581,9 +601,9 @@ test('обычный email с точкой и plus-tag принимается', 
   assert.equal(response.statusCode, 200);
 });
 
-test('unknown industry отклоняется', async () => {
+test('слишком длинная industry отклоняется', async () => {
   const { handler } = harness();
-  const response = await handler(eventFor(validPayload({ industry: 'finance' })));
+  const response = await handler(eventFor(validPayload({ industry: 'x'.repeat(201) })));
   assert.equal(response.statusCode, 400);
 });
 

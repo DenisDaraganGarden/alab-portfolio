@@ -3,7 +3,7 @@
 const { CONSENT_REVISION, FORM_LABEL } = require('./config');
 
 function formatUtc(date) {
-  return `${date.toISOString().slice(0, 19).replace('T', ' ')} UTC`;
+  return date.toISOString().slice(0, 19).replace('T', ' ');
 }
 
 function createConsentEvidence(event, now = () => new Date()) {

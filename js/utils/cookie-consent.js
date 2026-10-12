@@ -3,6 +3,9 @@ const CONSENT_TTL_MS = 365 * 24 * 60 * 60 * 1000;
 const CONSENT_FUTURE_TOLERANCE_MS = 5 * 60 * 1000;
 const METRICA_ID = 108408263;
 const METRICA_SCRIPT_URL = `https://mc.yandex.ru/metrika/tag.js?id=${METRICA_ID}`;
+const METRICA_ENABLED = Boolean(
+    import.meta.env && import.meta.env.VITE_YANDEX_METRIKA_ENABLED === 'true'
+);
 
 let metricaState = 'idle';
 let metricaScript = null;
@@ -44,9 +47,10 @@ const notifyConsent = (status) => {
 };
 
 export const hasAnalyticsConsent = () => parseStoredConsent()?.status === 'accepted';
+export const isYandexMetricaEnabled = () => METRICA_ENABLED;
 
 export const loadYandexMetrica = () => {
-    if (metricaState !== 'idle' || !hasAnalyticsConsent()) return;
+    if (!METRICA_ENABLED || metricaState !== 'idle' || !hasAnalyticsConsent()) return;
     metricaState = 'loading';
 
     window.ym = window.ym || function (...args) {
@@ -137,6 +141,24 @@ const removeAccessibleMetricaCookies = () => {
     });
 };
 
+const removeMetricaStorage = () => {
+    const knownKeys = new Set([
+        'alab_visitor_id', 'alab_session_id', 'alab_session_started_at'
+    ]);
+    const shouldRemove = (key) => knownKeys.has(key)
+        || key.startsWith('_ym')
+        || key.startsWith('_yasc')
+        || key.toLowerCase().startsWith('yandex');
+
+    [window.localStorage, window.sessionStorage].forEach((storage) => {
+        try {
+            const keys = Array.from({ length: storage.length }, (_, index) => storage.key(index))
+                .filter(Boolean);
+            keys.filter(shouldRemove).forEach((key) => storage.removeItem(key));
+        } catch {}
+    });
+};
+
 const resetConsent = () => {
     try { window.localStorage.removeItem(CONSENT_STORAGE_KEY); } catch {}
     try { window.ym?.(METRICA_ID, 'destruct'); } catch {}
@@ -144,6 +166,7 @@ const resetConsent = () => {
     metricaScript?.remove();
     metricaScript = null;
     removeAccessibleMetricaCookies();
+    removeMetricaStorage();
     window.location.reload();
 };
 

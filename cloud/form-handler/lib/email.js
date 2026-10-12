@@ -28,16 +28,17 @@ function buildPlainText(fields, evidence) {
     'Телефон:',
     fields.phone || 'Не указан',
     '',
+    'Мессенджер:',
+    fields.messenger || 'Не указан',
+    '',
+    'Сфера деятельности:',
+    fields.industry || 'Не указана',
+    '',
     'Сообщение:',
     fields.message,
     '',
     '---',
-    'Пользователь выразил согласие на обработку персональных данных.',
-    `Дата и время отправки (серверное): ${evidence.serverTimestamp}`,
-    `Часовой пояс: ${evidence.timezone}`,
-    `IP-адрес: ${evidence.sourceIp}`,
-    `Редакция текста согласия: ${evidence.consentRevision}`,
-    `Форма: ${evidence.formName}`,
+    `Пользователь выразил согласие на обработку персональных данных. Дата и время отправки (серверное): (${evidence.serverTimestamp}) (${evidence.timezone}). IP-адрес: ${evidence.sourceIp}. Редакция текста согласия: ${evidence.consentRevision}. Форма: ${evidence.formName}`,
   ].join('\n');
 }
 

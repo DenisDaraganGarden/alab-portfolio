@@ -1,7 +1,14 @@
-export const FORM_ENDPOINT = import.meta.env?.VITE_FORM_ENDPOINT?.trim() || '';
+const formDeliveryEnabled = Boolean(
+    import.meta.env && import.meta.env.VITE_FORM_DELIVERY_ENABLED === 'true'
+);
+const configuredFormEndpoint = import.meta.env && import.meta.env.VITE_FORM_ENDPOINT
+    ? import.meta.env.VITE_FORM_ENDPOINT.trim()
+    : '';
+
+export const FORM_ENDPOINT = formDeliveryEnabled ? configuredFormEndpoint : '';
 
 export const FORM_META = Object.freeze({
-    consentRevision: '25.09.2026',
+    consentRevision: '12.10.2026',
     formName: 'contact'
 });
 
@@ -16,6 +23,8 @@ export const buildContactPayload = (formData) => ({
     name: String(formData.get('name') || '').trim(),
     email: String(formData.get('email') || '').trim(),
     phone: String(formData.get('phone') || '').trim(),
+    messenger: String(formData.get('messenger') || '').trim(),
+    industry: String(formData.get('industry') || '').trim(),
     message: String(formData.get('message') || '').trim(),
     consent: formData.get('personalDataConsent') === 'on',
     ...FORM_META
