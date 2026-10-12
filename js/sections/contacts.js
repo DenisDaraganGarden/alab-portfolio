@@ -180,7 +180,7 @@ export const initContacts = (container) => {
         .set(morphLayer, { display: 'none' });
 
     } else if (canAnimate) {
-        gsap.from([...items, contactsCard], {
+        gsap.from(items, {
             scrollTrigger: {
                 trigger: container,
                 start: 'top 80%'

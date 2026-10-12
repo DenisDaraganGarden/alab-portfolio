@@ -2073,6 +2073,13 @@
     min-height: calc((var(--app-height) * 100) - clamp(3rem, 8vh, 6rem));
     grid-template-columns: minmax(300px, 0.88fr) minmax(560px, 1.12fr);
     column-gap: clamp(1.5rem, 3.2vw, 4rem);
+    align-content: center;
+    align-items: start;
+  }
+
+  .contacts-heading-group,
+  .contacts-form-wrapper {
+    align-self: start;
   }
 
   .contacts-form-wrapper,
