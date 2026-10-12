@@ -63,12 +63,16 @@ test('cookie consent принимает только актуальный пол
 test('форма и cookie-баннер содержат согласованные элементы без автосогласия', async () => {
     const indexHtml = await readFile(new URL('../index.html', import.meta.url), 'utf8');
     const cookieModule = await readFile(new URL('../js/utils/cookie-consent.js', import.meta.url), 'utf8');
+    const warningText = 'Не указывайте сведения о здоровье, религиозных и политических взглядах, национальной принадлежности и другие специальные категории персональных данных';
     assert.match(indexHtml, /id="personal-data-consent"[^>]*required/);
     assert.doesNotMatch(indexHtml, /id="personal-data-consent"[^>]*checked/);
     assert.match(indexHtml, /<button type="submit" class="submit-btn" disabled>/);
     assert.match(indexHtml, /мессенджер, сфера деятельности, текст обращения, IP-адрес/);
     assert.match(indexHtml, /href="\/consent\/"[^>]*target="_blank"/);
     assert.match(indexHtml, /href="\/privacy-policy\/"[^>]*target="_blank"/);
+    assert.equal(indexHtml.match(/aria-describedby="sensitive-data-warning"/g)?.length, 2);
+    assert.equal(indexHtml.match(/id="sensitive-data-warning"/g)?.length, 1);
+    assert.equal(indexHtml.split(warningText).length - 1, 1);
     assert.match(cookieModule, /data-consent-choice="accepted">Принять</);
     assert.match(cookieModule, /data-consent-choice="rejected">Отклонить</);
     assert.match(cookieModule, /href="\/cookie-consent\/"[^>]*target="_blank"/);
