@@ -235,7 +235,64 @@ export const initPrinciples = (container) => {
             ease: 'none'
         });
 
+        let resizeFrame = 0;
+        let settleFrame = 0;
+        let isRebuilding = false;
+        let measuredViewportWidth = window.innerWidth;
+        let measuredMainWidth = main.getBoundingClientRect().width;
+
+        const widthHasChanged = () => (
+            Math.abs(window.innerWidth - measuredViewportWidth) > 0.5 ||
+            Math.abs(main.getBoundingClientRect().width - measuredMainWidth) > 0.5
+        );
+
+        const rebuildAfterResize = () => {
+            resizeFrame = 0;
+            settleFrame = requestAnimationFrame(() => {
+                settleFrame = 0;
+                if (isRebuilding || !widthHasChanged()) return;
+
+                isRebuilding = true;
+                // Refresh once before measuring: while the section is pinned,
+                // ScrollTrigger can still hold the previous viewport width.
+                ScrollTrigger.refresh();
+                settleFrame = requestAnimationFrame(() => {
+                    settleFrame = requestAnimationFrame(() => {
+                        settleFrame = 0;
+                        buildLayout();
+                        scrollTl.invalidate();
+                        ScrollTrigger.refresh();
+                        scrollTl.scrollTrigger?.update();
+
+                        measuredViewportWidth = window.innerWidth;
+                        measuredMainWidth = main.getBoundingClientRect().width;
+                        isRebuilding = false;
+                    });
+                });
+            });
+        };
+
+        const scheduleRebuild = () => {
+            if (isRebuilding) return;
+            cancelAnimationFrame(resizeFrame);
+            cancelAnimationFrame(settleFrame);
+            resizeFrame = requestAnimationFrame(rebuildAfterResize);
+        };
+
+        const resizeObserver = typeof ResizeObserver !== 'undefined'
+            ? new ResizeObserver(scheduleRebuild)
+            : null;
+
+        resizeObserver?.observe(main);
+        window.addEventListener('resize', scheduleRebuild, { passive: true });
+        window.visualViewport?.addEventListener('resize', scheduleRebuild, { passive: true });
+
         return () => {
+            resizeObserver?.disconnect();
+            window.removeEventListener('resize', scheduleRebuild);
+            window.visualViewport?.removeEventListener('resize', scheduleRebuild);
+            cancelAnimationFrame(resizeFrame);
+            cancelAnimationFrame(settleFrame);
             scrollTl.kill();
             spinTween.kill();
         };

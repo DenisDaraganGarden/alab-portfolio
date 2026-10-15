@@ -118,6 +118,13 @@
   overflow: visible;
 }
 
+@media (min-width: 901px) and (max-height: 780px) {
+  .principles-row {
+    /* Keep the animated titles below the subtitle in short/zoomed viewports. */
+    transform: translate(-50%, calc(-50% + clamp(0px, calc(244px - 31vh), 58px)));
+  }
+}
+
 /* 3D Box Styling */
 .the-box-wrapper {
   perspective: 1000px;
