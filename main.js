@@ -56,6 +56,8 @@ const initHeaderAnchorNavigation = () => {
     const links = document.querySelectorAll('.blob-menu-link[href^="#"]');
     const blob = document.querySelector('.contact-blob');
     const header = document.querySelector('.global-header');
+    const contacts = document.getElementById('contacts');
+    const mobileViewport = window.matchMedia('(max-width: 768px)');
 
     const collapseBlob = () => blob?.classList.add('blob-collapsed');
     const expandBlob = () => blob?.classList.remove('blob-collapsed');
@@ -102,6 +104,27 @@ const initHeaderAnchorNavigation = () => {
                 .elementFromPoint(window.innerWidth / 2, window.innerHeight / 2)
                 ?.closest('[data-section]');
             header.dataset.dockSection = section?.dataset.section || 'hero';
+
+            const contactsRect = contacts?.getBoundingClientRect();
+            const contactsVisible = Boolean(
+                mobileViewport.matches
+                && contactsRect
+                && contactsRect.top < window.innerHeight
+                && contactsRect.bottom > 0
+            );
+
+            header.dataset.contactsVisible = String(contactsVisible);
+            header.toggleAttribute('inert', contactsVisible);
+
+            if (contactsVisible) {
+                collapseBlob();
+                header.setAttribute('aria-hidden', 'true');
+                if (blob?.contains(document.activeElement)) {
+                    document.activeElement.blur();
+                }
+            } else {
+                header.removeAttribute('aria-hidden');
+            }
         };
         const scheduleDockSync = () => {
             if (dockFrame) return;
@@ -111,6 +134,9 @@ const initHeaderAnchorNavigation = () => {
         syncDockSection();
         window.addEventListener('scroll', scheduleDockSync, { passive: true });
         window.addEventListener('resize', scheduleDockSync, { passive: true });
+        window.addEventListener('hashchange', scheduleDockSync);
+        window.addEventListener('pageshow', scheduleDockSync);
+        window.addEventListener('load', scheduleDockSync, { once: true });
     }
 };
 

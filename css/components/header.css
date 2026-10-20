@@ -240,6 +240,7 @@
     top: auto;
     right: max(1.5rem, env(safe-area-inset-right));
     bottom: max(1.5rem, env(safe-area-inset-bottom));
+    transition: opacity 0.2s ease, visibility 0.2s ease;
   }
 
   .global-header[data-dock-section="profile"],
@@ -247,6 +248,12 @@
     top: 50%;
     bottom: auto;
     transform: translateY(-50%);
+  }
+
+  .global-header[data-contacts-visible="true"] {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
   }
   
   .contact-blob:hover {
