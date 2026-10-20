@@ -2,13 +2,22 @@
 
 .global-header {
   position: fixed;
-  top: 2rem;
-  left: 2rem;
+  top: max(2rem, env(safe-area-inset-top));
+  right: max(2rem, env(safe-area-inset-right));
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   pointer-events: none; /* Let clicks pass through empty space */
+}
+
+/* The portfolio heading spans almost the full desktop width, so keep the
+   collapsed contact control in the open space beside the project grid. */
+@media (min-width: 769px) {
+  .global-header[data-dock-section="portfolio"] {
+    top: 50%;
+    transform: translateY(-50%);
+  }
 }
 
 /* The Blob Container - Organic Morphing Spot */
@@ -228,8 +237,16 @@
 /* Mobile Adjustments */
 @media (max-width: 768px) {
   .global-header {
-    top: 1.5rem;
-    right: 1.5rem;
+    top: auto;
+    right: max(1.5rem, env(safe-area-inset-right));
+    bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+
+  .global-header[data-dock-section="profile"],
+  .global-header[data-dock-section="portfolio"] {
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
   }
   
   .contact-blob:hover {

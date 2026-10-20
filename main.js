@@ -55,6 +55,7 @@ document.addEventListener('alab:cookie-consent', (event) => {
 const initHeaderAnchorNavigation = () => {
     const links = document.querySelectorAll('.blob-menu-link[href^="#"]');
     const blob = document.querySelector('.contact-blob');
+    const header = document.querySelector('.global-header');
 
     const collapseBlob = () => blob?.classList.add('blob-collapsed');
     const expandBlob = () => blob?.classList.remove('blob-collapsed');
@@ -91,6 +92,25 @@ const initHeaderAnchorNavigation = () => {
                 expandBlob();
             }
         });
+    }
+
+    if (header) {
+        let dockFrame = 0;
+        const syncDockSection = () => {
+            dockFrame = 0;
+            const section = document
+                .elementFromPoint(window.innerWidth / 2, window.innerHeight / 2)
+                ?.closest('[data-section]');
+            header.dataset.dockSection = section?.dataset.section || 'hero';
+        };
+        const scheduleDockSync = () => {
+            if (dockFrame) return;
+            dockFrame = requestAnimationFrame(syncDockSection);
+        };
+
+        syncDockSection();
+        window.addEventListener('scroll', scheduleDockSync, { passive: true });
+        window.addEventListener('resize', scheduleDockSync, { passive: true });
     }
 };
 
