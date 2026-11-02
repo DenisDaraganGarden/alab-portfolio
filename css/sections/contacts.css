@@ -1560,6 +1560,16 @@
   max-width: 100%;
 }
 
+/* DÔMM and TUT need individual optical sizing: their source canvases and
+   wordmark density differ from L.BURO, so one shared height undersizes them. */
+.industry-projects .project-logo[src="/images/DOMM/domm-logo.svg"] {
+  height: 24px;
+}
+
+.industry-projects .project-logo[src="/images/TUT-development/logo.png"] {
+  height: 40px;
+}
+
 .industry-projects .project-logo-fallback {
   font-size: 1.4rem;
 }
@@ -1752,6 +1762,14 @@
     height: clamp(16px, 4.2vw, 18px);
     width: auto;
     max-width: min(76%, 138px);
+  }
+
+  .industry-projects .project-logo[src="/images/DOMM/domm-logo.svg"] {
+    height: 16px;
+  }
+
+  .industry-projects .project-logo[src="/images/TUT-development/logo.png"] {
+    height: 26px;
   }
 
   .industry-projects .portfolio-project-card.has-tagline {
