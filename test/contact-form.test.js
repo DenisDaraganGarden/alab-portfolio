@@ -8,8 +8,18 @@ import {
     FORM_ENDPOINT,
     SUBMISSION_STATUS
 } from '../js/utils/contact-form.js';
-import { hasAnalyticsConsent, isYandexMetricaEnabled } from '../js/utils/cookie-consent.js';
-import { classifyLinkGoal, METRICA_GOALS, trackMetricaGoal } from '../js/utils/metrica-goals.js';
+import { sanitizeAnalyticsUrl } from '../js/utils/analytics.js';
+import {
+    hasAnalyticsConsent,
+    isYandexMetricaEnabled,
+    sanitizeMetricaUrl
+} from '../js/utils/cookie-consent.js';
+import {
+    classifyLinkGoal,
+    createMetricaGoalTracker,
+    METRICA_GOALS,
+    trackMetricaGoal
+} from '../js/utils/metrica-goals.js';
 
 const payload = Object.freeze({
     name: 'Иван',
@@ -63,6 +73,12 @@ test('cookie consent принимает только актуальный пол
 test('форма и cookie-баннер содержат согласованные элементы без автосогласия', async () => {
     const indexHtml = await readFile(new URL('../index.html', import.meta.url), 'utf8');
     const cookieModule = await readFile(new URL('../js/utils/cookie-consent.js', import.meta.url), 'utf8');
+    const allHtml = await Promise.all([
+        '../index.html',
+        '../consent/index.html',
+        '../cookie-consent/index.html',
+        '../privacy-policy/index.html'
+    ].map((path) => readFile(new URL(path, import.meta.url), 'utf8')));
     const warningText = 'Не указывайте сведения о здоровье, религиозных и политических взглядах, национальной принадлежности и другие специальные категории персональных данных';
     assert.match(indexHtml, /id="personal-data-consent"[^>]*required/);
     assert.doesNotMatch(indexHtml, /id="personal-data-consent"[^>]*checked/);
@@ -73,9 +89,14 @@ test('форма и cookie-баннер содержат согласованн�
     assert.equal(indexHtml.match(/aria-describedby="sensitive-data-warning"/g)?.length, 2);
     assert.equal(indexHtml.match(/id="sensitive-data-warning"/g)?.length, 1);
     assert.equal(indexHtml.split(warningText).length - 1, 1);
+    assert.match(indexHtml, /<form id="contact-form" class="[^"]*ym-hide-content[^"]*">/);
+    assert.equal(indexHtml.match(/<(?:input|textarea)[^>]*ym-disable-keys[^>]*>/g)?.length, 7);
+    assert.doesNotMatch(indexHtml, /ym-record-keys/);
     assert.match(cookieModule, /data-consent-choice="accepted">Принять</);
     assert.match(cookieModule, /data-consent-choice="rejected">Отклонить</);
     assert.match(cookieModule, /href="\/cookie-consent\/"[^>]*target="_blank"/);
+    assert.equal(cookieModule.match(/https:\/\/mc\.yandex\.ru\/metrika\/tag\.js/g)?.length, 1);
+    allHtml.forEach((html) => assert.doesNotMatch(html, /mc\.yandex\.ru\/metrika\/tag\.js/));
 });
 
 test('payload формы включает подтверждённые поля и актуальную редакцию согласия', () => {
@@ -181,11 +202,72 @@ test('endpoint missing не вызывает fetch и не имитирует su
 
 test('click goals классифицируются без двойного external события', () => {
     const base = 'https://alabspace.com/';
+    assert.deepEqual(Object.values(METRICA_GOALS), [
+        'form_success',
+        'telegram_click',
+        'external_click'
+    ]);
     assert.equal(classifyLinkGoal('https://t.me/ALEXANDRALARI', base), METRICA_GOALS.TELEGRAM_CLICK);
-    assert.equal(classifyLinkGoal('tel:+70000000000', base), METRICA_GOALS.PHONE_CLICK);
-    assert.equal(classifyLinkGoal('mailto:test@example.test', base), METRICA_GOALS.EMAIL_CLICK);
-    assert.equal(classifyLinkGoal('https://example.test/', base), METRICA_GOALS.EXTERNAL_LINK_CLICK);
+    assert.equal(classifyLinkGoal('tel:+70000000000', base), null);
+    assert.equal(classifyLinkGoal('mailto:test@example.test', base), null);
+    assert.equal(classifyLinkGoal('https://example.test/', base), METRICA_GOALS.EXTERNAL_CLICK);
     assert.equal(classifyLinkGoal('/privacy-policy/', base), null);
+});
+
+test('цель отправляется официальным reachGoal без параметров и PII', () => {
+    const calls = [];
+    const track = createMetricaGoalTracker({
+        canTrack: () => true,
+        send: (...args) => calls.push(args)
+    });
+
+    assert.equal(track(METRICA_GOALS.EXTERNAL_CLICK), true);
+    assert.deepEqual(calls, [[108408263, 'reachGoal', 'external_click']]);
+    assert.equal(track('unknown_goal'), false);
+    assert.equal(calls.length, 1);
+});
+
+test('цели не ставятся без активной Метрики и согласия', () => {
+    const calls = [];
+    const track = createMetricaGoalTracker({
+        canTrack: () => false,
+        send: (...args) => calls.push(args)
+    });
+
+    assert.equal(track(METRICA_GOALS.TELEGRAM_CLICK), false);
+    assert.deepEqual(calls, []);
+});
+
+test('ошибка ym подавляется защищённой обёрткой', () => {
+    const track = createMetricaGoalTracker({
+        canTrack: () => true,
+        send: () => { throw new Error('blocked by extension'); }
+    });
+    assert.equal(track(METRICA_GOALS.TELEGRAM_CLICK), false);
+});
+
+test('URL Метрики не содержит query, hash или PII из них', () => {
+    assert.equal(
+        sanitizeMetricaUrl(
+            'https://alabspace.com/?email=person%40example.test&utm_source=mail#contacts',
+            'https://alabspace.com/'
+        ),
+        'https://alabspace.com/'
+    );
+    assert.equal(
+        sanitizeMetricaUrl('/privacy-policy/?phone=79990000000', 'https://alabspace.com/'),
+        'https://alabspace.com/privacy-policy/'
+    );
+});
+
+test('first-party аналитика также удаляет query и hash из URL', () => {
+    assert.equal(
+        sanitizeAnalyticsUrl(
+            'https://alabspace.com/?email=person%40example.test&utm_campaign=private#contacts',
+            'https://alabspace.com/'
+        ),
+        'https://alabspace.com/'
+    );
 });
 
 test('goal code безопасен, если Метрика не загружена', () => {

@@ -29,7 +29,7 @@ jobs:
       - name: Build
         env:
           VITE_FORM_DELIVERY_ENABLED: 'false'
-          VITE_YANDEX_METRIKA_ENABLED: 'false'
+          VITE_YANDEX_METRIKA_ENABLED: 'true'
         run: npm run build
 
       - name: Setup Pages

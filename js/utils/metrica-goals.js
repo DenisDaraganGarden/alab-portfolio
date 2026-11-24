@@ -1,28 +1,35 @@
-export const METRICA_COUNTER_ID = 108408263;
+import { canTrackYandexMetrica, YANDEX_METRIKA_ID } from './cookie-consent.js';
+
+export const METRICA_COUNTER_ID = YANDEX_METRIKA_ID;
 
 export const METRICA_GOALS = Object.freeze({
     FORM_SUCCESS: 'form_success',
     TELEGRAM_CLICK: 'telegram_click',
-    PHONE_CLICK: 'phone_click',
-    EMAIL_CLICK: 'email_click',
-    EXTERNAL_LINK_CLICK: 'external_link_click'
+    EXTERNAL_CLICK: 'external_click'
 });
 
-export const trackMetricaGoal = (goalId) => {
-    if (!Object.values(METRICA_GOALS).includes(goalId)) return false;
-    if (typeof window.ym !== 'function') return false;
+const ALLOWED_GOALS = new Set(Object.values(METRICA_GOALS));
+
+export const createMetricaGoalTracker = ({
+    canTrack = canTrackYandexMetrica,
+    send = (counterId, method, goalId) => window.ym(counterId, method, goalId)
+} = {}) => (goalId) => {
+    if (!ALLOWED_GOALS.has(goalId) || !canTrack()) return false;
     try {
-        window.ym(METRICA_COUNTER_ID, 'reachGoal', goalId);
+        send(METRICA_COUNTER_ID, 'reachGoal', goalId);
         return true;
     } catch {
         return false;
     }
 };
 
+export const trackMetricaGoal = createMetricaGoalTracker();
+
 export const classifyLinkGoal = (href, currentUrl = window.location.href) => {
     if (!href) return null;
-    if (/^tel:/i.test(href)) return METRICA_GOALS.PHONE_CLICK;
-    if (/^mailto:/i.test(href)) return METRICA_GOALS.EMAIL_CLICK;
+    // Телефон, email и формы уже покрываются автоматическими целями Метрики.
+    // Не отправляем для них ручные цели, чтобы не плодить дубли в отчётах.
+    if (/^(?:tel|mailto):/i.test(href)) return null;
 
     let url;
     try {
@@ -37,7 +44,7 @@ export const classifyLinkGoal = (href, currentUrl = window.location.href) => {
 
     const current = new URL(currentUrl);
     if (url.protocol.match(/^https?:$/) && url.origin !== current.origin) {
-        return METRICA_GOALS.EXTERNAL_LINK_CLICK;
+        return METRICA_GOALS.EXTERNAL_CLICK;
     }
     return null;
 };

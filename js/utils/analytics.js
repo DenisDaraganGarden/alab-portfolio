@@ -3,6 +3,16 @@ const SESSION_KEY = 'alab_session_id';
 const SESSION_STARTED_KEY = 'alab_session_started_at';
 const SESSION_TTL = 30 * 60 * 1000;
 
+export const sanitizeAnalyticsUrl = (value, baseUrl) => {
+    try {
+        const url = new URL(value, baseUrl);
+        if (!['http:', 'https:'].includes(url.protocol)) return '';
+        return `${url.origin}${url.pathname}`;
+    } catch {
+        return '';
+    }
+};
+
 const randomId = (prefix) => {
     if (window.crypto?.randomUUID) return `${prefix}_${window.crypto.randomUUID()}`;
     return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
@@ -75,15 +85,6 @@ const detectOs = () => {
     return 'unknown';
 };
 
-const utmPayload = () => {
-    const params = new URLSearchParams(window.location.search);
-    return {
-        source: params.get('utm_source') || undefined,
-        medium: params.get('utm_medium') || undefined,
-        campaign: params.get('utm_campaign') || undefined
-    };
-};
-
 export const initAnalytics = () => {
     if (navigator.doNotTrack === '1' || window.doNotTrack === '1') return;
 
@@ -95,15 +96,14 @@ export const initAnalytics = () => {
     const sessionId = getSessionId();
     const startedAt = Date.now();
     const viewedSections = new Set();
-    let lastPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    let lastPath = window.location.pathname;
 
     const basePayload = () => ({
         visitorId,
         sessionId,
-        url: window.location.href,
-        path: `${window.location.pathname}${window.location.search}${window.location.hash}`,
-        title: document.title,
-        referrer: document.referrer || '',
+        url: sanitizeAnalyticsUrl(window.location.href, window.location.href),
+        path: window.location.pathname,
+        referrer: sanitizeAnalyticsUrl(document.referrer, window.location.href),
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         language: navigator.language,
         device: detectDevice(),
@@ -112,8 +112,7 @@ export const initAnalytics = () => {
         viewport: `${window.innerWidth}x${window.innerHeight}`,
         screen: `${window.screen?.width || 0}x${window.screen?.height || 0}`,
         dpr: window.devicePixelRatio || 1,
-        connection: navigator.connection?.effectiveType || '',
-        ...utmPayload()
+        connection: navigator.connection?.effectiveType || ''
     });
 
     const send = (type, extra = {}) => {
@@ -140,14 +139,14 @@ export const initAnalytics = () => {
     };
 
     const trackPageview = () => {
-        lastPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+        lastPath = window.location.pathname;
         send('pageview');
     };
 
     trackPageview();
 
     const trackIfPathChanged = () => {
-        const nextPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+        const nextPath = window.location.pathname;
         if (nextPath !== lastPath) trackPageview();
     };
 
@@ -175,7 +174,7 @@ export const initAnalytics = () => {
         if (!/^https?:\/\//i.test(href)) return;
         const url = new URL(href, window.location.href);
         if (url.hostname === window.location.hostname) return;
-        send('outbound_click', { metadata: { href: url.href, text: link.textContent.trim().slice(0, 120) } });
+        send('outbound_click');
     }, { capture: true });
 
     // Троттлинг: событие уходило на КАЖДОЕ переключение вкладки, и одна

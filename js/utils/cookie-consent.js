@@ -1,7 +1,8 @@
 const CONSENT_STORAGE_KEY = 'alab_cookie_consent';
 const CONSENT_TTL_MS = 365 * 24 * 60 * 60 * 1000;
 const CONSENT_FUTURE_TOLERANCE_MS = 5 * 60 * 1000;
-const METRICA_ID = 108408263;
+export const YANDEX_METRIKA_ID = 108408263;
+const METRICA_ID = YANDEX_METRIKA_ID;
 const METRICA_SCRIPT_URL = `https://mc.yandex.ru/metrika/tag.js?id=${METRICA_ID}`;
 const METRICA_ENABLED = Boolean(
     import.meta.env && import.meta.env.VITE_YANDEX_METRIKA_ENABLED === 'true'
@@ -49,6 +50,23 @@ const notifyConsent = (status) => {
 export const hasAnalyticsConsent = () => parseStoredConsent()?.status === 'accepted';
 export const isYandexMetricaEnabled = () => METRICA_ENABLED;
 
+export const sanitizeMetricaUrl = (value, baseUrl) => {
+    try {
+        const url = new URL(value, baseUrl);
+        if (!['http:', 'https:'].includes(url.protocol)) return '';
+        return `${url.origin}${url.pathname}`;
+    } catch {
+        return '';
+    }
+};
+
+export const canTrackYandexMetrica = () => Boolean(
+    METRICA_ENABLED
+    && hasAnalyticsConsent()
+    && ['loading', 'started'].includes(metricaState)
+    && typeof window.ym === 'function'
+);
+
 export const loadYandexMetrica = () => {
     if (!METRICA_ENABLED || metricaState !== 'idle' || !hasAnalyticsConsent()) return;
     metricaState = 'loading';
@@ -59,10 +77,18 @@ export const loadYandexMetrica = () => {
     window.ym.l = window.ym.l || Date.now();
     window.ym(METRICA_ID, 'init', {
         clickmap: true,
-        trackLinks: true,
+        trackLinks: false,
         accurateTrackBounce: true,
-        webvisor: true
+        webvisor: true,
+        defer: true,
+        sendTitle: false
     });
+
+    const safePageUrl = sanitizeMetricaUrl(window.location.href, window.location.href);
+    const safeReferrer = sanitizeMetricaUrl(document.referrer, window.location.href);
+    if (safePageUrl) {
+        window.ym(METRICA_ID, 'hit', safePageUrl, safeReferrer ? { referer: safeReferrer } : {});
+    }
 
     const existingScript = document.querySelector(`script[src="${METRICA_SCRIPT_URL}"]`);
     if (existingScript) {
